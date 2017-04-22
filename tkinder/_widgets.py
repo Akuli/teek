@@ -72,7 +72,9 @@ class ChildMixin:
     def pack(self, **kwargs):
         args = ['pack', self.path]
         for name, value in kwargs.items():
-            args.append('-' + name)
+            if isinstance(value, Widget):
+                value = value.path
+            args.append('-' + name.rstrip('_'))
             args.append(value)
         tkinder.tk.call(*args)
 

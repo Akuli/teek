@@ -111,20 +111,24 @@ class _Config:
         except _tkinter.TclError as error:
             raise AttributeError(str(error)) from None
 
+    # dict() uses this
     def __iter__(self):
-        # this doesn't add a '_' because things like setattr() and
-        # getattr() work without it too
-        for option, (setter, getter) in self._special_options.items():
-            yield option, getter()
+        options = set(self._special_options.keys())
         for option, *junk in tkinder.tk.call(self._widget.path, 'config'):
-            yield option.lstrip('-'), self._get(option.lstrip('-'))
+            options.add(option.lstrip('-'))
+
+        for option in sorted(options):
+            try:
+                yield option, self._get(option)
+            except _tkinter.TclError:
+                # the option isn't available
+                pass
 
     def __dir__(self):
         result = []
         for option, value in self:
             if keyword.iskeyword(option):
-                # this appends '_' because dir() is meant to be used for
-                # debuggy things
+                # this appends _ because dir() is used for autocompleting
                 option += '_'
             result.append(option)
 
