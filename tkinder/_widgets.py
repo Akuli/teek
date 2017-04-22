@@ -1,3 +1,5 @@
+import _tkinter
+
 import tkinder
 from tkinder import _mainloop, structures
 

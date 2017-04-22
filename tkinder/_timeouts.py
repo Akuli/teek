@@ -1,9 +1,7 @@
-import functools
 import traceback
-import _tkinter
 
 import tkinder
-from tkinder import _mainloop, _utils
+from tkinder import _mainloop
 
 
 class Timeout:
