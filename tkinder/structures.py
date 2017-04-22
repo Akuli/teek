@@ -1,7 +1,61 @@
 import keyword
+import sys
+import traceback
 import _tkinter
 
-from . import _mainloop
+import tkinder
+from tkinder import _utils
+
+
+class Callback:
+    """An object that calls multiple functions.
+
+    >>> c = Callback()
+    >>> c.connect(print, "hello")
+    >>> c.connect(print, "hello", "again")
+    >>> c.run("world")      # usually tkinder does this
+    hello world
+    hello again world
+    """
+
+    def __init__(self):
+        self._connections = []
+
+    def connect(self, function, *extra_args):
+        # -1 is this method so -2 is what called this
+        stack_info = traceback.format_stack()[-2]
+        self._connections.append((function, extra_args, stack_info))
+
+    def disconnect(self, function):
+        for index, infotuple in enumerate(self._connections):
+            # can't use is because python makes up method objects dynamically:
+            #   >>> class Thing:
+            #   ...   def stuff(): pass
+            #   ...
+            #   >>> t = Thing()
+            #   >>> t.stuff is t.stuff
+            #   False
+            #   >>> t.stuff == t.stuff
+            #   True
+            if infotuple[0] == function:
+                del self._connections[index]
+                return
+        raise ValueError("not connected: %r" % (function,))
+
+    def run(self, *args):
+        for func, extra_args, stack_info in self._connections:
+            try:
+                func(*(extra_args + args))
+            except SystemExit as e:
+                # this doesn't actually exit python, but it's a handy
+                # way to end the main loop :)
+                if not (isinstance(e.code, int) or e.code is None):
+                    print(e.code, file=sys.stderr)
+                tkinder.quit()
+                break
+            except Exception:
+                _utils.print_callback_traceback(stack_info)
+                break
 
 
 class _Config:
@@ -31,13 +85,13 @@ class _Config:
             setter, getter = self._special_options[option]
             setter(value)
         else:
-            _mainloop.tk.call(self._widget.path, 'config', '-' + option, value)
+            tkinder.tk.call(self._widget.path, 'config', '-' + option, value)
 
     def _get(self, option):
         if option in self._special_options:
             setter, getter = self._special_options[option]
             return getter()
-        return _mainloop.tk.call(self._widget.path, 'cget', '-' + option)
+        return tkinder.tk.call(self._widget.path, 'cget', '-' + option)
 
     def __setattr__(self, option, value):
         if option.startswith('_'):
@@ -62,7 +116,7 @@ class _Config:
         # getattr() work without it too
         for option, (setter, getter) in self._special_options.items():
             yield option, getter()
-        for option, *junk in _mainloop.tk.call(self._widget.path, 'config'):
+        for option, *junk in tkinder.tk.call(self._widget.path, 'config'):
             yield option.lstrip('-'), self._get(option.lstrip('-'))
 
     def __dir__(self):
@@ -85,52 +139,6 @@ class _Config:
             self._set(option, value)
 
 
-class Callback:
-    """An object that calls multiple functions.
-
-    >>> c = Callback()
-    >>> c.connect(print, "hello")
-    >>> c.connect(print, "hello", "again")
-    >>> c.run("world")      # usually tkinder does this part
-    hello world
-    hello again world
-    """
-
-    def __init__(self):
-        self._connections = []
-
-    def connect(self, function, *extra_args):
-        # -1 is this method so -2 is what called this
-        stack_info = traceback.format_stack()[-2]
-        self._connections.append((function, extra_args, stack_info))
-
-    def disconnect(self, function):
-        for index, infotuple in self._connections:
-            # can't use is because python makes up method objects dynamically:
-            #   >>> class Thing:
-            #   ...   def stuff(): pass
-            #   ... 
-            #   >>> t = Thing()
-            #   >>> t.stuff is t.stuff
-            #   False
-            #   >>> 
-            if infotuple[-1] == function:
-                del self._connections[index]
-                return
-        raise ValueError("not connected: %r" % (function,))
-
-    def run(self, *args):
-        for func, extra_args, stack_info in self._connections:
-            try:
-                func(*(extra_args + args))
-            except SystemExit as e:
-                # unfortunately this doesn't actually exit python, but
-                # it's a handy way to end the main loop :)
-                if not (isinstance(e.code, int) or e.code is None):
-                    print(e.code, file=sys.stderr)
-                _mainloop.quit()
-                break
-            except Exception:
-                # display also the connect() call, but run other callbacks
-                traceback_blabla, rest = traceback.format_exc().split('\n', 1)
-                sys.stderr.write(traceback_blabla + '\n' + stack_info + rest)
+if __name__ == '__main__':
+    import doctest
+    print(doctest.testmod())

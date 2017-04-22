@@ -1,57 +1,79 @@
-import collections.abc
+import collections
 import functools
 import itertools
 import sys
+import traceback
 import _tkinter
 
+import tkinder
+from tkinder import structures
 
-tk = None
+on_quit = structures.Callback()
+
 counts = collections.defaultdict(itertools.count)
-_callback_cache = {}     # {function: name}, see register_callback()
+on_quit.connect(counts.clear)
 
 
 def init():
     # this stuff isn't thread-safe, but it doesn't need to be
-    global tk
-    if tk is not None:
+    if tkinder.tk is not None:
         raise RuntimeError("call quit() before calling init() again")
 
-    tk = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
-    tk.call('wm', 'withdraw', '.')     # try to abstract it away
+    tkinder.tk = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
+    tkinder.tk.call('wm', 'withdraw', '.')     # try to abstract it away
 
 
 def requires_init(function):
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        if tk is None:
-            raise RuntimeError("%s.init() wasn't called" % __name__)
+        if tkinder.tk is None:
+            raise RuntimeError("tkinder.init() wasn't called")
         return function(*args, **kwargs)
     return wrapper
 
 
 @requires_init
 def mainloop():
-    tk.mainloop(0)
+    tkinder.tk.mainloop(0)
 
 
 def quit():
-    global tk
-    if tk is not None:
-        counts.clear()
-        _callback_cache.clear()
-        tk.call('destroy', '.')
-        tk = None
+    if tkinder.tk is not None:
+        on_quit.run()
+        tkinder.tk.call('destroy', '.')
+        tkinder.tk = None
 
 
-def register_callback(func):
+_command_cache = {}     # {function: name}
+on_quit.connect(_command_cache.clear)
+
+
+def create_command(func, stack_info=None):
+    """Create a Tcl command that runs ``func()`` and return its name.
+
+    If the function raises an exception and *stack_info* is set, it will
+    be printed in the beginning of the traceback. Use
+    :func:`traceback.format_stack` to get a *stack_info* string.
+    """
     try:
-        if func in _callback_cache:
-            return _callback_cache[func]
-    except TypeError:
-        # it's not hashable, so we need to register a new function every
-        # time :(
+        return _command_cache[(func, stack_info)]
+    except (KeyError, TypeError):
+        # if we got a TypeError, func isn't hashable so we need to add a
+        # new command every time :( fortunately it doesn't happen often
         pass
 
-    name = 'tkinder_callback_%d' % next(counts['callbacks'])
-    tk.createcommand(name, func)
+    def real_func():
+        try:
+            func()
+        except Exception:
+            if stack_info is None:
+                traceback.print_exc()
+            else:
+                traceback_blabla, rest = traceback.format_exc().split('\n', 1)
+                print(traceback_blabla, file=sys.stderr)
+                print(stack_info + rest, end='', file=sys.stderr)
+
+    name = 'tkinder_command_%d' % next(counts['commands'])
+    tkinder.tk.createcommand(name, real_func)
+    _command_cache[(func, stack_info)] = name
     return name
