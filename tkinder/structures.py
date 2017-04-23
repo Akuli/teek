@@ -78,19 +78,22 @@ class _Config:
 
     def __init__(self, widget):
         self._widget = widget
-        self._special_options = {}
+        self._disabled = {}   # {name: replacement}
+
+    def _check_disabled(self, option):
+        if option in self._disabled:
+            # this raises TclError because other methods catch it
+            msg = "the %r option is not supported" % option
+            if self._disabled[option] is not None:
+                msg += ", use %s instead" % self._disabled[option]
+            raise _tkinter.TclError(msg)
 
     def _set(self, option, value):
-        if option in self._special_options:
-            setter, getter = self._special_options[option]
-            setter(value)
-        else:
-            tkinder.tk.call(self._widget.path, 'config', '-' + option, value)
+        self._check_disabled(option)
+        tkinder.tk.call(self._widget.path, 'config', '-' + option, value)
 
     def _get(self, option):
-        if option in self._special_options:
-            setter, getter = self._special_options[option]
-            return getter()
+        self._check_disabled(option)
         return tkinder.tk.call(self._widget.path, 'cget', '-' + option)
 
     def __setattr__(self, option, value):
@@ -113,7 +116,7 @@ class _Config:
 
     # dict() uses this
     def __iter__(self):
-        options = set(self._special_options.keys())
+        options = set()
         for option, *junk in tkinder.tk.call(self._widget.path, 'config'):
             options.add(option.lstrip('-'))
 

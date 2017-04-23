@@ -1,3 +1,4 @@
+import collections.abc as abcoll
 import _tkinter
 
 import tkinder
@@ -98,17 +99,27 @@ class Window(Widget):
 
     def __init__(self, title="Tkinder Window", **kwargs):
         super().__init__('toplevel', **kwargs)
-        self.config._special_options['title'] = (
-            lambda title: tkinder.tk.call('wm', 'title', self.path, title),
-            lambda: tkinder.tk.call('wm', 'title', self.path),
-        )
-        self.config.title = title
+        self.title = title
         self.on_close = structures.Callback()
         tkinder.tk.call('wm', 'protocol', self.path, 'WM_DELETE_WINDOW',
                         _mainloop.create_command(self.on_close.run))
 
     def _repr_parts(self):
-        return ['title=' + repr(self.config.title)]
+        return ['title=' + repr(self.title)]
+
+    @property
+    def title(self):
+        return tkinder.tk.call('wm', 'title', self.path)
+
+    @title.setter
+    def title(self, new_title):
+        tkinder.tk.call('wm', 'title', self.path, new_title)
+
+
+class Frame(ChildMixin, Widget):
+
+    def __init__(self, **kwargs):
+        super().__init__('frame', **kwargs)
 
 
 class Label(ChildMixin, Widget):
@@ -128,14 +139,156 @@ class Button(ChildMixin, Widget):
         self.config.command = _mainloop.create_command(self.on_click.run)
         if command is not None:
             self.on_click.connect(command)
-
-        self.config._special_options['command'] = (
-            self._command_error, self._command_error)
-
-    def _command_error(self, junk=None):
-        # Callback catches TclError so we'll raise it here
-        raise _tkinter.TclError("the 'command' option is not supported, "
-                                "use the on_click callback instead")
+        self.config._disabled['command'] = "the on_click callback"
 
     def _repr_parts(self):
         return ['text=' + repr(self.config.text)]
+
+
+class _SelectedIndexesView(abcoll.MutableSet):
+    """A set-like view of currently selected indexes.
+
+    Negative and out-of-range indexes are not allowed.
+    """
+
+    def __init__(self, listbox):
+        self._listbox = listbox
+
+    def __repr__(self):
+        return '<Listbox selected_indexes view: %s>' % repr(set(self))
+
+    def __iter__(self):
+        return iter(tkinder.tk.call(self._listbox.path, 'curselection'))
+
+    def __len__(self):
+        return len(tkinder.tk.call(self._listbox.path, 'curselection'))
+
+    def __contains__(self, index):
+        return bool(tkinder.tk.call(
+            self._listbox.path, 'selection', 'includes', index))
+
+    def add(self, index):
+        """Select an index in the listbox if it's not currently selected."""
+        if index not in range(len(self._listbox)):
+            raise ValueError("listbox index %r out of range" % (index,))
+        tkinder.tk.call(self._listbox.path, 'selection', 'set', index)
+
+    def discard(self, index):
+        """Unselect an index in the listbox if it's currently selected."""
+        if index not in range(len(self._listbox)):
+            raise ValueError("listbox index %r out of range" % (index,))
+        tkinder.tk.call(self._listbox.path, 'selection', 'clear', index)
+
+    # abcoll.MutableSet doesn't implement this :(
+    def update(self, items):
+        for item in items:
+            self.add(item)
+
+
+class _SelectedItemsView(abcoll.MutableSet):
+    """A view of currently selected items as strings.
+
+    The items are ordered. Iterating over the view yields the same
+    element more than once if it's in the listbox more than once.
+    """
+
+    def __init__(self, listbox, indexview):
+        self._listbox = listbox
+        self._indexview = indexview
+
+    def __repr__(self):
+        return '<Listbox selected_items view: %s>' % repr(set(self))
+
+    # this is used when we need to get rid of duplicates anyway
+    def _to_set(self):
+        return {self._listbox[index] for index in self._indexview}
+
+    def __iter__(self):
+        return iter(self._to_set())
+
+    def __len__(self):
+        return len(self._to_set())
+
+    def __contains__(self, item):
+        return item in self._to_set()
+
+    def add(self, item):
+        """Select all items equal to *item* in the listbox."""
+        # sequence.index only returns first matching index :(
+        for index, item2 in enumerate(self._listbox):
+            if item == item2:
+                self._indexview.add(index)
+
+    def discard(self, item):
+        """Unselect all items equal to *item* in the listbox."""
+        for index, item2 in enumerate(self._listbox):
+            if item == item2:
+                self._indexview.discard(index)
+
+
+class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
+
+    def __init__(self, parent, *, multiple=False, **kwargs):
+        super().__init__('listbox', parent, **kwargs)
+        self.selected_indexes = _SelectedIndexesView(self)
+        self.selected_items = _SelectedItemsView(self, self.selected_indexes)
+
+    def __len__(self):
+        return tkinder.tk.call(self.path, 'index', 'end')
+
+    def _fix_index(self, index):
+        if index < 0:
+            index += len(self)
+        if index not in range(len(self)):
+            raise IndexError("listbox index %d out of range" % index)
+        return index
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return [self[i] for i in range(*index.indices(len(self)))]
+        return tkinder.tk.call(self.path, 'get', self._fix_index(index))
+
+    def __delitem__(self, index):
+        if isinstance(index, slice):
+            # these need to be deleted in reverse because deleting
+            # something changes all indexes after it
+            indexes = list(range(*index.indices(len(self))))
+            indexes.sort(reverse=True)
+            for i in indexes:
+                del self[i]
+
+        tkinder.tk.call(self.path, 'delete', self._fix_index(index))
+
+    def __setitem__(self, index, item):
+        if isinstance(index, slice):
+            # this is harder than you might think
+            #   >>> stuff = ['a', 'b', 'c', 'd', 'e']
+            #   >>> stuff[4:2] = ['x', 'y', 'z']
+            #   >>> stuff
+            #   ['a', 'b', 'c', 'd', 'x', 'y', 'z', 'e']
+            #   >>> 
+            # that's slicing with step 1, now imagine step -2
+            raise TypeError("assigning to slices is not supported")
+
+        if self[index] == item:
+            # shortcut
+            return
+
+        index = self._fix_index(index)
+        was_selected = (index in self.selected_indexes)
+        del self[index]
+        self.insert(index, item)
+        if was_selected:
+            self.selected_indexes.add(index)
+
+    def insert(self, index, item):
+        # this doesn't use _fix_index() because this must handle out of
+        # range indexes differently, like list.insert does
+        if index > len(self):
+            index = len(self)
+        if index < -len(self):
+            index = -len(self)
+        if index < 0:
+            index += len(self)
+        assert 0 <= index <= len(self)
+        tkinder.tk.call(self.path, 'insert', index, item)
