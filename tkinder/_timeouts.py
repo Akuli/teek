@@ -1,60 +1,62 @@
 import traceback
 
-import tkinder
-from tkinder import _mainloop
+from tkinder._mainloop import call, create_command
+
+# there's no after_info because i don't see how it would be useful in
+# tkinder
 
 
-class Timeout:
+class _Timeout:
 
-    def __init__(self, after_what, callback, args, stack_info):
+    def __init__(self, after_what, callback, args, kwargs, stack_info):
+        if kwargs is None:
+            kwargs = {}
+
         self._callback = callback
         self._args = args
-        callback_id = _mainloop.create_command(self._run, stack_info)
-        self._id = tkinder.tk.call('after', after_what, callback_id)
+        self._kwargs = kwargs
+
         self._state = 'pending'   # just for __repr__ and error messages
+        tcl_command = create_command(self._run, stack_info=stack_info)
+        self._id = call(str, 'after', after_what, tcl_command)
 
     def __repr__(self):
         name = getattr(self._callback, '__name__', self._callback)
-        return '<%s %r timeout at 0x%x>' % (self._state, name, id(self))
+        return '<%s %r timeout %r>' % (self._state, name, self._id)
 
     def _run(self):
         try:
-            self._callback(*self._args)
+            self._callback(*self._args, **self._kwargs)
             self._state = 'successfully completed'
         except Exception as e:
             self._state = 'failed'
             raise e
-        except BaseException as e:
-            # this is probably intended so let's guess that it succeeded
-            self._state = 'successfully completed'
-            raise e
 
     def cancel(self):
-        """Stop running this timeout."""
+        """Prevent this timeout from running as scheduled.
+
+        :exc:`RuntimeError` is raised if the timeout has already ran or
+        it has been cancelled.
+        """
         if self._state != 'pending':
             raise RuntimeError("cannot cancel a %s timeout" % self._state)
-        tkinder.tk.call('after', 'cancel', self._id)
+        call(None, 'after', 'cancel', self._id)
         self._state = 'cancelled'
 
 
-@_mainloop.requires_init
-def after(milliseconds, callback, *args):
-    """Run ``callback(*args)`` after waiting.
+def after(ms, callback, args=(), kwargs=None):
+    """Run ``callback(*args, **kwargs)`` after waiting for the given time.
 
-    This returns an object that has a ``cancel()`` method.
+    The *ms* argument should be a waiting time in milliseconds, and
+    *kwargs* defaults to ``{}``. This returns a timeout object with a
+    ``cancel()`` method that takes no arguments; you can use that to
+    cancel the timeout before it runs.
     """
     stack_info = traceback.format_stack()[-2]
-    return Timeout(milliseconds, callback, args, stack_info)
+    return _Timeout(ms, callback, args, kwargs, stack_info)
 
 
-@_mainloop.requires_init
-def after_idle(callback, *args):
-    """Run ``callback(*args)`` when no more tasks are pending.
-
-    This returns an object that has a ``cancel()`` method.
-    """
-    # can't return after('idle', callback, *args) because this function
-    # would show up in stack_info instead of whatever called this, same
-    # thing with functools.partial
+def after_idle(callback, args=(), kwargs=None):
+    """Like :func:`after`, but runs the timeout as soon as possible."""
     stack_info = traceback.format_stack()[-2]
-    return Timeout('idle', callback, args, stack_info)
+    return _Timeout('idle', callback, args, kwargs, stack_info)

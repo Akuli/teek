@@ -1,15 +1,15 @@
 # flake8: noqa
 
-# this will be a _tkinter tkapp object, _mainloop.init() sets it but
-# it's exposed here
-tk = None
-
 import sys as _sys
 
 # tkinter's __init__.py does this
-if _sys.platform.startswith("win32"):
+if _sys.platform.startswith("win32"):     # pragma: no cover
     from tkinter import _fix
 
-from tkinder._mainloop import init, mainloop, quit
+from _tkinter import TclError
+from tkinder._structures import Callback
+from tkinder._mainloop import (
+    call, eval, create_command, delete_command, run, quit, on_quit)
 from tkinder._timeouts import after, after_idle
-from tkinder._widgets import Window, Label, Button, Listbox
+from tkinder._misc import update      # TODO: move this to _timeouts?
+from tkinder._widgets import Widget, Window, Label, Button, Frame#,Listbox

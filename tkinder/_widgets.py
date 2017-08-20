@@ -1,150 +1,406 @@
-import collections.abc as abcoll
-import _tkinter
+import collections.abc
+import functools
+import keyword
+import re
+from _tkinter import TclError
 
 import tkinder
-from tkinder import _mainloop, structures
+from tkinder import _mainloop, _structures
 
 _widgets = {}
 _mainloop.on_quit.connect(_widgets.clear)
 
 
-class Widget:
-    """A base class for all widgets."""
+# make things more tkinter-user-friendly
+def _tkinter_hint(good, bad):
+    def dont_use_this(self, *args, **kwargs):
+        raise TypeError("use %s, not %s" % (good, bad))
 
-    @_mainloop.requires_init
-    def __init__(self, widgetname, parent=None, **kwargs):
+    return dont_use_this
+
+
+class _ConfigDict(collections.abc.MutableMapping):
+
+    def __init__(self, widget):
+        self._widget = widget
+        self._types = {}      # {option: argument for run}  str is default
+        self._disabled = {}   # {option: instruction string}
+
+    def __repr__(self):
+        return '<config of %r, behaves like a dict>' % self._widget.widget_path
+
+    __call__ = _tkinter_hint("widget.config['option'] = value",
+                             "widget.config(option=value)")
+
+    def _check_option(self, option):
+        # by default, e.g. -tex would be equivalent to -text, but that's
+        # disabled to make lookups in self._types and self._disabled
+        # easier
+        if option in self._disabled:
+            raise ValueError("the %r option is not supported, %s instead"
+                             % (option, self._disabled[option]))
+        if option not in self:
+            raise KeyError(option)
+
+    def __setitem__(self, option, value):
+        self._check_option(option)
+        self._widget._call(None, self._widget, 'configure',
+                           '-' + option, value)
+
+    def __getitem__(self, option):
+        self._check_option(option)
+        returntype = self._types.get(option, str)
+        return self._widget._call(returntype, self._widget,
+                                  'cget', '-' + option)
+
+    def __delitem__(self, option):
+        raise TypeError("options cannot be deleted")
+
+    # __getitem__ uses _check_option and _check_option uses this
+    def __contains__(self, option):
+        if option in self._disabled:
+            return False
+
+        # [[str]] is a 2d list of strings
+        lists = self._widget._call([[str]], self._widget, 'configure')
+        return option in (info[0].lstrip('-') for info in lists)
+
+    def __iter__(self):
+        for info in self._widget._call([[str]], self._widget, 'configure'):
+            option = info[0].lstrip('-')
+            if option not in self._disabled:
+                yield option
+
+    def __len__(self):
+        options = self._widget._call([[str]], self._widget, 'configure')
+        return len(options) - len(self._disabled)
+
+
+class Widget:
+    """A base class for all widgets.
+
+    All widgets inherit from this class, and thus have all attributes
+    and methods that this class has.
+
+    You shouldn't create instances of this yourself, but you can use
+    this class with :func:`isinstance`.
+
+    .. attribute:: config
+
+        A dict-like object that represents the widget's options.
+        ::
+
+            label = tk.Label(parent, text='Hello World')
+            label.config['text'] = 'New Text'
+            print(label.config['text'])
+            label.config.update({'text': 'Even newer text'})
+
+            # this prints all options nicely
+            import pprint
+            pprint.pprint(dict(label.config))
+    """
+
+    def __init__(self, widgetname, parent, **options):
         if parent is None:
             parentpath = ''
         else:
-            parentpath = parent.path
+            parentpath = parent.widget_path
         self.parent = parent
 
         counter = _mainloop.counts[widgetname]
-        self.path = parentpath + '.' + widgetname + str(next(counter))
-        tkinder.tk.call(widgetname, self.path)
-        _widgets[self.path] = self
+        self.widget_path = '%s.%s%d' % (parentpath, widgetname, next(counter))
 
-        self.config = structures._Config(self)
-        if kwargs:
-            self.config(**kwargs)
+        # TODO: some config options can only be given when the widget is
+        # created, add support for them
+        self._call(None, widgetname, self.widget_path)
+        _widgets[self.widget_path] = self
 
-    def __repr__(self):
-        if self.destroyed:
-            # _repr_parts() doesn't need to work with destroyed widgets
-            prefix = 'destroyed ' + self._repr_prefix()
-            parts = None
-        else:
-            prefix = self._repr_prefix()
-            parts = self._repr_parts()
+        self.config = _ConfigDict(self)
+        self._init_config()
+        self.config.update(options)
 
-        if parts is None:
-            return '<{} at 0x{:x}>'.format(prefix, id(self))
-        return '<' + ', '.join([prefix] + parts) + '>'
+    # subclasses may override this
+    def _init_config(self):
+        self.config._types['bd'] = self.config._types['borderwidth'] = int
+        self.config._types['menu'] = Widget  # Menu is defined in another file
+
+        for option in self.config:
+            # this is lel
+            if (option in {'fg', 'bg'} or
+                    option.endswith(('foreground', 'background', 'color'))):
+                self.config._types[option] = 'color'
 
     @classmethod
-    def _repr_prefix(cls):
-        if cls.__module__ == '__name__':
-            # we don't set __module__ to 'tkinder' because it screws up
+    def from_widget_path(cls, path_string):
+        if path_string == '.':
+            # this kind of sucks, i might make a _RootWindow class later
+            return None
+
+        result = _widgets[path_string]
+        if not isinstance(result, cls):
+            raise TypeError("%r is a %s, not a %s" % (
+                path_string, type(result).__name__, cls.__name__))
+        return result
+
+    def __repr__(self):
+        if type(self).__module__ == __name__:
+            # __module__ isn't set to 'tkinder' because it screws up
             # inspect.getsource
-            return 'tkinder.' + cls.__name__
-        return cls.__module__ + '.' + cls.__name__
+            prefix = 'tkinder.' + type(self).__name__
+        else:
+            prefix = type(self).__module__ + '.' + type(self).__name__
+
+        if not self.winfo_exists():
+            # _repr_parts() doesn't need to work with destroyed widgets
+            return '<destroyed %s widget %r>' % (prefix, self.widget_path)
+
+        parts = ['%s widget %r' % (prefix, self.widget_path)] + self._repr_parts()
+        return '<%s>' % ', '.join(parts)
 
     def _repr_parts(self):
         # overrided in subclasses
-        return None
+        return []
+
+    __getitem__ = _tkinter_hint("widget.config['option']", "widget['option']")
+    __setitem__ = _tkinter_hint("widget.config['option']", "widget['option']")
+    cget = _tkinter_hint("widget.config['option']", "widget.cget('option')")
+    configure = _tkinter_hint("widget.config['option'] = value",
+                              "widget.configure(option=value)")
+
+    # like _mainloop.call, but with better error handling
+    def _call(self, *args, **kwargs):
+        try:
+            return _mainloop.call(*args, **kwargs)
+        except TclError as err:
+            if not self.winfo_exists():
+                raise RuntimeError("the widget has been destroyed") from None
+            raise err
 
     def destroy(self):
         """Delete this widget and all child widgets."""
-        for child in tkinder.tk.call('winfo', 'children', self.path):
-            _widgets[child].destroy()
-        tkinder.tk.call('destroy', self.path)
-        del _widgets[self.path]
+        for name in self._call([str], 'winfo', 'children', self):
+            # allow overriding the destroy() method if the widget was
+            # created by tkinder
+            if name in _widgets:
+                _widgets[name].destroy()
+            else:
+                self._call(None, 'destroy', name)
 
-    @property
-    def destroyed(self):
-        """Check if :meth:`~destroy` has been called."""
-        # can't just check if self.path is in the widget dict because
-        # another widget with the same path might exist
-        return (_widgets.get(self.path, None) is not self)
+        self._call(None, 'destroy', self)
+        del _widgets[self.widget_path]
+
+    def winfo_children(self):
+        return self._call([Widget], 'winfo', 'children', self)
+
+    def winfo_exists(self):
+        # self._run uses this, so this must not use that
+        return _mainloop.call(bool, 'winfo', 'exists', self)
+
+    def winfo_toplevel(self):
+        return self._call(Widget, 'winfo', 'toplevel', self)
 
 
-class ChildMixin:
+class _ChildMixin:
 
     def pack(self, **kwargs):
-        args = ['pack', self.path]
         for name, value in kwargs.items():
-            if isinstance(value, Widget):
-                value = value.path
-            args.append('-' + name.rstrip('_'))
+            args.append('-' + name.rstrip('_'))   # e.g. in_
             args.append(value)
-        tkinder.tk.call(*args)
+        self._call(None, 'pack', self.widget_path, *args)
 
     def pack_forget(self):
-        tkinder.tk.call('pack', 'forget', self.path)
+        self._call(None, 'pack', 'forget', self.widget_path)
 
     def pack_info(self):
-        stupid_tk_dict = tkinder.tk.call('pack', 'info', self.path)
+        # TODO: add some way to specify a separate type for each key
+        raw_result = self._call({str: str}, 'pack', 'info', self.widget_path)
         result = {}
 
-        # loop over it in pairs
-        iterator = iter(tkinder.tk.splitlist(stupid_tk_dict))
-        for option, value in zip(iterator, iterator):
-            result[option.lstrip('-')] = value
+        for key, value in raw_result.items():
+            if key in ('padx', 'pady', 'ipadx', 'ipady'):
+                result[key] = int(value)
+            elif key == 'expand':
+                result[key] = bool(int(value))
+            elif key == 'in':
+                result[key] = _widgets[value]
+            else:
+                result[key] = value
 
-        result['in'] = _widgets[str(result['in'])]
         return result
 
 
-class Window(Widget):
+def _handle_not_managed_error(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except TclError as e:
+            if str(e).endswith("isn't a top-level window"):
+                raise AttributeError(
+                    "the %r attribute can't be used now because %s"
+                    % (func.__name__, e)) from None
+            raise e
+    return wrapper
 
-    def __init__(self, title="Tkinder Window", **kwargs):
-        super().__init__('toplevel', **kwargs)
-        self.title = title
-        self.on_close = structures.Callback()
-        tkinder.tk.call('wm', 'protocol', self.path, 'WM_DELETE_WINDOW',
-                        _mainloop.create_command(self.on_close.run))
+
+Geometry = collections.namedtuple('Geometry', 'width height x y')
+
+
+class _WmMixin:
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.on_delete_window = _structures.Callback()
+        self.on_delete_window.connect(self.destroy)
+        self.on_take_focus = _structures.Callback()
+
+        if self.winfo_toplevel() is self:
+            self._init_wm_stuff()
+
+    def _init_wm_stuff(self):
+        self._call(None, 'wm', 'protocol', self.widget_path, 'WM_DELETE_WINDOW',
+                   _mainloop.create_command(self.on_delete_window.run))
+        self._call(None, 'wm', 'protocol', self.widget_path, 'WM_TAKE_FOCUS',
+                   _mainloop.create_command(self.on_take_focus.run))
+
+    _wm_managed_by_default = False
 
     def _repr_parts(self):
-        return ['title=' + repr(self.title)]
+        try:
+            result = ['title=' + repr(self.title)]
+            if self.state != 'normal':
+                result.append('state=' + repr(self.state))
+            if not self._wm_managed_by_default:
+                result.insert(0, 'managed by the WM')
+        except AttributeError:
+            # it's currently not managed by the wm
+            result = []
+            if self._wm_managed_by_default:
+                result.append('not managed by the WM')
+
+        return result
 
     @property
+    @_handle_not_managed_error
     def title(self):
-        return tkinder.tk.call('wm', 'title', self.path)
+        return self._call(str, 'wm', 'title', self)
 
     @title.setter
+    @_handle_not_managed_error
     def title(self, new_title):
-        tkinder.tk.call('wm', 'title', self.path, new_title)
+        self._call(None, 'wm', 'title', self, new_title)
+
+    @property
+    @_handle_not_managed_error
+    def state(self):
+        return self._call(str, 'wm', 'state', self)
+
+    @state.setter
+    @_handle_not_managed_error
+    def state(self, state):
+        self._call(None, 'wm', 'state', self, state)
+
+    def geometry(self, width=None, height=None, x=None, y=None):
+        """Set or get the size and place of the window in pixels.
+
+        This method can be called in a few different ways:
+
+            * If *width* and *height* are given, the window is resized.
+            * If *x* and *y* are given, the window is moved.
+            * If all arguments are given, the window is resized and moved.
+            * If no arguments are given, the current geometry is
+              returned as a namedtuple with *width*, *height*, *x* and
+              *y* fields.
+            * Calling this method otherwise raises an error.
+
+        Example::
+
+            >>> import tkinder as tk
+            >>> window = tk.Window()
+            >>> window.geometry(300, 200)       # resize to 300x200
+            >>> window.geometry(x=0, y=0)       # move to upper left corner
+            >>> window.geometry()               # doctest: +SKIP
+            Geometry(width=300, height=200, x=0, y=0)
+            >>> window.geometry().width         # doctest: +SKIP
+            300
+        """
+        if (width is None) ^ (height is None):
+            raise TypeError("specify both width and height, or neither")
+        if (x is None) ^ (y is None):
+            raise TypeError("specify both x and y, or neither")
+
+        if x is y is width is height is None:
+            string = self._call(str, 'wm', 'geometry', self)
+            match = re.search(r'^(\d+)x(\d+)\+(\d+)\+(\d+)$', string)
+            return Geometry(*map(int, match.groups()))
+
+        if x is y is None:
+            string = '%dx%d' % (width, height)
+        elif width is height is None:
+            string = '+%d+%d' % (x, y)
+        else:
+            string = '%dx%d+%d+%d' % (width, height, x, y)
+        self._call(None, 'wm', 'geometry', self, string)
+
+    def withdraw(self):
+        self._call(None, 'wm', 'withdraw', self)
+
+    def iconify(self):
+        self._call(None, 'wm', 'iconify', self)
+
+    def deiconify(self):
+        self._call(None, 'wm', 'deiconify', self)
+
+    def manage(self):
+        self._call(None, 'wm', 'manage', self)
+        self._init_wm_stuff()
+
+    def forget(self):
+        self._call(None, 'wm', 'forget', self)
 
 
-class Frame(ChildMixin, Widget):
+class Window(_WmMixin, Widget):
 
-    def __init__(self, **kwargs):
-        super().__init__('frame', **kwargs)
+    _wm_managed_by_default = True
+
+    # allow passing title as a positional argument
+    def __init__(self, title=None, **options):
+        super().__init__('toplevel', None, **options)
+        if title is not None:
+            self.title = title
 
 
-class Label(ChildMixin, Widget):
+class Frame(_ChildMixin, _WmMixin, Widget):
+
+    def __init__(self, parent, **options):
+        super().__init__('frame', parent, **options)
+
+
+class Label(_ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__('label', parent, text=text, **kwargs)
 
     def _repr_parts(self):
-        return ['text=' + repr(self.config.text)]
+        return ['text=' + repr(self.config['text'])]
 
 
-class Button(ChildMixin, Widget):
+class Button(_ChildMixin, Widget):
 
-    def __init__(self, parent, text='', *, command=None, **kwargs):
+    def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__('button', parent, text=text, **kwargs)
-        self.on_click = structures.Callback()
-        self.config.command = _mainloop.create_command(self.on_click.run)
+        self.on_click = _structures.Callback()
+        self.config['command'] = _mainloop.create_command(self.on_click.run)
+        self.config._disabled['command'] = ("use the on_click attribute " +
+                                            "or an initialization argument")
         if command is not None:
             self.on_click.connect(command)
-        self.config._disabled['command'] = "the on_click callback"
 
     def _repr_parts(self):
-        return ['text=' + repr(self.config.text)]
+        return ['text=' + repr(self.config['text'])]
 
 
+'''
 class _SelectedIndexesView(abcoll.MutableSet):
     """A set-like view of currently selected indexes.
 
@@ -158,26 +414,26 @@ class _SelectedIndexesView(abcoll.MutableSet):
         return '<Listbox selected_indexes view: %s>' % repr(set(self))
 
     def __iter__(self):
-        return iter(tkinder.tk.call(self._listbox.path, 'curselection'))
+        return iter(tkinder.tk.call(self._listbox.widget_path, 'curselection'))
 
     def __len__(self):
-        return len(tkinder.tk.call(self._listbox.path, 'curselection'))
+        return len(tkinder.tk.call(self._listbox.widget_path, 'curselection'))
 
     def __contains__(self, index):
         return bool(tkinder.tk.call(
-            self._listbox.path, 'selection', 'includes', index))
+            self._listbox.widget_path, 'selection', 'includes', index))
 
     def add(self, index):
         """Select an index in the listbox if it's not currently selected."""
         if index not in range(len(self._listbox)):
             raise ValueError("listbox index %r out of range" % (index,))
-        tkinder.tk.call(self._listbox.path, 'selection', 'set', index)
+        tkinder.tk.call(self._listbox.widget_path, 'selection', 'set', index)
 
     def discard(self, index):
         """Unselect an index in the listbox if it's currently selected."""
         if index not in range(len(self._listbox)):
             raise ValueError("listbox index %r out of range" % (index,))
-        tkinder.tk.call(self._listbox.path, 'selection', 'clear', index)
+        tkinder.tk.call(self._listbox.widget_path, 'selection', 'clear', index)
 
     # abcoll.MutableSet doesn't implement this :(
     def update(self, items):
@@ -226,7 +482,7 @@ class _SelectedItemsView(abcoll.MutableSet):
                 self._indexview.discard(index)
 
 
-class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
+class Listbox(_ChildMixin, Widget, abcoll.MutableSequence):
 
     def __init__(self, parent, *, multiple=False, **kwargs):
         super().__init__('listbox', parent, **kwargs)
@@ -234,7 +490,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
         self.selected_items = _SelectedItemsView(self, self.selected_indexes)
 
     def __len__(self):
-        return tkinder.tk.call(self.path, 'index', 'end')
+        return tkinder.tk.call(self.widget_path, 'index', 'end')
 
     def _fix_index(self, index):
         if index < 0:
@@ -246,7 +502,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
     def __getitem__(self, index):
         if isinstance(index, slice):
             return [self[i] for i in range(*index.indices(len(self)))]
-        return tkinder.tk.call(self.path, 'get', self._fix_index(index))
+        return tkinder.tk.call(self.widget_path, 'get', self._fix_index(index))
 
     def __delitem__(self, index):
         if isinstance(index, slice):
@@ -257,7 +513,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
             for i in indexes:
                 del self[i]
 
-        tkinder.tk.call(self.path, 'delete', self._fix_index(index))
+        tkinder.tk.call(self.widget_path, 'delete', self._fix_index(index))
 
     def __setitem__(self, index, item):
         if isinstance(index, slice):
@@ -291,4 +547,5 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
         if index < 0:
             index += len(self)
         assert 0 <= index <= len(self)
-        tkinder.tk.call(self.path, 'insert', index, item)
+        tkinder.tk.call(self.widget_path, 'insert', index, item)
+'''
