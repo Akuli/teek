@@ -203,6 +203,7 @@ class Widget:
 class _ChildMixin:
 
     def pack(self, **kwargs):
+        args = []
         for name, value in kwargs.items():
             args.append('-' + name.rstrip('_'))   # e.g. in_
             args.append(value)

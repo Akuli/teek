@@ -9,12 +9,11 @@ yourself, but it's nice and light-weight.
 ```python
 import tkinder as tk
 
-tk.init()
 window = tk.Window("Hello")
 label = tk.Label(window, "Hello World!")
 label.pack()
-window.on_close.connect(tk.quit)
-tk.mainloop()
+window.on_delete_window.connect(tk.quit)
+tk.run()
 ```
 
 That's it. Even people with no Tk experience understand how this code
