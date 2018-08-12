@@ -230,74 +230,46 @@ class _ChildMixin:
         return result
 
 
-def _handle_not_managed_error(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except TclError as e:
-            if str(e).endswith("isn't a top-level window"):
-                raise AttributeError(
-                    "the %r attribute can't be used now because %s"
-                    % (func.__name__, e)) from None
-            raise e
-    return wrapper
-
-
 Geometry = collections.namedtuple('Geometry', 'width height x y')
 
 
-class _WmMixin:
+class Window(Widget):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    # allow passing title as a positional argument
+    def __init__(self, title=None, **options):
+        super().__init__('toplevel', None, **options)
         self.on_delete_window = _structures.Callback()
         self.on_delete_window.connect(self.destroy)
         self.on_take_focus = _structures.Callback()
 
-        if self.winfo_toplevel() is self:
-            self._init_wm_stuff()
-
-    def _init_wm_stuff(self):
-        self._call(None, 'wm', 'protocol', self.widget_path, 'WM_DELETE_WINDOW',
-                   _mainloop.create_command(self.on_delete_window.run))
+        self._call(
+            None, 'wm', 'protocol', self.widget_path, 'WM_DELETE_WINDOW',
+            _mainloop.create_command(self.on_delete_window.run))
         self._call(None, 'wm', 'protocol', self.widget_path, 'WM_TAKE_FOCUS',
                    _mainloop.create_command(self.on_take_focus.run))
 
-    _wm_managed_by_default = False
+        if title is not None:
+            self.title = title
 
     def _repr_parts(self):
-        try:
-            result = ['title=' + repr(self.title)]
-            if self.state != 'normal':
-                result.append('state=' + repr(self.state))
-            if not self._wm_managed_by_default:
-                result.insert(0, 'managed by the WM')
-        except AttributeError:
-            # it's currently not managed by the wm
-            result = []
-            if self._wm_managed_by_default:
-                result.append('not managed by the WM')
-
+        result = ['title=' + repr(self.title)]
+        if self.state != 'normal':
+            result.append('state=' + repr(self.state))
         return result
 
     @property
-    @_handle_not_managed_error
     def title(self):
         return self._call(str, 'wm', 'title', self)
 
     @title.setter
-    @_handle_not_managed_error
     def title(self, new_title):
         self._call(None, 'wm', 'title', self, new_title)
 
     @property
-    @_handle_not_managed_error
     def state(self):
         return self._call(str, 'wm', 'state', self)
 
     @state.setter
-    @_handle_not_managed_error
     def state(self, state):
         self._call(None, 'wm', 'state', self, state)
 
@@ -352,26 +324,8 @@ class _WmMixin:
     def deiconify(self):
         self._call(None, 'wm', 'deiconify', self)
 
-    def manage(self):
-        self._call(None, 'wm', 'manage', self)
-        self._init_wm_stuff()
 
-    def forget(self):
-        self._call(None, 'wm', 'forget', self)
-
-
-class Window(_WmMixin, Widget):
-
-    _wm_managed_by_default = True
-
-    # allow passing title as a positional argument
-    def __init__(self, title=None, **options):
-        super().__init__('toplevel', None, **options)
-        if title is not None:
-            self.title = title
-
-
-class Frame(_ChildMixin, _WmMixin, Widget):
+class Frame(_ChildMixin, Widget):
 
     def __init__(self, parent, **options):
         super().__init__('frame', parent, **options)
@@ -523,7 +477,7 @@ class Listbox(_ChildMixin, Widget, abcoll.MutableSequence):
             #   >>> stuff[4:2] = ['x', 'y', 'z']
             #   >>> stuff
             #   ['a', 'b', 'c', 'd', 'x', 'y', 'z', 'e']
-            #   >>> 
+            #   >>>
             # that's slicing with step 1, now imagine step -2
             raise TypeError("assigning to slices is not supported")
 

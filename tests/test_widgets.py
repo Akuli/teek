@@ -61,78 +61,40 @@ def test_destroy():
     assert str(error.value) == 'the widget has been destroyed'
 
 
-def test_wm_mixin():
-    window = tk.Window("hello hello")
-    window2 = tk.Window()
-    frame = tk.Frame(window)
-    widgets = [
-        (frame, False, None),
-        (window, True, "hello hello"),     # must be after the frame
-        (window2, True, None),
+def test_window():
+    windows = [
+        (tk.Window("hello hello"), "hello hello"),
+        (tk.Window(), None),
     ]
 
-    for widget, managed_by_default, default_title in widgets:
-        if not managed_by_default:
-            assert 'title' not in repr(widget)
-
-            # these properties should turn TclError into AttributeError
-            # because it's weird if accessing an attribute raises
-            # something else than AttributeError
-            for attribute in ('title', 'state'):
-                for func, *args in [(getattr, widget, attribute),
-                                    (setattr, widget, attribute, 'blah')]:
-                    with pytest.raises(AttributeError) as error:
-                        func(*args)
-                    assert str(error.value).startswith(
-                        "the '%s' attribute can't be used now because "
-                        % attribute)
-
-            assert widget.winfo_toplevel() is not widget
-            assert 'managed by the WM' not in repr(widget)
-            widget.manage()
-            assert 'managed by the WM' in repr(widget)
-
-        assert widget.winfo_toplevel() is widget
+    for window, default_title in windows:
+        assert window.winfo_toplevel() is window
         tk.update()     # you can add more of these if the tests don't work
 
-        assert widget.state == 'normal'
+        assert window.state == 'normal'
         if default_title is not None:
-            assert widget.title == default_title, widget
-            assert repr(default_title) in repr(widget)
+            assert window.title == default_title
+            assert repr(default_title) in repr(window)
 
-        widget.title = "hello hello"
-        assert widget.title == "hello hello"
+        window.title = "hello hello"
+        assert window.title == "hello hello"
 
-        # this must be after the title stuff
-        if managed_by_default:
-            assert 'managed by the WM' not in repr(widget)
-            widget.forget()
-            assert 'not managed by the WM' in repr(widget)
-            widget.manage()
-            assert 'managed by the WM' not in repr(widget)
-
-        for method, state in [(widget.withdraw, 'withdrawn'),
-                              (widget.iconify, 'iconic')]:
+        for method, state in [(window.withdraw, 'withdrawn'),
+                              (window.iconify, 'iconic')]:
             method()
-            assert widget.state == state
-            assert ("state='%s'" % state) in repr(widget)
-            widget.deiconify()
-            assert widget.state == 'normal'
-            assert "state='normal'" not in repr(widget)
+            assert window.state == state
+            assert ("state='%s'" % state) in repr(window)
+            window.deiconify()
+            assert window.state == 'normal'
+            assert "state='normal'" not in repr(window)
 
-            widget.state = state        # should do same as method()
-            assert widget.state == state
-            widget.deiconify()
-            assert widget.state == 'normal'
+            window.state = state        # should do same as method()
+            assert window.state == state
+            window.deiconify()
+            assert window.state == 'normal'
 
-        widget.forget()
-        assert widget.winfo_toplevel() is not widget
-        with pytest.raises(tk.TclError):
-            widget.geometry()
-
-        # most of these were tested above, so no need to do it all again
-        with pytest.raises(AttributeError):
-            widget.title
+    not_a_window = tk.Frame(windows[0][0])
+    assert not hasattr(not_a_window, 'title')
 
 
 def test_geometry():

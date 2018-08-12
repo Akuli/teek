@@ -41,7 +41,7 @@ def _to_tcl(value):
         return tuple(map(_to_tcl, _flatten(value.items())))
     if isinstance(value, bool):
         return '1' if value else '0'
-    if isinstance(value, numbers.Real):
+    if isinstance(value, numbers.Real):    # after bool check, bools are ints
         return str(value)
 
     # assume it's some kind of iterable, this must be after the Mapping
@@ -185,7 +185,8 @@ def call(returntype, command, *arguments):
         ('hello', 3, 3.14)
         >>> call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
         [True, True, True, True, True, True]
-        >>> call({str: [int]}, 'dict', 'create', 'a', '1', 'b', '2')
+        >>> call({str: [int]}, 'dict', 'create', 'a', '1', 'b', '2')   \
+        # doctest: +SKIP
         {'a': [1], 'b': [2]}
         >>> call([str], 'list', 123, 3.14, None, 'hello')
         ['123', '3.14', '', 'hello']
