@@ -119,16 +119,8 @@ class Widget:
         self._init_config()
         self.config.update(options)
 
-    # subclasses may override this
     def _init_config(self):
-        self.config._types['bd'] = self.config._types['borderwidth'] = int
-        self.config._types['menu'] = Widget  # Menu is defined in another file
-
-        for option in self.config:
-            # this is lel
-            if (option in {'fg', 'bg'} or
-                    option.endswith(('foreground', 'background', 'color'))):
-                self.config._types[option] = 'color'
+        pass
 
     @classmethod
     def from_widget_path(cls, path_string):
@@ -233,23 +225,21 @@ class _ChildMixin:
 Geometry = collections.namedtuple('Geometry', 'width height x y')
 
 
-class Window(Widget):
+class _WmMixin:
 
-    # allow passing title as a positional argument
-    def __init__(self, title=None, **options):
-        super().__init__('toplevel', None, **options)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.on_delete_window = _structures.Callback()
         self.on_delete_window.connect(self.destroy)
         self.on_take_focus = _structures.Callback()
 
         self._call(
-            None, 'wm', 'protocol', self.widget_path, 'WM_DELETE_WINDOW',
+            None, 'wm', 'protocol', self._get_wm_widget(), 'WM_DELETE_WINDOW',
             _mainloop.create_command(self.on_delete_window.run))
-        self._call(None, 'wm', 'protocol', self.widget_path, 'WM_TAKE_FOCUS',
-                   _mainloop.create_command(self.on_take_focus.run))
-
-        if title is not None:
-            self.title = title
+        self._call(
+            None, 'wm', 'protocol', self._get_wm_widget(), 'WM_TAKE_FOCUS',
+            _mainloop.create_command(self.on_take_focus.run))
 
     def _repr_parts(self):
         result = ['title=' + repr(self.title)]
@@ -259,19 +249,19 @@ class Window(Widget):
 
     @property
     def title(self):
-        return self._call(str, 'wm', 'title', self)
+        return self._call(str, 'wm', 'title', self._get_wm_widget())
 
     @title.setter
     def title(self, new_title):
-        self._call(None, 'wm', 'title', self, new_title)
+        self._call(None, 'wm', 'title', self._get_wm_widget(), new_title)
 
     @property
     def state(self):
-        return self._call(str, 'wm', 'state', self)
+        return self._call(str, 'wm', 'state', self._get_wm_widget())
 
     @state.setter
     def state(self, state):
-        self._call(None, 'wm', 'state', self, state)
+        self._call(None, 'wm', 'state', self._get_wm_widget(), state)
 
     def geometry(self, width=None, height=None, x=None, y=None):
         """Set or get the size and place of the window in pixels.
@@ -303,7 +293,7 @@ class Window(Widget):
             raise TypeError("specify both x and y, or neither")
 
         if x is y is width is height is None:
-            string = self._call(str, 'wm', 'geometry', self)
+            string = self._call(str, 'wm', 'geometry', self._get_wm_widget())
             match = re.search(r'^(\d+)x(\d+)\+(\d+)\+(\d+)$', string)
             return Geometry(*map(int, match.groups()))
 
@@ -313,28 +303,67 @@ class Window(Widget):
             string = '+%d+%d' % (x, y)
         else:
             string = '%dx%d+%d+%d' % (width, height, x, y)
-        self._call(None, 'wm', 'geometry', self, string)
+        self._call(None, 'wm', 'geometry', self._get_wm_widget(), string)
 
     def withdraw(self):
-        self._call(None, 'wm', 'withdraw', self)
+        self._call(None, 'wm', 'withdraw', self._get_wm_widget())
 
     def iconify(self):
-        self._call(None, 'wm', 'iconify', self)
+        self._call(None, 'wm', 'iconify', self._get_wm_widget())
 
     def deiconify(self):
-        self._call(None, 'wm', 'deiconify', self)
+        self._call(None, 'wm', 'deiconify', self._get_wm_widget())
+
+    # to be overrided
+    def _get_wm_widget(self):
+        raise NotImplementedError
+
+
+class Toplevel(_WmMixin, Widget):
+    """This represents a *non-Ttk* ``toplevel`` widget.
+
+    Usually it's easiest to use :class:`Window` instead. It behaves like a
+    ``Toplevel`` widget, but it's actually a ``Toplevel`` with a ``Frame``
+    inside it.
+    """
+
+    # allow passing title as a positional argument
+    def __init__(self, title=None, **options):
+        super().__init__('toplevel', None, **options)
+        if title is not None:
+            self.title = title
+
+    def _get_wm_widget(self):
+        return self
+
+    @classmethod
+    def from_widget_path(cls, path_string):
+        raise NotImplementedError
+
+
+class Window(_WmMixin, Widget):
+    """A convenient "widget" with a Ttk frame inside a toplevel."""
+    # TODO: better docstring
+
+    def __init__(self, *args, **kwargs):
+        self.toplevel = Toplevel(*args, **kwargs)
+        super().__init__('ttk::frame', self.toplevel)
+        _ChildMixin.pack(self, fill='both', expand=True)
+
+    def _get_wm_widget(self):
+        return self.toplevel
 
 
 class Frame(_ChildMixin, Widget):
 
     def __init__(self, parent, **options):
-        super().__init__('frame', parent, **options)
+        super().__init__('ttk::frame', parent, **options)
 
 
 class Label(_ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
-        super().__init__('label', parent, text=text, **kwargs)
+        super().__init__('ttk::label', parent, text=text, **kwargs)
 
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
@@ -343,7 +372,7 @@ class Label(_ChildMixin, Widget):
 class Button(_ChildMixin, Widget):
 
     def __init__(self, parent, text='', command=None, **kwargs):
-        super().__init__('button', parent, text=text, **kwargs)
+        super().__init__('ttk::button', parent, text=text, **kwargs)
         self.on_click = _structures.Callback()
         self.config['command'] = _mainloop.create_command(self.on_click.run)
         self.config._disabled['command'] = ("use the on_click attribute " +

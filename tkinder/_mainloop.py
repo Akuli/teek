@@ -21,8 +21,11 @@ _app = None
 def _maybe_init():
     global _app
     if _app is None:
+        # tkinter does this :D
         _app = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
+
         _app.call('wm', 'withdraw', '.')
+        _app.call('package', 'require', 'tile')
 
 
 def _to_tcl(value):

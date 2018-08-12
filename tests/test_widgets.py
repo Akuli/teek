@@ -68,7 +68,7 @@ def test_window():
     ]
 
     for window, default_title in windows:
-        assert window.winfo_toplevel() is window
+        assert window.winfo_toplevel() is window.toplevel
         tk.update()     # you can add more of these if the tests don't work
 
         assert window.state == 'normal'
@@ -125,17 +125,18 @@ def test_geometry():
             window.geometry(**{pair[0]: 123})
         assert str(error.value) == 'specify both %s and %s, or neither' % pair
 
-
-_COLOR_OPTIONS = [
-    'foreground', 'fg', 'background', 'bg',
-    'activeforeground', 'activebackground',
-    'disabledforeground', 'disabledbackground',
-    'highlightcolor', 'highlightbackground',
-    'selectforeground', 'selectbackground',
-    'insertbackground',
-]
-_ALIASES = [('fg', 'foreground'), ('bg', 'background')]
-_COLORS = ['red', 'Red', '#ff0000', '#F00', '#fFf000000']
+# this is commented out because ttk widgets don't have color options
+#
+#_COLOR_OPTIONS = [
+#    'foreground', 'fg', 'background', 'bg',
+#    'activeforeground', 'activebackground',
+#    'disabledforeground', 'disabledbackground',
+#    'highlightcolor', 'highlightbackground',
+#    'selectforeground', 'selectbackground',
+#    'insertbackground',
+#]
+#_ALIASES = [('fg', 'foreground'), ('bg', 'background')]
+#_COLORS = ['red', 'Red', '#ff0000', '#F00', '#fFf000000']
 
 
 def test_options():
@@ -151,14 +152,14 @@ def test_options():
             # and people aren't aware of abbreviating things in tk anyway
             widget.config['foregro']
 
-        for option in (_COLOR_OPTIONS & widget.config.keys()):
-            for color in _COLORS:
-                widget.config[option] = color
-                assert widget.config[option] == '#ff0000', option
-
-                if option in _flatten(_ALIASES):
-                    for a, b in _ALIASES:
-                        assert widget.config[a] == widget.config[b]
+#        for option in (_COLOR_OPTIONS & widget.config.keys()):
+#            for color in _COLORS:
+#                widget.config[option] = color
+#                assert widget.config[option] == '#ff0000', option
+#
+#                if option in _flatten(_ALIASES):
+#                    for a, b in _ALIASES:
+#                        assert widget.config[a] == widget.config[b]
 
         with pytest.raises(TypeError):
             widget.config.pop('text')
@@ -171,11 +172,10 @@ def test_options():
                 widget.config['command'] = print
 
     widget1 = tk.Label(window, 'lol')
-    widget1.config.update({'fg': 'blue', 'bg': 'red'})
-
-    widget2 = tk.Label(window, **widget1.config)
+    widget1.config.update({'text': 'asd'})
+    widget2 = tk.Label(window, text='asd')
     assert widget1.config == widget2.config
-    widget2.config['fg'] = 'yellow'
+    widget2.config['text'] = 'tootie'
     assert widget1.config != widget2.config
 
 
@@ -186,11 +186,11 @@ def test_labels():
     assert "text=''" in repr(label)
     assert label.config['text'] == ''
 
-    label.config.update({'text': 'new text', 'bg': 'blue'})
+    label.config.update({'text': 'new text'})
     assert label.config['text'] == 'new text'
     assert "text='new text'" in repr(label)
 
-    label2 = tk.Label(window, 'new text', bg='blue')
+    label2 = tk.Label(window, 'new text')
     assert label.config == label2.config
 
 
@@ -198,17 +198,14 @@ def test_buttons(capsys):
     window = tk.Window()
     stuff = []
 
-    button1 = tk.Button(window, fg='blue')
-    button2 = tk.Button(window, 'click me', fg='blue')
-    button3 = tk.Button(window, 'click me',
-                        (lambda: stuff.append(3)), fg='blue')
+    button1 = tk.Button(window)
+    button2 = tk.Button(window, 'click me')
+    button3 = tk.Button(window, 'click me', (lambda: stuff.append(3)))
 
     assert "text=''" in repr(button1)
     assert "text='click me'" in repr(button2)
     assert "text='click me'" in repr(button3)
 
-    assert (button1.config['fg'] == button2.config['fg'] ==
-            button3.config['fg'] == '#0000ff')
     assert button1.config['text'] == ''
     assert button2.config['text'] == button3.config['text'] == 'click me'
 
