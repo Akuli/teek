@@ -262,6 +262,51 @@ def test_button_invoke():
     assert stuff == [1, 2]
 
 
+def test_text_widget():
+    text = tk.Text(tk.Window())
+
+    # start and end should be namedtuples
+    assert isinstance(text.start, tuple)
+    assert type(text.start) is not tuple
+
+    # there is nothing in the text widget yet
+    assert text.start == text.end == (1, 0)
+
+    text.insert(text.end, 'this is some text\nbla bla bla')
+    assert text.get(text.start, text.end) == 'this is some text\nbla bla bla'
+    assert text.start == (1, 0)
+    assert text.end == (2, 11)
+
+    text.replace((1, 0), (1, 4), 'lol')
+    assert text.get(text.start, text.end) == 'lol is some text\nbla bla bla'
+
+    assert text.get((1, 0), (1, 6)) == 'lol is'
+    assert text.get((1, 12), (2, 3)) == 'text\nbla'
+
+    assert text.get() == text.get(text.start, text.end)
+    assert text.get(text.start) == text.get(text.start, text.end)
+
+    assert text.start.forward(chars=2, lines=1) == (2, 2)
+    assert (text.start.forward(chars=2, lines=1).back(chars=2, lines=1) ==
+            text.start)
+    assert text.start.forward(chars=100) == text.end
+
+    assert text.start.wordend() == (1, 3)               # after 'lol'
+    assert text.start.wordend().linestart() == text.start
+    assert (text.start.wordend().lineend() ==
+            text.start.forward(lines=1).back(chars=1))
+
+    # Tk's wordstart() seems to be funny, so this is the best test i came
+    # up with
+    assert text.start.wordstart() == text.start
+
+    # indexes compare nicelys
+    assert (text.start <
+            text.start.forward(chars=1) <
+            text.start.forward(lines=1) <
+            text.start.forward(chars=1, lines=1))
+
+
 def test_from_widget_path():
     window = tk.Window()
     string = window.widget_path

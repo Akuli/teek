@@ -29,12 +29,8 @@ def _maybe_init():
 
 
 def _to_tcl(value):
-    try:
-        # duck-typing ftw (especially when avoiding circular imports)
-        return value.widget_path
-    except AttributeError:
-        # it's not a widget
-        pass
+    if hasattr(value, 'to_tcl'):    # duck-typing ftw
+        return value.to_tcl()
 
     if value is None:
         return ''
@@ -130,6 +126,10 @@ def call(returntype, command, *arguments):
         * True and False are converted to ``1`` and ``0``.
         * :class:`Numbers <numbers.Number>` are passed to ``str``.
         * Iterables are treated as Tcl lists.
+        * If the argument has a ``to_tcl()`` method, it is called with no
+          arguments and its return value is used. For example, widgets have a
+          ``to_tcl()`` method that returns the widget's path string, so passing
+          a widget gives Tcl its widget path.
         * Any other arguments raise :exc:`TypeError`. Currently the
           error comes from attempting to iterate over the argument (and
           that's an implementation detail), but :exc:`TypeError` is

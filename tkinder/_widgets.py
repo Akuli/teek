@@ -1,10 +1,8 @@
 import collections.abc
 import functools
-import keyword
 import re
 from _tkinter import TclError
 
-import tkinder
 from tkinder import _mainloop, _structures
 
 _widgets = {}
@@ -118,6 +116,10 @@ class Widget:
         self.config = _ConfigDict(self)
         self._init_config()
         self.config.update(options)
+
+    # see _mainloop._to_tcl
+    def to_tcl(self):
+        return self.widget_path
 
     def _init_config(self):
         pass
@@ -385,6 +387,85 @@ class Button(_ChildMixin, Widget):
 
     def invoke(self):
         self._call(None, self, 'invoke')
+
+
+# a new subclass of this is created for each text widget, and inheriting
+# from namedtuple makes comparing the text indexes work nicely
+class _TextIndexBase(collections.namedtuple('TextIndex', 'line column')):
+    _widget = None
+
+    def to_tcl(self):
+        return '%d.%d' % self       # lol, magicz
+
+    @classmethod
+    def _from_string(cls, string):
+        # tk text widgets have an implicit and invisible newline character
+        # at the end of them, and i always ignore it everywhere by using
+        # 'end - 1 char' instead of 'end'
+        string = cls._widget._call(str, cls._widget, 'index', string)
+        after_stupid_newline = cls._widget._call(
+            str, cls._widget, 'index', 'end')
+
+        if string == after_stupid_newline:
+            return cls._widget.end
+        return cls(*map(int, string.split('.')))
+
+    def forward(self, *, chars=0, indices=0, lines=0):
+        result = '%s %+d lines %+d chars %+d indices' % (
+            self.to_tcl(), lines, chars, indices)
+        return type(self)._from_string(result)
+
+    def back(self, *, chars=0, indices=0, lines=0):
+        return self.forward(chars=-chars, indices=-indices, lines=-lines)
+
+    def _apply_suffix(self, suffix):
+        return type(self)._from_string('%s %s' % (self.to_tcl(), suffix))
+
+    linestart = functools.partialmethod(_apply_suffix, 'linestart')
+    lineend = functools.partialmethod(_apply_suffix, 'lineend')
+    wordstart = functools.partialmethod(_apply_suffix, 'wordstart')
+    wordend = functools.partialmethod(_apply_suffix, 'wordend')
+
+
+class Text(_ChildMixin, Widget):
+
+    def __init__(self, parent, **kwargs):
+        super().__init__('text', parent, **kwargs)
+        self._TextIndex = type(
+            'TextIndex', (_TextIndexBase,), {'_widget': self})
+
+    def _repr_parts(self):
+        return ['contains %d lines of text' % self.end.line]
+
+    @property
+    def start(self):
+        return self.index(1, 0)
+
+    @property
+    def end(self):
+        index_string = self._call(str, self, 'index', 'end - 1 char')
+        return self.index(*map(int, index_string.split('.')))
+
+    def index(self, line, column):
+        # round line and column to closest allowed values as is typical in tk
+        return self._TextIndex._from_string('%d.%d' % (line, column))
+
+    def get(self, index1=None, index2=None):
+        if index1 is None:
+            index1 = self.start
+        if index2 is None:
+            index2 = self.end
+
+        return self._call(str, self, 'get',
+                          self.index(*index1), self.index(*index2))
+
+    def insert(self, index, text, tag_list=()):
+        self._call(None, self, 'insert', self.index(*index), text, tag_list)
+
+    def replace(self, index1, index2, new_text, tag_list=()):
+        self._call(None, self, 'replace',
+                   self.index(*index1), self.index(*index2),
+                   new_text, tag_list)
 
 
 '''
