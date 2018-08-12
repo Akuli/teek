@@ -102,8 +102,10 @@ def test_geometry():
 
     # namedtuple features
     geometry = window.geometry()
-    assert geometry == geometry
-    assert hash(geometry) == hash(geometry)
+    geometry2 = window.geometry()
+    assert geometry == geometry2
+    assert hash(geometry) == hash(geometry2)
+    assert repr(geometry) == repr(geometry2)
     assert repr(geometry).startswith('Geometry(')
 
     window.geometry(300, 400)
