@@ -231,7 +231,7 @@ class _WmMixin:
         super().__init__(*args, **kwargs)
 
         self.on_delete_window = _structures.Callback()
-        self.on_delete_window.connect(self.destroy)
+        self.on_delete_window.connect(self._get_wm_widget().destroy)
         self.on_take_focus = _structures.Callback()
 
         self._call(

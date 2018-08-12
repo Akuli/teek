@@ -69,6 +69,7 @@ def test_window():
 
     for window, default_title in windows:
         assert window.winfo_toplevel() is window.toplevel
+        assert isinstance(window.toplevel, tk.Toplevel)
         tk.update()     # you can add more of these if the tests don't work
 
         assert window.state == 'normal'
@@ -93,8 +94,15 @@ def test_window():
             window.deiconify()
             assert window.state == 'normal'
 
-    not_a_window = tk.Frame(windows[0][0])
+    not_a_window = tk.Frame(tk.Window())
     assert not hasattr(not_a_window, 'title')
+
+
+def test_window_closing():
+    window = tk.Window()
+    window.on_delete_window.run()
+    assert not window.winfo_exists()
+    assert not window.toplevel.winfo_exists()
 
 
 def test_geometry():
