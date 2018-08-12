@@ -12,5 +12,8 @@ from tkinder._mainloop import (
     call, eval, create_command, delete_command, run, quit, on_quit)
 from tkinder._timeouts import after, after_idle
 from tkinder._misc import update      # TODO: move this to _timeouts?
-from tkinder._widgets import (
-    Widget, Window, Toplevel, Label, Button, Frame, Text)
+
+# simplest widgets are in tkinder._widgets, but widgets that require many lines
+# of code to implement are in separate files
+from tkinder._widgets import Widget, Window, Toplevel, Label, Button, Frame
+from tkinder._textwidget import Text
