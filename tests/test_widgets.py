@@ -276,6 +276,7 @@ def test_text_widget():
     assert text.get(text.start, text.end) == 'this is some text\nbla bla bla'
     assert text.start == (1, 0)
     assert text.end == (2, 11)
+    assert 'contains 2 lines of text' in repr(text)
 
     text.replace((1, 0), (1, 4), 'lol')
     assert text.get(text.start, text.end) == 'lol is some text\nbla bla bla'
@@ -305,6 +306,60 @@ def test_text_widget():
             text.start.forward(chars=1) <
             text.start.forward(lines=1) <
             text.start.forward(chars=1, lines=1))
+
+
+def test_text_widget_tags():
+    text = tk.Text(tk.Window())
+    text.insert(text.start, "asd toot boo")
+
+    assert {tag.name for tag in text.get_all_tags()} == {'sel'}
+    assert text.get_tag('asd').name == 'asd'
+    assert {tag.name for tag in text.get_all_tags()} == {'sel', 'asd'}
+
+    for tag in [text.get_tag('asd'), text.get_tag('sel')]:
+        assert tag is text.get_tag(tag.name)  # returns same tag obj every time
+
+        tag.add((1, 4), (1, 8))
+        assert tag.ranges() == [((1, 4), (1, 8))]
+        assert all(isinstance(index, type(text.start))
+                   for index in _flatten(tag.ranges()))
+
+        assert tag.nextrange((1, 0)) == ((1, 4), (1, 8))
+        assert tag.nextrange((1, 0), (1, 4)) is None
+        for index in tag.nextrange((1, 0)):
+            assert isinstance(index, type(text.start))
+
+        tag.remove()
+        assert tag.ranges() == []
+
+    toot = text.get_tag('toot')
+    toot.add((1, 4), text.end)
+    assert toot.ranges() != []
+    toot.delete()
+    assert toot not in text.get_all_tags()
+    assert toot.ranges() == []
+    assert toot not in text.get_all_tags()
+    toot['foreground'] = 'blue'
+    assert toot in text.get_all_tags()
+
+    # misc other tag properties
+    assert toot == toot
+    assert toot != tk.Text(tk.Window()).get_tag('toot')   # different widget
+    assert toot != 123
+    assert hash(toot) == hash(toot)
+    assert repr(toot) == "<Text widget tag 'toot': foreground='blue'>"
+    with pytest.raises(TypeError):
+        del toot['foreground']
+
+    old_names = {tag.name for tag in text.get_all_tags()}
+    new_name = text.create_new_tag().name
+    assert new_name not in old_names
+    assert {tag.name for tag in text.get_all_tags()} == old_names | {new_name}
+
+    tag_names = {'sel', 'asd', 'toot'}
+    for tag_name in tag_names:
+        text.get_tag(tag_name).add((1, 4), (1, 8))
+    assert {tag.name for tag in text.get_all_tags((1, 6))} == tag_names
 
 
 def test_from_widget_path():
