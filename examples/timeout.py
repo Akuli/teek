@@ -32,7 +32,6 @@ class TimeoutWindow(tk.Window):
         self.timeout = None
 
 
-tk.init()
 window = TimeoutWindow()
-window.on_close.connect(tk.quit)
-tk.mainloop()
+window.on_delete_window.connect(tk.quit)
+tk.run()
