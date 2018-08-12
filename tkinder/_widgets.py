@@ -383,6 +383,9 @@ class Button(_ChildMixin, Widget):
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
 
+    def invoke(self):
+        self._call(None, self, 'invoke')
+
 
 '''
 class _SelectedIndexesView(abcoll.MutableSet):

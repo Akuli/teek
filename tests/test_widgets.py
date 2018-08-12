@@ -253,6 +253,15 @@ def test_buttons(capsys):
     assert 'button1.on_click.connect(oops)' in errors
 
 
+def test_button_invoke():
+    button = tk.Button(tk.Window())
+    stuff = []
+    button.on_click.connect(stuff.append, args=[1])
+    button.on_click.connect(stuff.append, args=[2])
+    button.invoke()
+    assert stuff == [1, 2]
+
+
 def test_from_widget_path():
     window = tk.Window()
     string = window.widget_path
