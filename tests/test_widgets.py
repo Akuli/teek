@@ -151,7 +151,7 @@ def test_options():
     window = tk.Window()
 
     for widget in [tk.Button(window), tk.Label(window)]:
-        assert repr(widget.widget_path) in repr(widget.config)
+        assert repr(widget.to_tcl()) in repr(widget.config)
         assert 'behaves like a dict' in repr(widget.config)
         assert len(widget.config) == len(list(widget.config))
 
@@ -379,14 +379,14 @@ def test_text_widget_marks():
     assert 'before space' not in text.marks
 
 
-def test_from_widget_path():
+def test_from_tcl():
     window = tk.Window()
-    string = window.widget_path
-    assert isinstance(string, str)
+    widget_path = window.to_tcl()
+    assert isinstance(widget_path, str)
 
-    assert tk.Window.from_widget_path(string) is window
-    assert tk.Widget.from_widget_path(string) is window
+    assert tk.Window.from_tcl(widget_path) is window
+    assert tk.Widget.from_tcl(widget_path) is window
 
     with pytest.raises(TypeError) as error:
-        tk.Label.from_widget_path(string)
+        tk.Label.from_tcl(widget_path)
     assert str(error.value).endswith(" is a Window, not a Label")

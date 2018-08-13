@@ -24,7 +24,7 @@ class _ConfigDict(collections.abc.MutableMapping):
         self._disabled = {}   # {option: instruction string}
 
     def __repr__(self):
-        return '<config of %r, behaves like a dict>' % self._widget.widget_path
+        return '<config of %r, behaves like a dict>' % self._widget.to_tcl()
 
     __call__ = _tkinter_hint("widget.config['option'] = value",
                              "widget.config(option=value)")
@@ -101,30 +101,25 @@ class Widget:
         if parent is None:
             parentpath = ''
         else:
-            parentpath = parent.widget_path
+            parentpath = parent.to_tcl()
         self.parent = parent
 
+        # use some_widget.to_tcl() to access some_widget._widget_path
         counter = _mainloop.counts[widgetname]
-        self.widget_path = '%s.%s%d' % (parentpath, widgetname, next(counter))
+        self._widget_path = '%s.%s%d' % (parentpath, widgetname, next(counter))
 
         # TODO: some config options can only be given when the widget is
         # created, add support for them
-        self._call(None, widgetname, self.widget_path)
-        _widgets[self.widget_path] = self
+        self._call(None, widgetname, self.to_tcl())
+        _widgets[self.to_tcl()] = self
 
         self.config = _ConfigDict(self)
         self._init_config()
         self.config.update(options)
 
-    # see _mainloop._to_tcl
-    def to_tcl(self):
-        return self.widget_path
-
-    def _init_config(self):
-        pass
-
+    # see _mainloop.call
     @classmethod
-    def from_widget_path(cls, path_string):
+    def from_tcl(cls, path_string):
         if path_string == '.':
             # this kind of sucks, i might make a _RootWindow class later
             return None
@@ -134,6 +129,12 @@ class Widget:
             raise TypeError("%r is a %s, not a %s" % (
                 path_string, type(result).__name__, cls.__name__))
         return result
+
+    def to_tcl(self):
+        return self._widget_path
+
+    def _init_config(self):
+        pass
 
     def __repr__(self):
         if type(self).__module__ == __name__:
@@ -145,9 +146,9 @@ class Widget:
 
         if not self.winfo_exists():
             # _repr_parts() doesn't need to work with destroyed widgets
-            return '<destroyed %s widget %r>' % (prefix, self.widget_path)
+            return '<destroyed %s widget %r>' % (prefix, self.to_tcl())
 
-        parts = ['%s widget %r' % (prefix, self.widget_path)] + self._repr_parts()
+        parts = ['%s widget %r' % (prefix, self.to_tcl())] + self._repr_parts()
         return '<%s>' % ', '.join(parts)
 
     def _repr_parts(self):
@@ -180,7 +181,7 @@ class Widget:
                 self._call(None, 'destroy', name)
 
         self._call(None, 'destroy', self)
-        del _widgets[self.widget_path]
+        del _widgets[self.to_tcl()]
 
     def winfo_children(self):
         return self._call([Widget], 'winfo', 'children', self)
@@ -332,14 +333,14 @@ class ChildMixin:
         for name, value in kwargs.items():
             args.append('-' + name.rstrip('_'))   # e.g. in_
             args.append(value)
-        self._call(None, 'pack', self.widget_path, *args)
+        self._call(None, 'pack', self.to_tcl(), *args)
 
     def pack_forget(self):
-        self._call(None, 'pack', 'forget', self.widget_path)
+        self._call(None, 'pack', 'forget', self.to_tcl())
 
     def pack_info(self):
         # TODO: add some way to specify a separate type for each key
-        raw_result = self._call({str: str}, 'pack', 'info', self.widget_path)
+        raw_result = self._call({str: str}, 'pack', 'info', self.to_tcl())
         result = {}
 
         for key, value in raw_result.items():
@@ -402,26 +403,26 @@ class _SelectedIndexesView(abcoll.MutableSet):
         return '<Listbox selected_indexes view: %s>' % repr(set(self))
 
     def __iter__(self):
-        return iter(tkinder.tk.call(self._listbox.widget_path, 'curselection'))
+        return iter(tkinder.tk.call(self._listbox.to_tcl(), 'curselection'))
 
     def __len__(self):
-        return len(tkinder.tk.call(self._listbox.widget_path, 'curselection'))
+        return len(tkinder.tk.call(self._listbox.to_tcl(), 'curselection'))
 
     def __contains__(self, index):
         return bool(tkinder.tk.call(
-            self._listbox.widget_path, 'selection', 'includes', index))
+            self._listbox.to_tcl(), 'selection', 'includes', index))
 
     def add(self, index):
         """Select an index in the listbox if it's not currently selected."""
         if index not in range(len(self._listbox)):
             raise ValueError("listbox index %r out of range" % (index,))
-        tkinder.tk.call(self._listbox.widget_path, 'selection', 'set', index)
+        tkinder.tk.call(self._listbox.to_tcl(), 'selection', 'set', index)
 
     def discard(self, index):
         """Unselect an index in the listbox if it's currently selected."""
         if index not in range(len(self._listbox)):
             raise ValueError("listbox index %r out of range" % (index,))
-        tkinder.tk.call(self._listbox.widget_path, 'selection', 'clear', index)
+        tkinder.tk.call(self._listbox.to_tcl(), 'selection', 'clear', index)
 
     # abcoll.MutableSet doesn't implement this :(
     def update(self, items):
@@ -478,7 +479,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
         self.selected_items = _SelectedItemsView(self, self.selected_indexes)
 
     def __len__(self):
-        return tkinder.tk.call(self.widget_path, 'index', 'end')
+        return tkinder.tk.call(self.to_tcl(), 'index', 'end')
 
     def _fix_index(self, index):
         if index < 0:
@@ -490,7 +491,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
     def __getitem__(self, index):
         if isinstance(index, slice):
             return [self[i] for i in range(*index.indices(len(self)))]
-        return tkinder.tk.call(self.widget_path, 'get', self._fix_index(index))
+        return tkinder.tk.call(self.to_tcl(), 'get', self._fix_index(index))
 
     def __delitem__(self, index):
         if isinstance(index, slice):
@@ -501,7 +502,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
             for i in indexes:
                 del self[i]
 
-        tkinder.tk.call(self.widget_path, 'delete', self._fix_index(index))
+        tkinder.tk.call(self.to_tcl(), 'delete', self._fix_index(index))
 
     def __setitem__(self, index, item):
         if isinstance(index, slice):
@@ -535,5 +536,5 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
         if index < 0:
             index += len(self)
         assert 0 <= index <= len(self)
-        tkinder.tk.call(self.widget_path, 'insert', index, item)
+        tkinder.tk.call(self.to_tcl(), 'insert', index, item)
 '''

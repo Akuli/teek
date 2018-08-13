@@ -107,6 +107,9 @@ def _from_tcl(type_spec, value):
     if type_spec == 'color':
         return get_color(value)
 
+    if hasattr(type_spec, 'from_tcl'):
+        return type_spec.from_tcl(_from_tcl(str, value))
+
     raise ValueError("unknown type specification " + repr(type_spec))
 
 
@@ -135,50 +138,43 @@ def call(returntype, command, *arguments):
           that's an implementation detail), but :exc:`TypeError` is
           guaranteed to be raised when an unknown argument is passed.
 
-    The *returntype* can have values like this:
+    The *returntype* is treated like this:
+        * ``None`` means that he Tcl return value is ignored, and ``call()``
+          returns None.
+        * ``str`` usually means that no conversions are done, but if Tcl uses
+          a non-string representation of the object for performance reasons, it
+          will be forced to a string.
+        * ``int`` and ``float`` are equivalent to using ``str`` and doing
+          ``int(string_result)`` or ``float(string_result)``.
+        * ``bool`` returns a Python boolean. All valid Tcl booleans are
+          supported; for example, ``Y``, ``yes``, ``1``, ``on`` and
+          ``tru`` are all converted to ``True``. :exc:`ValueError` is
+          raised if the value is not a valid Tcl boolean.
+        * The string ``'color'`` is equivalent to using ``str`` and
+          :func:`get_color`; it converts everything to ``'#rrggbb'`` and raises
+          ValueError.
+        * Any class with a ``from_tcl`` staticmethod or classmethod can be also
+          passed. The ``from_tcl`` method is called with 1 argument, which is
+          the value converted to string as if ``str`` had been used instead.
+          For example, widget classes have a ``from_tcl`` method that creates a
+          widget from a path name compatible with widgets' ``to_tcl`` (see
+          above).
 
-    ``None``
-        The Tcl return value is ignored, and ``call()`` returns None.
+    The return types can be also combined in the following ways. These examples
+    use ``str`` and ``int``, but all other forms work as well. The return types
+    can be nested arbitrarily; for example, converting with ``[(int, float)]``
+    might return ``[(12, 3.4), (56, 7.8)]``.
 
-    ``str``
-        Usually no conversions are done. If Tcl uses an non-string
-        representation of the object for performance reasons it will be
-        forced to a string.
-
-    ``int``, ``float``
-        These are self-explanatory. :exc:`ValueError` may be raised.
-
-    ``bool``
-        This returns a Python boolean. All valid Tcl booleans are
-        supported; for example, ``Y``, ``yes``, ``1``, ``on`` and
-        ``tru`` are all converted to ``True``. :exc:`ValueError` is
-        raised if the value is not a valid Tcl boolean.
-
-    the string ``'color'``
-        This is equivalent to using ``str`` with :func:`get_color`. Thus
-        it converts everything to ``'#rrggbb'`` and raises ValueError.
-
-    These examples use ``str`` and ``int``, but all other forms work as
-    well:
-
-    ``[str]``
-        List of strings. Can be of any length.
-
-    ``(str, int)``
-        A tuple of a string and an integer. This allows you to create a
-        sequence with different kinds of items in it. For example,
-        ``(str, str, str)`` is like ``[str]`` except that it also checks
-        the length of the result (raising :exc:`ValueError`) and returns
-        a tuple instead of a list.
-
-    ``{str: int}``
-        Dictionary with string keys and integer values. Tcl dicts are
-        just lists that contains an even number of items, so something
-        like ``{str: str}`` is equivalent to using ``[str]`` and then
-        making a list from that.
-
-    You can nest things however you like. For example, ``[[int]]`` is a
-    two-dimensional list of integers.
+        * ``[str]`` is a list of strings, of any length.
+        * ``(str, int)`` is a tuple of a string and an integer. This allows you
+          to create a sequence with different kinds of items in it. For
+          example, ``(str, str, str)`` is like ``[str]`` except that it also
+          checks the length of the result (raising :exc:`ValueError`) and
+          returns a tuple instead of a list.
+        * ``{str: int}`` is a dictionary with string keys and integer values.
+          Tcl dicts are just lists that contains an even number of items, so
+          something like ``{str: str}`` is equivalent to using ``[str]`` and
+          then making a list from that.
 
     Examples::
 
