@@ -43,7 +43,7 @@ class _IndexBase(collections.namedtuple('TextIndex', 'line column')):
     wordend = functools.partialmethod(_apply_suffix, 'wordend')
 
 
-class _Tag(collections.abc.Mapping):
+class _Tag(collections.abc.MutableMapping):
 
     def __init__(self, widget, name):
         self._widget = widget
@@ -166,6 +166,35 @@ class _Tag(collections.abc.Mapping):
         self._widget._call(None, widget, 'tag', 'remove', self, index1, index2)
 
 
+class _Marks(collections.abc.MutableMapping):
+
+    def __init__(self, widget):
+        self._widget = widget
+
+    def _get_name_list(self):
+        return self._widget._call([str], self._widget, 'mark', 'names')
+
+    def __iter__(self):
+        return iter(self._get_name_list())
+
+    def __len__(self):
+        return len(self._get_name_list())
+
+    def __setitem__(self, name, index):
+        index = self._widget.index(*index)
+        self._widget._call(None, self._widget, 'mark', 'set', name, index)
+
+    def __getitem__(self, name):
+        if name not in self._get_name_list():
+            raise KeyError(name)
+
+        index_string = self._widget._call(str, self._widget, 'index', name)
+        return self._widget._TextIndex._from_string(index_string)
+
+    def __delitem__(self, name):
+        self._widget._call(None, self._widget, 'mark', 'unset', name)
+
+
 class Text(ChildMixin, Widget):
 
     def __init__(self, parent, **kwargs):
@@ -173,6 +202,7 @@ class Text(ChildMixin, Widget):
         self._TextIndex = type(
             'TextIndex', (_IndexBase,), {'_widget': self})
         self._tag_objects = {}
+        self.marks = _Marks(self)
 
     def _repr_parts(self):
         return ['contains %d lines of text' % self.end.line]

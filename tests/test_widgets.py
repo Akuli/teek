@@ -362,6 +362,19 @@ def test_text_widget_tags():
     assert {tag.name for tag in text.get_all_tags((1, 6))} == tag_names
 
 
+def test_text_widget_marks():
+    text = tk.Text(tk.Window())
+    assert text.marks.keys() == {'insert', 'current'}
+    assert text.marks['insert'] == text.start
+    assert text.marks['current'] == text.start
+
+    text.insert(text.start, 'hello world')
+    text.marks['before space'] = text.start.forward(chars=5)
+    assert text.marks['before space'] == text.start.forward(chars=5)
+    del text.marks['before space']
+    assert 'before space' not in text.marks
+
+
 def test_from_widget_path():
     window = tk.Window()
     string = window.widget_path
