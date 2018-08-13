@@ -208,11 +208,7 @@ class Text(ChildMixin, Widget):
         return ['contains %d lines of text' % self.end.line]
 
     def get_tag(self, name):
-        """Return or create a tag object.
-
-        If the name string is not given, a name that hasn't been used before
-        will be chosen.
-        """
+        """Return a tag object by name, or create a new if needed."""
         try:
             return self._tag_objects[name]
         except KeyError:
