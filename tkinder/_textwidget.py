@@ -216,13 +216,6 @@ class Text(ChildMixin, Widget):
             self._tag_objects[name] = tag
             return tag
 
-    def create_new_tag(self):
-        """Return a new tag object with a name that hasn't been used before."""
-        existing_names = {tag.name for tag in self.get_all_tags()}
-        for name in map('tag{}'.format, itertools.count(1)):
-            if name not in existing_names:
-                return self.get_tag(name)
-
     def get_all_tags(self, index=None):
         """Return all tags as tag objects.
 

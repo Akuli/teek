@@ -360,11 +360,6 @@ def test_text_widget_tags():
     with pytest.raises(TypeError):
         del toot['foreground']
 
-    old_names = {tag.name for tag in text.get_all_tags()}
-    new_name = text.create_new_tag().name
-    assert new_name not in old_names
-    assert {tag.name for tag in text.get_all_tags()} == old_names | {new_name}
-
     tag_names = {'sel', 'asd', 'toot'}
     for tag_name in tag_names:
         text.get_tag(tag_name).add((1, 4), (1, 8))
