@@ -332,6 +332,15 @@ def test_text_widget_tags():
         tag.remove()
         assert tag.ranges() == []
 
+    # all tags must have the same options
+    option_frozensets = set()
+    for tag in text.get_all_tags():
+        option_frozensets.add(frozenset(tag.keys()))
+    assert len(option_frozensets) == 1      # they are unique
+
+    # because nothing else covers this
+    assert len(text.get_tag('asd')) == len(list(option_frozensets)[0])
+
     toot = text.get_tag('toot')
     toot.add((1, 4), text.end)
     assert toot.ranges() != []
