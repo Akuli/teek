@@ -121,7 +121,7 @@ def test_create_command(capsys):
     def create_the_command():
         stack_info = traceback.format_stack()[-2]
         return tk.create_command(broken_func, ['one'], {'arg2': 'two'},
-                              stack_info=stack_info)
+                                 stack_info=stack_info)
 
     command = create_the_command()
     assert tk.call(str, command) == ''

@@ -1,6 +1,5 @@
 import collections.abc
 import functools
-import itertools
 
 from tkinder._widgets import ChildMixin, Widget
 
