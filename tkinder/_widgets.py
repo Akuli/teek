@@ -362,6 +362,12 @@ class Frame(ChildMixin, Widget):
         super().__init__('ttk::frame', parent, **options)
 
 
+class Separator(ChildMixin, Widget):
+
+    def __init__(self, parent, **options):
+        super().__init__('ttk::separator', parent, **options)
+
+
 class Label(ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):

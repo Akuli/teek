@@ -366,6 +366,10 @@ def test_text_widget_tags():
     assert {tag.name for tag in text.get_all_tags((1, 6))} == tag_names
 
 
+def test_separator():
+    assert tk.Separator(tk.Window()).config['orient'] == 'horizontal'
+
+
 def test_text_widget_marks():
     text = tk.Text(tk.Window())
     assert text.marks.keys() == {'insert', 'current'}

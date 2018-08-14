@@ -15,5 +15,6 @@ from tkinder._misc import update      # TODO: move this to _timeouts?
 
 # simplest widgets are in tkinder._widgets, but widgets that require many lines
 # of code to implement are in separate files
-from tkinder._widgets import Widget, Window, Toplevel, Label, Button, Frame
+from tkinder._widgets import (
+    Widget, Window, Toplevel, Label, Button, Frame, Separator)
 from tkinder._textwidget import Text
