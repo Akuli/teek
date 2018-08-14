@@ -76,12 +76,6 @@ def _from_tcl(type_spec, value):
         except _tkinter.TclError as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
-    # duck typing is great, especially when avoiding circular imports
-    if isinstance(type_spec, type) and hasattr(type_spec, 'from_widget_path'):
-        # class with a from_widget_path() method, probably Widget or a
-        # subclass of it
-        return type_spec.from_widget_path(str(value))
-
     if isinstance(type_spec, list):
         # [int] -> [1, 2, 3]
         (item_spec,) = type_spec
