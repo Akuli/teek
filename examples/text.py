@@ -1,8 +1,7 @@
 import tkinder
 
 
-window = tkinder.Window()
-window.title = "Text Widget Demo"
+window = tkinder.Window("Text Widget Demo")
 
 text = tkinder.Text(window)
 text.pack(fill='both', expand=True)
