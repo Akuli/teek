@@ -106,11 +106,11 @@ line, column = map(int, textwidget.index('insert').split('.'))
 line, column = textwidget.marks['insert']
 ```
 
-Tkinder represents text indexes as namedtuples that have `line` and `column`
-attributes, which is useful if you only need the line. In tkinter, you need to
-parse the `'line.column'` string with `.split('.')` and take the first element
-of the split result. `textwidget.marks` is a dictionary-like object with mark
-names as keys and text index namedtuples as values.
+`textwidget.marks` is a dictionary-like object with mark names as keys and text
+index namedtuples as values. Tkinder represents text indexes as namedtuples
+that have `line` and `column` attributes, which is useful if you only need the
+line. In tkinter, you need to parse the `'line.column'` string with
+`.split('.')` and take the first element of the split result.
 
 **Tkinter:**
 
