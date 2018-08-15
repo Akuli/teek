@@ -6,4 +6,5 @@ python:
   - "3.7"
   - nightly
 script:
-  - pytest
+  - python --version
+  - python -m pytest
