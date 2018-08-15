@@ -223,8 +223,8 @@ class _WmMixin:
 
     def _repr_parts(self):
         result = ['title=' + repr(self.title)]
-        if self.state != 'normal':
-            result.append('state=' + repr(self.state))
+        if self.wm_state != 'normal':
+            result.append('wm_state=' + repr(self.wm_state))
         return result
 
     @property
@@ -235,12 +235,13 @@ class _WmMixin:
     def title(self, new_title):
         self._call(None, 'wm', 'title', self._get_wm_widget(), new_title)
 
+    # a property named 'state' might be confusing, explicit > implicit
     @property
-    def state(self):
+    def wm_state(self):
         return self._call(str, 'wm', 'state', self._get_wm_widget())
 
-    @state.setter
-    def state(self, state):
+    @wm_state.setter
+    def wm_state(self, state):
         self._call(None, 'wm', 'state', self._get_wm_widget(), state)
 
     def geometry(self, width=None, height=None, x=None, y=None):

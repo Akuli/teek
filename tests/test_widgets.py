@@ -72,7 +72,7 @@ def test_window():
         assert isinstance(window.toplevel, tk.Toplevel)
         tk.update()     # you can add more of these if the tests don't work
 
-        assert window.state == 'normal'
+        assert window.wm_state == 'normal'
         if default_title is not None:
             assert window.title == default_title
             assert repr(default_title) in repr(window)
@@ -83,16 +83,16 @@ def test_window():
         for method, state in [(window.withdraw, 'withdrawn'),
                               (window.iconify, 'iconic')]:
             method()
-            assert window.state == state
-            assert ("state='%s'" % state) in repr(window)
+            assert window.wm_state == state
+            assert ("wm_state='%s'" % state) in repr(window)
             window.deiconify()
-            assert window.state == 'normal'
-            assert "state='normal'" not in repr(window)
+            assert window.wm_state == 'normal'
+            assert "wm_state='normal'" not in repr(window)
 
-            window.state = state        # should do same as method()
-            assert window.state == state
+            window.wm_state = state        # should do same as method()
+            assert window.wm_state == state
             window.deiconify()
-            assert window.state == 'normal'
+            assert window.wm_state == 'normal'
 
     not_a_window = tk.Frame(tk.Window())
     assert not hasattr(not_a_window, 'title')
