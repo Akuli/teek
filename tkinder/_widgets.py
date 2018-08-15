@@ -2,6 +2,7 @@ import collections.abc
 import re
 from _tkinter import TclError
 
+import tkinder
 from tkinder import _tcl_calls, _structures
 
 _widgets = {}
@@ -145,19 +146,20 @@ class Widget:
         pass
 
     def __repr__(self):
-        if type(self).__module__ == __name__:
-            # __module__ isn't set to 'tkinder' because it screws up
-            # inspect.getsource
-            prefix = 'tkinder.' + type(self).__name__
+        class_name = type(self).__name__
+        if getattr(tkinder, class_name, None) is type(self):
+            result = 'tkinder.%s widget' % class_name
         else:
-            prefix = type(self).__module__ + '.' + type(self).__name__
+            result = '{0.__module__}.{0.__name__} widget'.format(type(self))
 
         if not self.winfo_exists():
             # _repr_parts() doesn't need to work with destroyed widgets
-            return '<destroyed %s widget %r>' % (prefix, self.to_tcl())
+            return '<destroyed %s>' % result
 
-        parts = ['%s widget %r' % (prefix, self.to_tcl())] + self._repr_parts()
-        return '<%s>' % ', '.join(parts)
+        parts = self._repr_parts()
+        if parts:
+            result += ': ' + ', '.join(parts)
+        return '<' + result + '>'
 
     def _repr_parts(self):
         # overrided in subclasses
