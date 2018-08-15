@@ -78,6 +78,7 @@ def test_colors():
     assert repr(blue1).startswith("<Color '#0000ff': ")
     assert repr(blue2).startswith("<Color 'blue': ")
     assert blue1 == blue2
+    assert blue1 != 'Woot Woot!'
     assert hash(blue1) == hash(blue2)
     assert hash(blue1) != hash(white)
 
