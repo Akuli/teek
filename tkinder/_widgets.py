@@ -16,7 +16,7 @@ def _tkinter_hint(good, bad):
     return dont_use_this
 
 
-class _ConfigDict(collections.abc.MutableMapping):
+class ConfigDict(collections.abc.MutableMapping):
 
     def __init__(self, caller):
         self._call = caller
@@ -114,7 +114,7 @@ class Widget:
         self._call(None, widgetname, self.to_tcl())
         _widgets[self.to_tcl()] = self
 
-        self.config = _ConfigDict(
+        self.config = ConfigDict(
             lambda returntype, *args: self._call(returntype, self, *args))
         self._init_config()
         self.config.update(options)

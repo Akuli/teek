@@ -1,7 +1,7 @@
 import collections.abc
 import functools
 
-from tkinder._widgets import ChildMixin, Widget
+from tkinder._widgets import ConfigDict, ChildMixin, Widget
 
 
 # a new subclass of this is created for each text widget, and inheriting
@@ -42,11 +42,12 @@ class _IndexBase(collections.namedtuple('TextIndex', 'line column')):
     wordend = functools.partialmethod(_apply_suffix, 'wordend')
 
 
-class _Tag(collections.abc.MutableMapping):
+class _Tag(ConfigDict):
 
     def __init__(self, widget, name):
         self._widget = widget
         self.name = name
+        super().__init__(self._call_tag_subcommand)
         self._initial_config = dict(self)
 
     def __repr__(self):
@@ -60,6 +61,14 @@ class _Tag(collections.abc.MutableMapping):
             result += ': ' + ', '.join(changed)
         return '<' + result + '>'
 
+    def to_tcl(self):
+        return self.name
+
+    # this inserts self between the arguments, that's why it's needed
+    def _call_tag_subcommand(self, returntype, subcommand, *args):
+        return self._widget._call(
+            returntype, self._widget, 'tag', subcommand, self, *args)
+
     def __eq__(self, other):
         if not isinstance(other, _Tag):
             return NotImplemented
@@ -68,31 +77,6 @@ class _Tag(collections.abc.MutableMapping):
     def __hash__(self):
         return hash(self.name)
 
-    def to_tcl(self):
-        return self.name
-
-    def _get_option_tuples(self):
-        return self._widget._call(
-            [(str, None, None, None, None)],
-            self._widget, 'tag', 'configure', self)
-
-    def __iter__(self):
-        return (otuple[0].lstrip('-') for otuple in self._get_option_tuples())
-
-    def __len__(self):
-        return len(self._get_option_tuples())
-
-    def __setitem__(self, key, value):
-        self._widget._call(None, self._widget, 'tag', 'configure', self,
-                           '-' + key, value)
-
-    def __getitem__(self, key):
-        return self._widget._call(str, self._widget, 'tag', 'cget', self,
-                                  '-' + key)
-
-    def __delitem__(self, key):
-        raise TypeError("cannot delete tag options")
-
     def add(self, index1, index2):
         """Add this tag to the text between the given indexes.
 
@@ -100,8 +84,7 @@ class _Tag(collections.abc.MutableMapping):
         """
         index1 = self._widget.index(*index1)
         index2 = self._widget.index(*index2)
-        self._widget._call(
-            None, self._widget, 'tag', 'add', self, index1, index2)
+        return self._call_tag_subcommand(None, 'add', index1, index2)
 
     # TODO: bind
 
@@ -113,7 +96,7 @@ class _Tag(collections.abc.MutableMapping):
         The tag object is still usable after calling this, and doing something
         with it will create a new tag with the same name.
         """
-        self._widget._call(None, self._widget, 'tag', 'delete', self)
+        self._call_tag_subcommand(None, 'delete')
 
     # TODO: tests
     def _prevrange_or_nextrange(self, prev_or_next, index1, index2=None):
@@ -124,9 +107,8 @@ class _Tag(collections.abc.MutableMapping):
         else:
             index2 = self._widget.index(*index2)
 
-        strings = self._widget._call([str], self._widget, 'tag',
-                                     prev_or_next + 'range', self,
-                                     index1, index2)
+        strings = self._call_tag_subcommand(
+            [str], prev_or_next + 'range', index1, index2)
         if not strings:
             # the tcl command returned '', no ranges found
             return None
@@ -144,9 +126,8 @@ class _Tag(collections.abc.MutableMapping):
         This returns a list of ``(start_index, end_index)`` pairs where the
         indexes are index objects.
         """
-        flat_pairs = map(
-            self._widget._TextIndex._from_string,
-            self._widget._call([str], self._widget, 'tag', 'ranges', self))
+        flat_pairs = map(self._widget._TextIndex._from_string,
+                         self._call_tag_subcommand([str], 'ranges'))
 
         # magic to convert a flat iterator to pairs: a,b,c,d --> (a,b), (c,d)
         return list(zip(flat_pairs, flat_pairs))
@@ -162,7 +143,7 @@ class _Tag(collections.abc.MutableMapping):
         widget = self._widget       # because pep8 line length
         index1 = widget.start if index1 is None else widget.index(*index1)
         index2 = widget.end if index2 is None else widget.index(*index2)
-        self._widget._call(None, widget, 'tag', 'remove', self, index1, index2)
+        self._call_tag_subcommand(None, 'remove', index1, index2)
 
 
 class _Marks(collections.abc.MutableMapping):
