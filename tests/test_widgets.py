@@ -83,15 +83,19 @@ def test_window():
         for method, state in [(window.withdraw, 'withdrawn'),
                               (window.iconify, 'iconic')]:
             method()
+            tk.update()
             assert window.wm_state == state
             assert ("wm_state='%s'" % state) in repr(window)
             window.deiconify()
+            tk.update()
             assert window.wm_state == 'normal'
             assert "wm_state='normal'" not in repr(window)
 
             window.wm_state = state        # should do same as method()
+            tk.update()
             assert window.wm_state == state
             window.deiconify()
+            tk.update()
             assert window.wm_state == 'normal'
 
     not_a_window = tk.Frame(tk.Window())
