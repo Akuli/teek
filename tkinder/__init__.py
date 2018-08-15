@@ -12,7 +12,7 @@ if _sys.platform.startswith("win32"):     # pragma: no cover
 
 from _tkinter import TclError
 from tkinder._structures import Callback, Color
-from tkinder._mainloop import (
+from tkinder._tcl_calls import (
     call, eval, check_type, create_command, delete_command, run, quit, on_quit)
 from tkinder._timeouts import after, after_idle
 from tkinder._misc import update      # TODO: move this to _timeouts?
