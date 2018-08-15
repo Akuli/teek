@@ -2,9 +2,13 @@
 
 import sys as _sys
 
-# tkinter's __init__.py does this
 if _sys.platform.startswith("win32"):     # pragma: no cover
-    from tkinter import _fix
+    try:
+        # tkinter's __init__.py does this with some python versions, i haven't
+        # checked which
+        from tkinter import _fix
+    except ImportError:
+        pass
 
 from _tkinter import TclError
 from tkinder._structures import Callback, Color
