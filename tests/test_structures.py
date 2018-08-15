@@ -54,3 +54,31 @@ def test_callbacks(capsys):
     output, errors = capsys.readouterr()
     assert not output
     assert 'cb.connect(broken_callback)' in errors
+
+
+# most things are tested with doctests, but this is for testing corner cases
+def test_colors():
+    # these must work
+    tk.Color(1, 2, 255)
+    tk.Color(1, 2, 0)
+
+    with pytest.raises(ValueError):
+        tk.Color(1, 2, 256)
+    with pytest.raises(ValueError):
+        tk.Color(1, 2, -1)
+
+    blue1 = tk.Color(0, 0, 255)
+    blue2 = tk.Color.from_tcl('blue')
+    white = tk.Color.from_tcl('white')
+
+    assert repr(blue1).startswith("<Color '#0000ff': ")
+    assert repr(blue2).startswith("<Color 'blue': ")
+    assert blue1 == blue2
+    assert hash(blue1) == hash(blue2)
+    assert hash(blue1) != hash(white)
+
+    the_dict = {blue1: 'hi'}
+    assert the_dict[blue1] == 'hi'
+    assert the_dict[blue2] == 'hi'   # __hash__ works correctly
+    with pytest.raises(KeyError):
+        the_dict[white]

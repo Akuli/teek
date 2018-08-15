@@ -98,9 +98,6 @@ def _from_tcl(type_spec, value):
             for key, value in _pairs(_app.splitlist(value))
         }
 
-    if type_spec == 'color':
-        return get_color(value)
-
     if hasattr(type_spec, 'from_tcl'):
         return type_spec.from_tcl(_from_tcl(str, value))
 
@@ -144,9 +141,6 @@ def call(returntype, command, *arguments):
           supported; for example, ``Y``, ``yes``, ``1``, ``on`` and
           ``tru`` are all converted to ``True``. :exc:`ValueError` is
           raised if the value is not a valid Tcl boolean.
-        * The string ``'color'`` is equivalent to using ``str`` and
-          :func:`get_color`; it converts everything to ``'#rrggbb'`` and raises
-          ValueError.
         * Any class with a ``from_tcl`` staticmethod or classmethod can be also
           passed. The ``from_tcl`` method is called with 1 argument, which is
           the value converted to string as if ``str`` had been used instead.
@@ -201,31 +195,6 @@ def eval(returntype, string):
     _maybe_init()
     result = _app.eval(string)
     return _from_tcl(returntype, result)
-
-
-def get_color(string):
-    """Convert any Tk-compatible color to a hexadecimal ``'#rrggbb'`` string.
-
-    The returned color string is always lowercase.
-
-    >>> get_color('red')
-    '#ff0000'
-    >>> get_color('#f00')
-    '#ff0000'
-    >>> get_color('#FFFF00000000')
-    '#ff0000'
-    """
-    try:
-        rgb = call([int], 'winfo', 'rgb', '.', string)
-    except _tkinter.TclError as e:
-        if str(e).startswith('unknown color name'):
-            raise ValueError(str(e)) from None
-        raise e     # pragma: no cover
-
-    # tk uses 16-bit colors, but most people are more familiar with
-    # 8-bit colors so we'll shift away the useless bits
-    r, g, b = (value >> 8 for value in rgb)
-    return '#%02x%02x%02x' % (r, g, b)
 
 
 def run():
