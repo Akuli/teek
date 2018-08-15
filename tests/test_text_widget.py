@@ -94,7 +94,8 @@ def test_tags():
     assert toot not in text.get_all_tags()
     with pytest.raises(TypeError):
         toot['foreground'] = 'blue'
-    toot['foreground'] = tk.Color.from_tcl('blue')
+    toot['foreground'] = tk.Color('blue')
+    assert toot['foreground'] == tk.Color('blue')
     assert toot in text.get_all_tags()
 
     # misc other tag properties

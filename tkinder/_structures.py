@@ -96,15 +96,37 @@ class Callback:
 class Color:
     """Represents an RGB color.
 
-    ``red``, ``green`` and ``blue`` should be integers between 0 and 255
-    (inclusive).
+    There are a few ways to create color objects:
 
-    Color objects are hashable, and they can be compared with ``==``:
+    * ``Color(red, green, blue)`` creates a new color from an RGB value. The
+      ``red``, ``green`` and ``blue`` should be integers between 0 and 255
+      (inclusive).
+    * ``Color(hex_string)`` creates a color from a hexadecimal color string.
+      For example, ``Color('#ff0000')`` is equivalent to
+      ``Color(0xff, 0x00, 0x00)`` where ``0xff`` is hexadecimal notation for
+      255, and ``0x00`` is 0.
+    * ``Color(color_name)`` creates a color object from a Tk color. There is a
+      long list of color names in
+      `colors(3tk) <https://www.tcl.tk/man/tcl8.6/TkCmd/colors.htm>`_
 
-    >>> Color(0, 0, 255) == Color(0, 0, 255)
-    True
-    >>> Color(0, 255, 0) == Color(0, 0, 255)
-    False
+    Examples::
+
+        >>> Color(255, 255, 255)    # r, g and b are all maximum, this is white
+        <Color '#ffffff': red=255, green=255, blue=255>
+        >>> Color('white')     # 'white' is a Tk color name
+        <Color 'white': red=255, green=255, blue=255>
+
+    The string argument things are implemented by letting Tk interpret the
+    color, so all of the ways to define colors as strings shown in
+    `Tk_GetColor(3tk) <https://www.tcl.tk/man/tcl/TkLib/GetColor.htm>` are
+    supported.
+
+    Color objects are hashable, and they can be compared with ``==``::
+
+        >>> Color(0, 0, 255) == Color(0, 0, 255)
+        True
+        >>> Color(0, 255, 0) == Color(0, 0, 255)
+        False
 
     .. attribute:: red
     .. attribute:: green
@@ -115,37 +137,18 @@ class Color:
         ``some_color.red = 255`` raises an exception.
     """
 
-    def __init__(self, red, green, blue):
-        for name, value in [('red', red), ('green', green), ('blue', blue)]:
-            if value not in range(256):
-                raise ValueError("invalid %s value: %r" % (name, value))
-
-        self._init_from_color_string('#%02x%02x%02x' % (red, green, blue))
-
-    @classmethod
-    def from_tcl(cls, color_string):
-        """Create a new color object from a Tk color string.
-
-        This method exists for compatibility with :func:`tkinder.call`, but you
-        can also call it yourself if you want to use color names instead of
-        thinking about RGB values:
-
-        >>> Color(255, 255, 255)    # r, g and b are all maximum, this is white
-        <Color '#ffffff': red=255, green=255, blue=255>
-        >>> Color.from_tcl('white')     # 'white' is a Tk color name
-        <Color 'white': red=255, green=255, blue=255>
-
-        The ``color_string`` can be any Tcl-compatible color, e.g. a color
-        name like ``'red'`` or a hexadecimal string like ``'#ff0000'``.
-        `This manual page <https://www.tcl.tk/man/tcl8.6/TkCmd/colors.htm>`_
-        contains a long list of color names that you can use.
-        """
-        result = cls.__new__(cls)  # create a new object but dont call __init__
-        result._init_from_color_string(color_string)
-        return result
-
-    def _init_from_color_string(self, color_string):
-        self._color_string = color_string
+    def __init__(self, *args):
+        if len(args) == 3:
+            for name, value in zip(['red', 'green', 'blue'], args):
+                if value not in range(256):
+                    raise ValueError("invalid %s value: %r" % (name, value))
+            self._color_string = '#%02x%02x%02x' % args
+        elif len(args) == 1:
+            self._color_string = args[0]
+        else:
+            # python raises TypeError for wrong number of arguments
+            raise TypeError("use {0}(red, green, blue) or {0}(color_string)"
+                            .format(type(self).__name__))
 
         # any widget will do, i'm using the '.' root window because it
         # always exists
@@ -154,11 +157,20 @@ class Color:
         # tk uses 16-bit colors for some reason, but most people are more
         # familiar with 8-bit colors so we'll shift away the "useless" bits
         self._rgb = tuple(value >> 8 for value in rgb)
+        assert len(self._rgb) == 3
 
     def __repr__(self):
         return '<%s %r: red=%d, green=%d, blue=%d>' % (
             type(self).__name__, self._color_string,
             self.red, self.green, self.blue)
+
+    @classmethod
+    def from_tcl(cls, color_string):
+        """``Color(color_string)`` returns ``Color(color_string)``.
+
+        This is just for compatibility with :func:`tkinder.call`.
+        """
+        return cls(color_string)
 
     red = property(lambda self: self._rgb[0])
     green = property(lambda self: self._rgb[1])
@@ -174,9 +186,9 @@ class Color:
 
         >>> Color(255, 0, 0).to_tcl()
         '#ff0000'
-        >>> Color.from_tcl('red').to_tcl()
+        >>> Color('red').to_tcl()
         'red'
-        >>> Color.from_tcl('red') == Color(255, 0, 0)
+        >>> Color('red') == Color(255, 0, 0)
         True
         """
         return self._color_string

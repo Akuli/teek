@@ -66,10 +66,14 @@ def test_colors():
         tk.Color(1, 2, 256)
     with pytest.raises(ValueError):
         tk.Color(1, 2, -1)
+    with pytest.raises(TypeError):
+        tk.Color(1, 2, 3, 4)
+    with pytest.raises(TypeError):
+        tk.Color()
 
     blue1 = tk.Color(0, 0, 255)
-    blue2 = tk.Color.from_tcl('blue')
-    white = tk.Color.from_tcl('white')
+    blue2 = tk.Color('blue')
+    white = tk.Color('white')
 
     assert repr(blue1).startswith("<Color '#0000ff': ")
     assert repr(blue2).startswith("<Color 'blue': ")
