@@ -3,8 +3,9 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
   - nightly
 script:
   - python --version
-  - python -m pytest
+
+  # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
+  - xvfb-run python -m pytest
