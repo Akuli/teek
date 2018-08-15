@@ -2,6 +2,7 @@
 # destroyed the next time quit() is called or python exits anyway
 import contextlib
 import itertools
+import os
 import tkinder as tk
 
 import pytest
@@ -80,26 +81,33 @@ def test_window():
         window.title = "hello hello"
         assert window.title == "hello hello"
 
-        for method, state in [(window.withdraw, 'withdrawn'),
-                              (window.iconify, 'iconic')]:
-            method()
-            tk.update()
-            assert window.wm_state == state
-            assert ("wm_state='%s'" % state) in repr(window)
-            window.deiconify()
-            tk.update()
-            assert window.wm_state == 'normal'
-            assert "wm_state='normal'" not in repr(window)
-
-            window.wm_state = state        # should do same as method()
-            tk.update()
-            assert window.wm_state == state
-            window.deiconify()
-            tk.update()
-            assert window.wm_state == 'normal'
-
     not_a_window = tk.Frame(tk.Window())
     assert not hasattr(not_a_window, 'title')
+
+
+@pytest.mark.skipif('CI' in os.environ,
+                    reason=("relies on non-guaranteed details about how "
+                            "window managers work or something like that"))
+def test_window_states():
+    window = tk.Window()
+    for method, state in [(window.withdraw, 'withdrawn'),
+                          (window.iconify, 'iconic')]:
+        method()
+        tk.update()
+        assert window.wm_state == state
+        assert ("wm_state='%s'" % state) in repr(window)
+        window.deiconify()
+        tk.update()
+        assert window.wm_state == 'normal'
+        assert "wm_state='normal'" not in repr(window)
+
+        window.wm_state = state        # should do same as method()
+        tk.update()
+        assert window.wm_state == state
+        window.deiconify()
+        tk.update()
+        assert window.wm_state == 'normal'
+
 
 
 def test_window_closing():
