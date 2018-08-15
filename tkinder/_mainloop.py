@@ -113,7 +113,7 @@ def from_tcl(type_spec, value):
 
         return type_spec.from_tcl(string)
 
-    raise ValueError("unknown type specification " + repr(type_spec))
+    raise TypeError("unknown type specification " + repr(type_spec))
 
 
 def check_type(type_spec, value):
@@ -165,7 +165,7 @@ def check_type(type_spec, value):
             check_type(value_spec, value)
         return
 
-    raise ValueError("unknown type specification " + repr(type_spec))
+    raise TypeError("unknown type specification " + repr(type_spec))
 
 
 def call(returntype, command, *arguments):
