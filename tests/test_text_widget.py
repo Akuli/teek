@@ -92,7 +92,9 @@ def test_tags():
     assert toot not in text.get_all_tags()
     assert toot.ranges() == []
     assert toot not in text.get_all_tags()
-    toot['foreground'] = 'blue'
+    with pytest.raises(TypeError):
+        toot['foreground'] = 'blue'
+    toot['foreground'] = tk.Color.from_tcl('blue')
     assert toot in text.get_all_tags()
 
     # misc other tag properties
@@ -100,7 +102,7 @@ def test_tags():
     assert toot != tk.Text(tk.Window()).get_tag('toot')   # different widget
     assert toot != 123
     assert hash(toot) == hash(toot)
-    assert repr(toot) == "<Text widget tag 'toot': foreground='blue'>"
+    assert repr(toot) == "<Text widget tag 'toot'>"
     with pytest.raises(TypeError):
         del toot['foreground']
 

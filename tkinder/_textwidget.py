@@ -1,6 +1,7 @@
 import collections.abc
 import functools
 
+import tkinder as tk
 from tkinder._widgets import ConfigDict, ChildMixin, Widget
 
 
@@ -48,18 +49,28 @@ class _Tag(ConfigDict):
         self._widget = widget
         self.name = name
         super().__init__(self._call_tag_subcommand)
-        self._initial_config = dict(self)
+        dict(self)      # TODO: why do tests fail without this?
+
+        # these are from text(3tk)
+        # pixels options are usually integers, but they are strings because
+        # they can also be e.g. 1i instead, see man page
+        for prefix in ['', 'select']:
+            self._types[prefix + 'foreground'] = tk.Color
+            self._types[prefix + 'background'] = tk.Color
+
+        self._types['elide'] = bool
+        #self._types['font'] = ???
+        #self._types['justify'] = ??? enum left,right,center
+        self._types['lmargoncolor'] = self._types['rmargoncolor'] = tk.Color
+        self._types['overstrike'] = bool
+        #self._types['tabs'] = ???
+        #self._types['tabstyle'] = ??? enum tabular,wordprocessor
+        self._types['underline'] = bool
+        self._types['underlinefg'] = tk.Color
+        #self._types['wrap'] = ??? enum none,char,word
 
     def __repr__(self):
-        changed = []
-        for key, value in self.items():
-            if self._initial_config[key] != value:
-                changed.append('%s=%r' % (key, value))
-
-        result = 'Text widget tag %r' % self.name
-        if changed:
-            result += ': ' + ', '.join(changed)
-        return '<' + result + '>'
+        return '<Text widget tag %r>' % self.name
 
     def to_tcl(self):
         return self.name

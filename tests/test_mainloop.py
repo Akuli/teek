@@ -60,10 +60,10 @@ def test_eval_and_call(handy_commands):
         assert tk.call(bool, 'returnArg', no.upper()) is False
         assert tk.call(bool, 'returnArg', yes.lower()) is True
         assert tk.call(bool, 'returnArg', no.lower()) is False
+    assert tk.eval(bool, 'returnEmptyString') is None
+
     with pytest.raises(ValueError):
         tk.eval(bool, 'returnArg lolwut')
-    with pytest.raises(ValueError):
-        tk.eval(bool, 'returnEmptyString')
 
     with pytest.raises(TypeError):
         tk.call(None, 'puts', object())

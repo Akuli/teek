@@ -28,7 +28,7 @@ def _maybe_init():
         _app.call('package', 'require', 'tile')
 
 
-def _to_tcl(value):
+def to_tcl(value):
     if hasattr(value, 'to_tcl'):    # duck-typing ftw
         return value.to_tcl()
 
@@ -37,7 +37,7 @@ def _to_tcl(value):
     if isinstance(value, str):
         return value
     if isinstance(value, collections.abc.Mapping):
-        return tuple(map(_to_tcl, _flatten(value.items())))
+        return tuple(map(to_tcl, _flatten(value.items())))
     if isinstance(value, bool):
         return '1' if value else '0'
     if isinstance(value, numbers.Real):    # after bool check, bools are ints
@@ -45,7 +45,7 @@ def _to_tcl(value):
 
     # assume it's some kind of iterable, this must be after the Mapping
     # and str stuff above
-    return tuple(map(_to_tcl, value))
+    return tuple(map(to_tcl, value))
 
 
 def _pairs(sequence):
@@ -53,7 +53,7 @@ def _pairs(sequence):
     return zip(sequence[0::2], sequence[1::2])
 
 
-def _from_tcl(type_spec, value):
+def from_tcl(type_spec, value):
     if type_spec is None:
         return None
 
@@ -71,15 +71,20 @@ def _from_tcl(type_spec, value):
         return type_spec(str(value))
 
     if type_spec is bool:
+        if not from_tcl(str, value):
+            # '' is not a valid bool, but this is usually what was intended
+            # TODO: document this
+            return None
+
         try:
             return _app.getboolean(value)
-        except _tkinter.TclError as e:
+        except (_tkinter.TclError, ValueError) as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
     if isinstance(type_spec, list):
         # [int] -> [1, 2, 3]
         (item_spec,) = type_spec
-        return [_from_tcl(item_spec, item) for item in _app.splitlist(value)]
+        return [from_tcl(item_spec, item) for item in _app.splitlist(value)]
 
     if isinstance(type_spec, tuple):
         # (int, str) -> (1, 'hello')
@@ -87,19 +92,78 @@ def _from_tcl(type_spec, value):
         if len(type_spec) != len(items):
             raise ValueError("expected a sequence of %d items, got %r"
                              % (len(type_spec), list(items)))
-        return tuple(map(_from_tcl, type_spec, items))
+        return tuple(map(from_tcl, type_spec, items))
 
     if isinstance(type_spec, dict):
         # {str, [int]} -> {'a': [1, 2], 'b': [3, 4]}
         # TODO: support type_specs like {'a': int, 'b': str}
         [(key_spec, value_spec)] = type_spec.items()
         return {
-            _from_tcl(key_spec, key): _from_tcl(value_spec, value)
+            from_tcl(key_spec, key): from_tcl(value_spec, value)
             for key, value in _pairs(_app.splitlist(value))
         }
 
     if hasattr(type_spec, 'from_tcl'):
-        return type_spec.from_tcl(_from_tcl(str, value))
+        string = from_tcl(str, value)
+
+        # the empty string is the None value in tcl
+        # TODO: document this
+        if not string:
+            return None
+
+        return type_spec.from_tcl(string)
+
+    raise ValueError("unknown type specification " + repr(type_spec))
+
+
+def check_type(type_spec, value):
+    if type_spec is None:
+        return    # accept anything!
+
+    if isinstance(type_spec, type):     # it's a class
+        if not isinstance(value, type_spec):
+            raise TypeError("expected %s, got %r"
+                            % (type_spec.__name__, value))
+        return
+
+    if isinstance(type_spec, (list, tuple)):
+        # this raises TypeError if the value is not iterable
+        if iter(value) is value:
+            # value is an iterator, so can't loop over it to check anything
+            # because that would exhaust it
+            return
+
+        if isinstance(type_spec, list):
+            (item_spec,) = type_spec
+            for item in value:
+                check_type(item_spec, item)
+        else:
+            try:
+                len(value)
+            except TypeError:
+                # the value is an iterable that doesn't have a len(), but it's
+                # not an iterator so we don't need to worry about exhausting it
+                pass
+            else:
+                if len(type_spec) != len(value):
+                    raise ValueError("expected an iterable of %d items, got %r"
+                                     % (len(type_spec), value))
+
+            # if the value has no len(), the zip doesn't check whether its
+            # iterator yields the same number of items as in type_spec, but
+            # those cases are very rare anyway
+            for item_spec, item in zip(type_spec, value):
+                check_type(item_spec, item)
+
+        return
+
+    if isinstance(type_spec, dict):
+        # anything with .items() is dicty enough because duck-typing
+        [(key_spec, value_spec)] = type_spec.items()
+        for key, value in value.items():
+            check_type(key_spec, key)
+            check_type(value_spec, value)
+        return
 
     raise ValueError("unknown type specification " + repr(type_spec))
 
@@ -179,8 +243,8 @@ def call(returntype, command, *arguments):
         ['123', '3.14', '', 'hello']
     """
     _maybe_init()
-    result = _app.call(tuple(map(_to_tcl, (command,) + arguments)))
-    return _from_tcl(returntype, result)
+    result = _app.call(tuple(map(to_tcl, (command,) + arguments)))
+    return from_tcl(returntype, result)
 
 
 def eval(returntype, string):
@@ -194,7 +258,7 @@ def eval(returntype, string):
     """
     _maybe_init()
     result = _app.eval(string)
-    return _from_tcl(returntype, result)
+    return from_tcl(returntype, result)
 
 
 def run():
@@ -248,7 +312,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
 
     def real_func():
         try:
-            return _to_tcl(func(*args, **kwargs))
+            return to_tcl(func(*args, **kwargs))
         except Exception as e:
             traceback_blabla, rest = traceback.format_exc().split('\n', 1)
             print(traceback_blabla, file=sys.stderr)
