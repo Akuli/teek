@@ -18,13 +18,13 @@ def _tkinter_hint(good, bad):
 
 class _ConfigDict(collections.abc.MutableMapping):
 
-    def __init__(self, widget):
-        self._widget = widget
+    def __init__(self, caller):
+        self._call = caller
         self._types = {}      # {option: argument for run}  str is default
         self._disabled = {}   # {option: instruction string}
 
     def __repr__(self):
-        return '<config of %r, behaves like a dict>' % self._widget.to_tcl()
+        return '<a configure object, behaves like a dict>'
 
     __call__ = _tkinter_hint("widget.config['option'] = value",
                              "widget.config(option=value)")
@@ -36,40 +36,41 @@ class _ConfigDict(collections.abc.MutableMapping):
         if option in self._disabled:
             raise ValueError("the %r option is not supported, %s instead"
                              % (option, self._disabled[option]))
-        if option not in self:
+        if option not in iter(self):    # calls the __iter__
             raise KeyError(option)
 
     def __setitem__(self, option, value):
         self._check_option(option)
-        self._widget._call(None, self._widget, 'configure',
-                           '-' + option, value)
+        self._call(None, 'configure', '-' + option, value)
 
     def __getitem__(self, option):
         self._check_option(option)
         returntype = self._types.get(option, str)
-        return self._widget._call(returntype, self._widget,
-                                  'cget', '-' + option)
+        return self._call(returntype, 'cget', '-' + option)
 
     def __delitem__(self, option):
         raise TypeError("options cannot be deleted")
 
-    # __getitem__ uses _check_option and _check_option uses this
+    # __contains__ seems to try doing self[option] and catch KeyError by
+    # default, but that doesn't work with disabled options because __getitem__
+    # raises ValueError
     def __contains__(self, option):
-        if option in self._disabled:
+        try:
+            self._check_option(option)
+            return True
+        except (KeyError, ValueError):
             return False
 
-        # [[str]] is a 2d list of strings
-        lists = self._widget._call([[str]], self._widget, 'configure')
-        return option in (info[0].lstrip('-') for info in lists)
-
     def __iter__(self):
-        for info in self._widget._call([[str]], self._widget, 'configure'):
+        # [[str]] is a 2d list of strings
+        for info in self._call([[str]], 'configure'):
             option = info[0].lstrip('-')
             if option not in self._disabled:
                 yield option
 
     def __len__(self):
-        options = self._widget._call([[str]], self._widget, 'configure')
+        # FIXME: this is wrong if one of the disableds not exists, hard 2 test
+        options = self._call([[str]], 'configure')
         return len(options) - len(self._disabled)
 
 
@@ -113,7 +114,8 @@ class Widget:
         self._call(None, widgetname, self.to_tcl())
         _widgets[self.to_tcl()] = self
 
-        self.config = _ConfigDict(self)
+        self.config = _ConfigDict(
+            lambda returntype, *args: self._call(returntype, self, *args))
         self._init_config()
         self.config.update(options)
 

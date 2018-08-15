@@ -151,14 +151,15 @@ def test_options():
     window = tk.Window()
 
     for widget in [tk.Button(window), tk.Label(window)]:
-        assert repr(widget.to_tcl()) in repr(widget.config)
         assert 'behaves like a dict' in repr(widget.config)
         assert len(widget.config) == len(list(widget.config))
 
+        # abbreviations aren't allowed, it simplifies the implementation
+        # and people aren't aware of abbreviating things in tk anyway
+        assert 'text' in widget.config
+        assert 'tex' not in widget.config
         with pytest.raises(KeyError):
-            # abbreviations aren't allowed, it simplifies the implementation
-            # and people aren't aware of abbreviating things in tk anyway
-            widget.config['foregro']
+            widget.config['tex']
 
 #        for option in (_COLOR_OPTIONS & widget.config.keys()):
 #            for color in _COLORS:
