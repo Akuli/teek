@@ -5,14 +5,16 @@ import tkinder
 
 
 class Callback:
-    """An object that calls multiple functions.
+    """An object that calls functions.
 
     Example::
 
         >>> c = Callback()
         >>> c.connect(print, args=["hello", "world"])
+        >>> c.run()   # runs print("hello", "world"), usually tkinder does this
+        hello world
         >>> c.connect(print, args=["hello", "again"])
-        >>> c.run()      # usually tkinder does this
+        >>> c.run()
         hello world
         hello again
     """
@@ -26,12 +28,12 @@ class Callback:
 
         If the callback has its own arguments (e.g.
         ``Callback(int, int)``), they will appear before the *args*
-        given here. For example::
+        given here. For example:
 
-            >>> c = Callback(int, int)
-            >>> c.connect(print, args=['hello'], kwargs={'sep': '-'})
-            >>> c.run(1, 2)
-            1-2-hello
+        >>> c = Callback(int, int)
+        >>> c.connect(print, args=['hello'], kwargs={'sep': '-'})
+        >>> c.run(1, 2)     # print(1, 2, 'hello', sep='-')
+        1-2-hello
         """
         # -1 is this method so -2 is what called this
         stack_info = traceback.format_stack()[-2]
@@ -106,8 +108,7 @@ class Color:
       ``Color(0xff, 0x00, 0x00)`` where ``0xff`` is hexadecimal notation for
       255, and ``0x00`` is 0.
     * ``Color(color_name)`` creates a color object from a Tk color. There is a
-      long list of color names in
-      `colors(3tk) <https://www.tcl.tk/man/tcl8.6/TkCmd/colors.htm>`_
+      long list of color names in :man:`colors(3tk)`.
 
     Examples::
 
@@ -118,8 +119,7 @@ class Color:
 
     The string argument things are implemented by letting Tk interpret the
     color, so all of the ways to define colors as strings shown in
-    `Tk_GetColor(3tk) <https://www.tcl.tk/man/tcl/TkLib/GetColor.htm>` are
-    supported.
+    :man:`Tk_GetColor(3tk)` are supported.
 
     Color objects are hashable, and they can be compared with ``==``::
 
@@ -128,12 +128,14 @@ class Color:
         >>> Color(0, 255, 0) == Color(0, 0, 255)
         False
 
+    Color objects are immutable. If you want to change a color, create a new
+    Color object.
+
     .. attribute:: red
     .. attribute:: green
     .. attribute:: blue
 
-        These are the values passed to ``Color()``. Color objects should be
-        considered immutable, so assigning to these like
+        These are the values passed to ``Color()``. Assigning to these like
         ``some_color.red = 255`` raises an exception.
     """
 
@@ -166,7 +168,7 @@ class Color:
 
     @classmethod
     def from_tcl(cls, color_string):
-        """``Color(color_string)`` returns ``Color(color_string)``.
+        """``Color.from_tcl(color_string)`` returns ``Color(color_string)``.
 
         This is just for compatibility with :func:`tkinder.call`.
         """
@@ -193,6 +195,8 @@ class Color:
         """
         return self._color_string
 
+    # must not compare self._color_string because 'white' and '#ffffff' should
+    # be equal
     def __eq__(self, other):
         if isinstance(other, Color):
             return self._rgb == other._rgb
@@ -200,7 +204,5 @@ class Color:
 
     # equal objects MUST have the same hash, so self._color_string can't be
     # used here
-    #
-    # TODO: test this
     def __hash__(self):
         return hash(self._rgb)

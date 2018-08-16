@@ -17,6 +17,7 @@ tkinder.
 
    getting-started
    widgets
+   misc-objs
 
 ..
     Indices and tables

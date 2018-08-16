@@ -23,7 +23,17 @@ def man_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     match = re.fullmatch(r'(\w+)\(3(tcl|tk)\)', text)
     assert match is not None, "invalid man page %r" % text
     manpage_name, tcl_or_tk = match.groups()
-    url = URL_TEMPLATE % (tcl_or_tk.capitalize(), manpage_name)
+
+    if tcl_or_tk == 'tk' and manpage_name.startswith('Tk_'):
+        # Tk C library function
+        url = 'https://www.tcl.tk/man/tcl/TkLib/%s.htm' % manpage_name[3:]
+    elif tcl_or_tk == 'tk':
+        url = 'https://www.tcl.tk/man/tcl8.6/TkCmd/%s.htm' % manpage_name
+    elif tcl_or_tk == 'tcl':
+        url = 'https://www.tcl.tk/man/tcl8.6/TclCmd/%s.htm' % manpage_name
+    else:
+        raise ValueError("something is very broken")
+
     check_url(url)
 
     # this is the copy/pasta part
