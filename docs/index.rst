@@ -8,11 +8,15 @@ Welcome to Tkinder's documentation!
 
 Tkinder is a Pythonic way to write Tk GUIs. See
 `the README <https://github.com/Akuli/tkinder/#tkinder>`_ for an introduction
-to tkinder.
+to tkinder, and :ref:`getting-started` for important things about using
+tkinder.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
+
+   getting-started
+   widgets
 
 ..
     Indices and tables

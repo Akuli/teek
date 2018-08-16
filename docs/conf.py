@@ -12,9 +12,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))    # for extensions.py
+sys.path.insert(0, os.path.abspath('..'))   # for tkinder
 
 
 # -- Project information -----------------------------------------------------
@@ -27,6 +28,9 @@ author = 'Akuli'
 version = ''
 # The full version, including alpha/beta/rc tags
 release = ''
+
+# to get warnings when links to other parts of the docs don't work
+nitpicky = True
 
 
 # -- General configuration ---------------------------------------------------
@@ -42,6 +46,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'extensions',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

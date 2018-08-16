@@ -25,7 +25,7 @@ class ConfigDict(collections.abc.MutableMapping):
         self._disabled = {}   # {option: instruction string}
 
     def __repr__(self):
-        return '<a configure object, behaves like a dict>'
+        return '<a config object, behaves like a dict>'
 
     __call__ = _tkinter_hint("widget.config['option'] = value",
                              "widget.config(option=value)")
@@ -82,27 +82,34 @@ class ConfigDict(collections.abc.MutableMapping):
 
 
 class Widget:
-    """A base class for all widgets.
+    """This is a base class for all widgets.
 
-    All widgets inherit from this class, and thus have all attributes
-    and methods that this class has.
+    All widgets inherit from this class, and they have all the attributes
+    and methods documented here.
 
-    You shouldn't create instances of this yourself, but you can use
-    this class with :func:`isinstance`.
+    Don't create instances of ``Widget`` yourself like ``Widget(...)``; use one
+    of the classes documented below instead. However, you can use ``Widget``
+    with :func:`isinstance`; e.g. ``isinstance(thingy, tk.Widget)`` returns
+    ``True`` if ``thingy`` is a tkinder widget.
 
     .. attribute:: config
 
         A dict-like object that represents the widget's options.
-        ::
 
-            label = tk.Label(parent, text='Hello World')
-            label.config['text'] = 'New Text'
-            print(label.config['text'])
-            label.config.update({'text': 'Even newer text'})
-
-            # this prints all options nicely
-            import pprint
-            pprint.pprint(dict(label.config))
+        >>> window = tk.Window()
+        >>> label = tk.Label(window, text='Hello World')
+        >>> label.config
+        <a config object, behaves like a dict>
+        >>> label.config['text']
+        'Hello World'
+        >>> label.config['text'] = 'New Text'
+        >>> label.config['text']
+        'New Text'
+        >>> label.config.update({'text': 'Even newer text'})
+        >>> label.config['text']
+        'Even newer text'
+        >>> import pprint
+        >>> pprint.pprint(dict(label.config))       # prints everything nicely
     """
 
     def __init__(self, widgetname, parent, **options):
@@ -129,6 +136,22 @@ class Widget:
     # see _tcl_calls.call
     @classmethod
     def from_tcl(cls, path_string):
+        """Creates a widget from a Tcl path names.
+
+        In Tcl, widgets are represented as commands, and doing something to the
+        widget invokes the command. Use this method if you know the Tcl command
+        and you would like to have a widget object instead.
+
+        This method raises :exc:`TypeError` if it's called from a different
+        ``Widget`` subclass than what the type of the ``path_string`` widget
+        is:
+
+        >>> window = tk.Window()
+        >>> tk.Button.from_tcl(tk.Label(window).to_tcl())  # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: '...' is a Label, not a Button
+        """
         if path_string == '.':
             # this kind of sucks, i might make a _RootWindow class later
             return None
@@ -140,8 +163,10 @@ class Widget:
         return result
 
     def to_tcl(self):
+        """Returns the widget's Tcl command name. See :meth:`from_tcl`."""
         return self._widget_path
 
+    # TODO: is this used anywhere??
     def _init_config(self):
         pass
 
@@ -181,7 +206,10 @@ class Widget:
             raise err
 
     def destroy(self):
-        """Delete this widget and all child widgets."""
+        """Delete this widget and all child widgets.
+
+        Manual page: :man:`destroy(3tk)`
+        """
         for name in self._call([str], 'winfo', 'children', self):
             # allow overriding the destroy() method if the widget was
             # created by tkinder
@@ -194,13 +222,25 @@ class Widget:
         del _widgets[self.to_tcl()]
 
     def winfo_children(self):
+        """Returns a list of child widgets that this widget has.
+
+        Manual page: :man:`winfo(3tk)`
+        """
         return self._call([Widget], 'winfo', 'children', self)
 
     def winfo_exists(self):
+        """Returns False if the widget has been destroyed. See :meth:`destroy`.
+
+        Manual page: :man:`winfo(3tk)`
+        """
         # self._run uses this, so this must not use that
         return _tcl_calls.call(bool, 'winfo', 'exists', self)
 
     def winfo_toplevel(self):
+        """Returns the :class:`Toplevel` widget that this widget is in.
+
+        Manual page: :man:`winfo(3tk)`
+        """
         return self._call(Widget, 'winfo', 'toplevel', self)
 
 
@@ -229,6 +269,10 @@ class _WmMixin:
             result.append('wm_state=' + repr(self.wm_state))
         return result
 
+    # note that these are documented in Toplevel, this is a workaround to get
+    # sphinx to show the docs in the correct place while keeping this class
+    # as an implementation detail
+
     @property
     def title(self):
         return self._call(str, 'wm', 'title', self._get_wm_widget())
@@ -247,28 +291,7 @@ class _WmMixin:
         self._call(None, 'wm', 'state', self._get_wm_widget(), state)
 
     def geometry(self, width=None, height=None, x=None, y=None):
-        """Set or get the size and place of the window in pixels.
-
-        This method can be called in a few different ways:
-
-            * If *width* and *height* are given, the window is resized.
-            * If *x* and *y* are given, the window is moved.
-            * If all arguments are given, the window is resized and moved.
-            * If no arguments are given, the current geometry is
-              returned as a namedtuple with *width*, *height*, *x* and
-              *y* fields.
-            * Calling this method otherwise raises an error.
-
-        Example::
-
-            >>> import tkinder as tk
-            >>> window = tk.Window()
-            >>> window.geometry(300, 200)       # resize to 300x200
-            >>> window.geometry(x=0, y=0)       # move to upper left corner
-            >>> window.geometry()               # doctest: +SKIP
-            Geometry(width=300, height=200, x=0, y=0)
-            >>> window.geometry().width         # doctest: +SKIP
-            300
+        """
         """
         if (width is None) ^ (height is None):
             raise TypeError("specify both width and height, or neither")
@@ -308,6 +331,52 @@ class Toplevel(_WmMixin, Widget):
     Usually it's easiest to use :class:`Window` instead. It behaves like a
     ``Toplevel`` widget, but it's actually a ``Toplevel`` with a ``Frame``
     inside it.
+
+    .. seealso:: :man:`toplevel(3tk)`
+
+    .. method:: geometry(width=None, height=None, x=None, y=None)
+
+        Set or get the size and place of the window in pixels.
+
+        Tk's geometries are strings like ``'100x200+300+400'``, but that's not
+        very pythonic, so this method works with integers and namedtuples
+        instead. This method can be called in a few different ways:
+
+            * If *width* and *height* are given, the window is resized.
+            * If *x* and *y* are given, the window is moved.
+            * If all arguments are given, the window is resized and moved.
+            * If no arguments are given, the current geometry is
+              returned as a namedtuple with *width*, *height*, *x* and
+              *y* fields.
+            * Calling this method otherwise raises an error.
+
+        Examples::
+
+            >>> import tkinder as tk
+            >>> window = tk.Window()
+            >>> window.geometry(300, 200)    # resize to 300px wide, 200px high
+            >>> window.geometry(x=0, y=0)    # move to upper left corner
+            >>> window.geometry()            # doctest: +SKIP
+            Geometry(width=300, height=200, x=0, y=0)
+            >>> window.geometry().width      # doctest: +SKIP
+            300
+
+        See also ``wm geometry`` in :man:`wm(3tk)`.
+
+    .. attribute:: title
+    .. attribute:: wm_state
+    .. method:: geometry(width=None, height=None, x=None, y=None)
+    .. method:: withdraw()
+    .. method:: iconify()
+    .. method:: deiconify()
+
+        These attributes and methods correspond to similarly named things in
+        :man:`wm(3tk)`. Note that ``wm_state`` is ``state`` in the manual page;
+        the tkinder attribute is ``wm_state`` to make it explicit that it is
+        the wm state, not some other state.
+
+        ``title`` and ``wm_state`` are strings, and they can be set like
+        ``my_toplevel.title = "Hello"``.
     """
 
     # allow passing title as a positional argument
@@ -325,8 +394,31 @@ class Toplevel(_WmMixin, Widget):
 
 
 class Window(_WmMixin, Widget):
-    """A convenient "widget" with a Ttk frame inside a toplevel."""
-    # TODO: better docstring
+    """A convenient widget that represents a Ttk frame inside a toplevel.
+
+    Tk's windows like :class:`Toplevel` are *not* Ttk widgets, and there are no
+    Ttk window widgets. If you add Ttk widgets to Tk windows like
+    :class:`Toplevel` so that the widgets don't fill the entire window, your
+    GUI looks messy on some systems, like my linux system with MATE desktop.
+    This is why you should always create a big Ttk frame that fills the window,
+    and then add all widgets into that frame. That's kind of painful and most
+    people don't bother with it, but this class does that for you, so you can
+    just create a :class:`Window` and add widgets to that.
+
+    All initialization arguments are passed to :class:`Toplevel`.
+
+    There is no manual page for this class because this is purely a tkinder
+    feature; there is no ``window`` widget in Tk.
+
+    .. seealso:: :class:`Toplevel`, :class:`Frame`
+
+    .. attribute:: toplevel
+
+        The :class:`Toplevel` widget that the frame is in. The :class:`Window`
+        object itself has all the attributes and methods of the :class:`Frame`
+        inside the window, and for convenience, also many :class:`Toplevel`
+        things like :attr:`~Toplevel.title` and :meth:`~Toplevel.withdraw`.
+    """
 
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
@@ -368,18 +460,46 @@ class ChildMixin:
 
 
 class Frame(ChildMixin, Widget):
+    """An empty widget. Frames are often used as containers for other widgets.
+
+    .. seealso:: :man:`ttk_frame(3tk)`
+    """
 
     def __init__(self, parent, **options):
         super().__init__('ttk::frame', parent, **options)
 
 
 class Separator(ChildMixin, Widget):
+    """A horizontal or vertical line, depending on an ``orient`` option.
+
+    Create a horizontal separator like this...
+    ::
+
+        separator = tk.Separator(some_widget, orient='horizontal')
+        separator.pack(fill='x')    # default is side='top'
+
+    ...and create a vertical separator like this::
+
+        separator = tk.Separator(some_widget, orient='vertical')
+        separator.pack(fill='y', side='left')   # can also use side='right'
+
+    .. seealso:: :man:`ttk_separator(3tk)`
+    """
+    # TODO: link to pack docs
 
     def __init__(self, parent, **options):
         super().__init__('ttk::separator', parent, **options)
 
 
 class Label(ChildMixin, Widget):
+    """A widget that displays text.
+
+    For convenience, the ``text`` option can be also given as a positional
+    initialization argument, so ``tk.Label(parent, "hello")`` and
+    ``tk.Label(parent, text="hello")`` do the same thing.
+
+    .. seealso:: :man:`ttk_label(3tk)`
+    """
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__('ttk::label', parent, text=text, **kwargs)
@@ -389,6 +509,26 @@ class Label(ChildMixin, Widget):
 
 
 class Button(ChildMixin, Widget):
+    """A widget that runs a callback when it's clicked.
+
+    ``text`` can be given as with :class:`Label`. If ``command`` is given, it
+    should be a function that will be called with no arguments when the button
+    is clicked. This...
+    ::
+
+        label = tk.Label(some_widget, "Click me", do_something)
+
+    ...does the same thing as this::
+
+        label = tk.Label(some_widget, "Click me")
+        label.on_click.connect(do_something)
+
+    .. seealso:: :man:`ttk_button(3tk)`
+
+    .. attribute:: on_click
+
+        A :class:`Callback` that runs when the button is clicked.
+    """
 
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__('ttk::button', parent, text=text, **kwargs)
