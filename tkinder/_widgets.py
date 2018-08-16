@@ -332,7 +332,7 @@ class Toplevel(_WmMixin, Widget):
     ``Toplevel`` widget, but it's actually a ``Toplevel`` with a ``Frame``
     inside it.
 
-    .. seealso:: :man:`toplevel(3tk)`
+    Manual page: :man:`toplevel(3tk)`
 
     .. method:: geometry(width=None, height=None, x=None, y=None)
 
@@ -462,7 +462,7 @@ class ChildMixin:
 class Frame(ChildMixin, Widget):
     """An empty widget. Frames are often used as containers for other widgets.
 
-    .. seealso:: :man:`ttk_frame(3tk)`
+    Manual page: :man:`ttk_frame(3tk)`
     """
 
     def __init__(self, parent, **options):
@@ -483,7 +483,7 @@ class Separator(ChildMixin, Widget):
         separator = tk.Separator(some_widget, orient='vertical')
         separator.pack(fill='y', side='left')   # can also use side='right'
 
-    .. seealso:: :man:`ttk_separator(3tk)`
+    Manual page: :man:`ttk_separator(3tk)`
     """
     # TODO: link to pack docs
 
@@ -498,7 +498,7 @@ class Label(ChildMixin, Widget):
     initialization argument, so ``tk.Label(parent, "hello")`` and
     ``tk.Label(parent, text="hello")`` do the same thing.
 
-    .. seealso:: :man:`ttk_label(3tk)`
+    Manual page: :man:`ttk_label(3tk)`
     """
 
     def __init__(self, parent, text='', **kwargs):
@@ -523,7 +523,7 @@ class Button(ChildMixin, Widget):
         label = tk.Label(some_widget, "Click me")
         label.on_click.connect(do_something)
 
-    .. seealso:: :man:`ttk_button(3tk)`
+    Manual page: :man:`ttk_button(3tk)`
 
     .. attribute:: on_click
 
