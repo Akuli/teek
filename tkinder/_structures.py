@@ -61,7 +61,7 @@ class Callback:
         hello
         """
         # enumerate objects aren't reversible :(
-        for index in range(len(self._connections)-1, -1, -1):
+        for index in range(len(self._connections) - 1, -1, -1):
             # can't use is because cpython does this:
             #   >>> class Thing:
             #   ...   def stuff(): pass

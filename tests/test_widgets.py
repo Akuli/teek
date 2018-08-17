@@ -109,7 +109,6 @@ def test_window_states():
         assert window.wm_state == 'normal'
 
 
-
 def test_window_closing():
     window = tk.Window()
     window.on_delete_window.run()
