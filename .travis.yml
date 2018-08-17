@@ -5,8 +5,8 @@ python:
   - "3.6"
   - nightly
 install:
+  - "python -c 'import os; print(os.listdir())'"
   - pip install . pytest flake8
-  - python -c 'import os; print(os.listdir())'
 script:
   - python --version
   - flake8 tkinder/ tests/
