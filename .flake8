@@ -1,0 +1,7 @@
+[flake8]
+
+# E265 block comment should start with '# '
+# this is ignored because '#print("toot")' is a handy way to comment
+# things out, and easier to work with than '# print("toot")' which is
+# best suited for human-readable comments
+ignore = E265
