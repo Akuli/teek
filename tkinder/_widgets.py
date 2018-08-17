@@ -528,12 +528,12 @@ class Button(ChildMixin, Widget):
     is clicked. This...
     ::
 
-        label = tk.Label(some_widget, "Click me", do_something)
+        button = tk.Button(some_widget, "Click me", do_something)
 
     ...does the same thing as this::
 
-        label = tk.Label(some_widget, "Click me")
-        label.on_click.connect(do_something)
+        button = tk.Button(some_widget, "Click me")
+        button.on_click.connect(do_something)
 
     Manual page: :man:`ttk_button(3tk)`
 
