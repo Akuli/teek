@@ -15,17 +15,32 @@ on_quit = _structures.Callback()
 counts = collections.defaultdict(lambda: itertools.count(1))
 on_quit.connect(counts.clear)
 
+# globalz ftw
 _app = None
 
 
-def _maybe_init():
+def _get_app():
     global _app
     if _app is None:
-        # tkinter does this :D
+        # tkinter does this :D i have no idea what each argument means
         _app = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
 
         _app.call('wm', 'withdraw', '.')
         _app.call('package', 'require', 'tile')
+
+    return _app
+
+
+def quit():
+    global _app
+    if _app is not None:
+        on_quit.run()
+        _app.call('destroy', '.')
+        _app = None
+
+
+def run():
+    _get_app().mainloop(0)
 
 
 def to_tcl(value):
@@ -62,7 +77,7 @@ def from_tcl(type_spec, value):
         # list internally
         if isinstance(value, tuple):
             # force it to string
-            junk, result = _app.call('concat', 'junk', value).split(maxsplit=1)
+            junk, result = _get_app().call('concat', 'junk', value).split(maxsplit=1)
             assert junk == 'junk'
             return result
         return str(value)
@@ -74,7 +89,7 @@ def from_tcl(type_spec, value):
             return None
 
         try:
-            return _app.getboolean(value)
+            return _get_app().getboolean(value)
         except (_tkinter.TclError, ValueError) as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
@@ -95,11 +110,11 @@ def from_tcl(type_spec, value):
         if isinstance(type_spec, list):
             # [int] -> [1, 2, 3]
             (item_spec,) = type_spec
-            return [from_tcl(item_spec, item) for item in _app.splitlist(value)]
+            return [from_tcl(item_spec, item) for item in _get_app().splitlist(value)]
 
         if isinstance(type_spec, tuple):
             # (int, str) -> (1, 'hello')
-            items = _app.splitlist(value)
+            items = _get_app().splitlist(value)
             if len(type_spec) != len(items):
                 raise ValueError("expected a sequence of %d items, got %r"
                                  % (len(type_spec), list(items)))
@@ -111,7 +126,7 @@ def from_tcl(type_spec, value):
             [(key_spec, value_spec)] = type_spec.items()
             return {
                 from_tcl(key_spec, key): from_tcl(value_spec, value)
-                for key, value in _pairs(_app.splitlist(value))
+                for key, value in _pairs(_get_app().splitlist(value))
             }
 
     raise TypeError("unknown type specification " + repr(type_spec))
@@ -134,8 +149,7 @@ string"
     >>> tk.call(None, 'puts', message)   # 1 argument to puts  # doctest: +SKIP
     hello world thing
     """
-    _maybe_init()
-    result = _app.call(tuple(map(to_tcl, (command,) + arguments)))
+    result = _get_app().call(tuple(map(to_tcl, (command,) + arguments)))
     return from_tcl(returntype, result)
 
 
@@ -148,22 +162,8 @@ def eval(returntype, code):
     >>> call(int, 'add', 1, 2)      # usually this is better, see below
     3
     """
-    _maybe_init()
-    result = _app.eval(code)
+    result = _get_app().eval(code)
     return from_tcl(returntype, result)
-
-
-def run():
-    _maybe_init()
-    _app.mainloop(0)
-
-
-def quit():
-    global _app
-    if _app is not None:
-        on_quit.run()
-        _app.call('destroy', '.')
-        _app = None
 
 
 _command_cache = {}     # {function: name}
@@ -186,8 +186,6 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
     .. seealso::
         Use :func:`traceback.format_stack` to get a *stack_info* string.
     """
-    _maybe_init()
-
     args = tuple(args)
     if kwargs is None:
         kwargs = {}
@@ -212,7 +210,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
             return ''
 
     name = 'tkinder_command_%d' % next(counts['commands'])
-    _app.createcommand(name, real_func)
+    _get_app().createcommand(name, real_func)
     if cache_key is not None:
         _command_cache[cache_key] = name
     return name
@@ -224,5 +222,4 @@ def delete_command(name):
     You can delete commands returned from :func:`create_command` to
     avoid memory leaks.
     """
-    _maybe_init()
-    _app.deletecommand(name)
+    _get_app().deletecommand(name)
