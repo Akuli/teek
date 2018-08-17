@@ -110,6 +110,10 @@ class Widget:
         'Even newer text'
         >>> import pprint
         >>> pprint.pprint(dict(label.config))       # prints everything nicely
+        ... # doctest: +ELLIPSIS
+        {...,
+         'text': 'Even newer text',
+         ...}
     """
 
     def __init__(self, widgetname, parent, **options):
