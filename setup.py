@@ -20,6 +20,5 @@ setup(
     long_description_content_type='text/markdown',
     keywords='tkinter pythonic',
     url='https://github.com/Akuli/tkinder',
-    install_requires=list(get_requirements()),
     packages=find_packages(),
 )
