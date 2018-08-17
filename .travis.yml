@@ -4,9 +4,11 @@ python:
   - "3.5"
   - "3.6"
   - nightly
+install:
+  - pip install . pytest flake8
 script:
   - python --version
   - flake8 tkinder/ tests/
 
   # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
-  - xvfb-run python -m pytest
+  - xvfb-run pytest
