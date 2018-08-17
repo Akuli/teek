@@ -47,7 +47,7 @@ def test_callbacks(capsys):
     assert capsys.readouterr() == ('', '')
 
     def broken_callback(whatever):
-        1/0
+        1 / 0
 
     cb.connect(broken_callback)
     cb.run('wat')         # doesn't raise an error
