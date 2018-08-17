@@ -1,7 +1,11 @@
 # flake8: noqa
 
-# to make sure it's there
-import _tkinter
+import os
+
+readthedocs = (os.environ.get('READTHEDOCS', None) == 'True')
+if not readthedocs:
+    # make sure it's installed
+    import _tkinter
 
 from setuptools import setup, find_packages
 

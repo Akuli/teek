@@ -1,5 +1,6 @@
 # flake8: noqa
 
+import os as _os
 import sys as _sys
 
 if _sys.platform.startswith("win32"):     # pragma: no cover
@@ -9,6 +10,13 @@ if _sys.platform.startswith("win32"):     # pragma: no cover
         from tkinter import _fix
     except ImportError:
         pass
+
+if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
+    # readthedocs must be able to import everything without _tkinter
+    import types
+    sys.modules['_tkinter'] = types.SimpleNamespace(
+        TclError=None,
+    )
 
 from _tkinter import TclError
 from tkinder._structures import Callback, Color
