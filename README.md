@@ -139,7 +139,7 @@ textwidget.mark_set('insert', '{}.{}'.format(new_cursor_line, new_cursor_column)
 textwidget.marks['insert'] = (new_cursor_line, new_cursor_column)
 ```
 
-Tcl uses strings like `3.4 + 5 chars` to denote the position 4
+Tcl uses strings like `3.4 + 5 chars` to denote the position that is 5
 characters after the position `3.4`. Tkinder's text position namedtuples have a
 pythonic `forward()` method that returns a new text position.
 
