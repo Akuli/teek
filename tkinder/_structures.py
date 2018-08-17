@@ -178,7 +178,8 @@ class Color:
     def from_tcl(cls, color_string):
         """``Color.from_tcl(color_string)`` returns ``Color(color_string)``.
 
-        This is just for compatibility with :func:`tkinder.call`.
+        This is just for compatibility with
+        :ref:`type specifications <type-spec>`.
         """
         return cls(color_string)
 

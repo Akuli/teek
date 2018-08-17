@@ -18,6 +18,7 @@ tkinder.
    getting-started
    widgets
    misc-objs
+   tcl-calls
 
 ..
     Indices and tables

@@ -67,9 +67,6 @@ def from_tcl(type_spec, value):
             return result
         return str(value)
 
-    if type_spec in (int, float):
-        return type_spec(str(value))
-
     if type_spec is bool:
         if not from_tcl(str, value):
             # '' is not a valid bool, but this is usually what was intended
@@ -81,44 +78,58 @@ def from_tcl(type_spec, value):
         except (_tkinter.TclError, ValueError) as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
-    if isinstance(type_spec, list):
-        # [int] -> [1, 2, 3]
-        (item_spec,) = type_spec
-        return [from_tcl(item_spec, item) for item in _app.splitlist(value)]
+    if isinstance(type_spec, type):     # it's a class
+        if issubclass(type_spec, numbers.Real):     # must be after bool check
+            return type_spec(from_tcl(str, value))
 
-    if isinstance(type_spec, tuple):
-        # (int, str) -> (1, 'hello')
-        items = _app.splitlist(value)
-        if len(type_spec) != len(items):
-            raise ValueError("expected a sequence of %d items, got %r"
-                             % (len(type_spec), list(items)))
-        return tuple(map(from_tcl, type_spec, items))
+        if hasattr(type_spec, 'from_tcl'):
+            string = from_tcl(str, value)
 
-    if isinstance(type_spec, dict):
-        # {str, [int]} -> {'a': [1, 2], 'b': [3, 4]}
-        # TODO: support type_specs like {'a': int, 'b': str}
-        [(key_spec, value_spec)] = type_spec.items()
-        return {
-            from_tcl(key_spec, key): from_tcl(value_spec, value)
-            for key, value in _pairs(_app.splitlist(value))
-        }
+            # the empty string is the None value in tcl
+            if not string:
+                return None
 
-    if hasattr(type_spec, 'from_tcl'):
-        string = from_tcl(str, value)
+            return type_spec.from_tcl(string)
 
-        # the empty string is the None value in tcl
-        # TODO: document this
-        if not string:
-            return None
+    else:
+        if isinstance(type_spec, list):
+            # [int] -> [1, 2, 3]
+            (item_spec,) = type_spec
+            return [from_tcl(item_spec, item) for item in _app.splitlist(value)]
 
-        return type_spec.from_tcl(string)
+        if isinstance(type_spec, tuple):
+            # (int, str) -> (1, 'hello')
+            items = _app.splitlist(value)
+            if len(type_spec) != len(items):
+                raise ValueError("expected a sequence of %d items, got %r"
+                                 % (len(type_spec), list(items)))
+            return tuple(map(from_tcl, type_spec, items))
+
+        if isinstance(type_spec, dict):
+            # {str, [int]} -> {'a': [1, 2], 'b': [3, 4]}
+            # TODO: support type_specs like {'a': int, 'b': str}
+            [(key_spec, value_spec)] = type_spec.items()
+            return {
+                from_tcl(key_spec, key): from_tcl(value_spec, value)
+                for key, value in _pairs(_app.splitlist(value))
+            }
 
     raise TypeError("unknown type specification " + repr(type_spec))
 
 
 def check_type(type_spec, value):
-    if type_spec is None:
-        return    # accept anything!
+    """Checks if a value matches a type specification.
+
+    If the value doesn't match, this raises :exc:`ValueError` or
+    :exc:`TypeError`.
+
+    The objects that :func:`.call` and :func:`.eval` return should always
+    match, so that after a call like
+    ``result = tk.call(type_spec, something something)``,
+    ``tk.check_type(type_spec, result)`` shouldn't raise errors.
+    """
+    if type_spec is None:   # accept anything
+        return
 
     if isinstance(type_spec, type):     # it's a class
         if not isinstance(value, type_spec):
@@ -169,95 +180,38 @@ def check_type(type_spec, value):
 
 
 def call(returntype, command, *arguments):
-    """Execute a Tcl command and return its return value.
+    """Call a Tcl command.
 
-    Everything is a string in Tcl but many things aren't in Python, so
-    all arguments are converted to strings and the return value is
-    converted to whatever is specified with *returntype*.
+    The arguments are passed correctly, even if they contain spaces:
 
-    Arguments are converted like this:
-
-        * If the argument is a string, no conversions are done.
-        * None is turned into an empty string.
-        * :class:`Mappings <collections.abc.Mapping>` are turned into
-          lists of pairs like those returned by :man:`dict(3tcl)`.
-        * True and False are converted to ``1`` and ``0``.
-        * :class:`Numbers <numbers.Number>` are passed to ``str``.
-        * Iterables are treated as Tcl lists.
-        * If the argument has a ``to_tcl()`` method, it is called with no
-          arguments and its return value is used. For example, widgets have a
-          ``to_tcl()`` method that returns the widget's path string, so passing
-          a widget gives Tcl its widget path.
-        * Any other arguments raise :exc:`TypeError`. Currently the
-          error comes from attempting to iterate over the argument (and
-          that's an implementation detail), but :exc:`TypeError` is
-          guaranteed to be raised when an unknown argument is passed.
-
-    The *returntype* is treated like this:
-        * ``None`` means that he Tcl return value is ignored, and ``call()``
-          returns None.
-        * ``str`` usually means that no conversions are done, but if Tcl uses
-          a non-string representation of the object for performance reasons, it
-          will be forced to a string.
-        * ``int`` and ``float`` are equivalent to using ``str`` and doing
-          ``int(string_result)`` or ``float(string_result)``.
-        * ``bool`` returns a Python boolean. All valid Tcl booleans are
-          supported; for example, ``Y``, ``yes``, ``1``, ``on`` and
-          ``tru`` are all converted to ``True``. :exc:`ValueError` is
-          raised if the value is not a valid Tcl boolean.
-        * Any class with a ``from_tcl`` staticmethod or classmethod can be also
-          passed. The ``from_tcl`` method is called with 1 argument, which is
-          the value converted to string as if ``str`` had been used instead.
-          For example, widget classes have a ``from_tcl`` method that creates a
-          widget from a path name compatible with widgets' ``to_tcl`` (see
-          above).
-
-    The return types can be also combined in the following ways. These examples
-    use ``str`` and ``int``, but all other forms work as well. The return types
-    can be nested arbitrarily; for example, converting with ``[(int, float)]``
-    might return ``[(12, 3.4), (56, 7.8)]``.
-
-        * ``[str]`` is a list of strings, of any length.
-        * ``(str, int)`` is a tuple of a string and an integer. This allows you
-          to create a sequence with different kinds of items in it. For
-          example, ``(str, str, str)`` is like ``[str]`` except that it also
-          checks the length of the result (raising :exc:`ValueError`) and
-          returns a tuple instead of a list.
-        * ``{str: int}`` is a dictionary with string keys and integer values.
-          Tcl dicts are just lists that contains an even number of items, so
-          something like ``{str: str}`` is equivalent to using ``[str]`` and
-          then making a list from that.
-
-    Examples::
-
-        >>> call([str], 'list', 'a', 'b', 'c')
-        ['a', 'b', 'c']
-        >>> call((str, int, float), 'list', 'hello', '3', '3.14')
-        ('hello', 3, 3.14)
-        >>> call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
-        [True, True, True, True, True, True]
-        >>> call({str: [int]}, 'dict', 'create', 'a', '1', 'b', '2')   \
+    >>> tk.eval(None, 'puts "hello world thing"')  # 1 arguments to puts \
         # doctest: +SKIP
-        {'a': [1], 'b': [2]}
-        >>> call([str], 'list', 123, 3.14, None, 'hello')
-        ['123', '3.14', '', 'hello']
+    hello world thing
+    >>> message = 'hello world thing'
+    >>> tk.eval(None, 'puts %s' % message)  # 3 arguments to puts, tcl error
+    Traceback (most recent call last):
+        ...
+    _tkinter.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
+string"
+    >>> tk.call(None, 'puts', message)   # 1 argument to puts  # doctest: +SKIP
+    hello world thing
     """
     _maybe_init()
     result = _app.call(tuple(map(to_tcl, (command,) + arguments)))
     return from_tcl(returntype, result)
 
 
-def eval(returntype, string):
-    """Like :func:`call`, but evaluates a string.
+def eval(returntype, code):
+    """Run a string of Tcl code.
 
     >>> eval(None, 'proc add {a b} { return [expr $a + $b] }')
     >>> eval(int, 'add 1 2')
     3
-    >>> call(int, 'add', 1, 2)      # usually this is better
+    >>> call(int, 'add', 1, 2)      # usually this is better, see below
     3
     """
     _maybe_init()
-    result = _app.eval(string)
+    result = _app.eval(code)
     return from_tcl(returntype, result)
 
 
