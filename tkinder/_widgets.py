@@ -237,7 +237,7 @@ class Widget:
 
         Manual page: :man:`winfo(3tk)`
         """
-        # self._run uses this, so this must not use that
+        # self._call uses this, so this must not use that
         return _tcl_calls.call(bool, 'winfo', 'exists', self)
 
     def winfo_toplevel(self):
