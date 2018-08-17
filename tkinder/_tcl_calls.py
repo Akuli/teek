@@ -40,6 +40,7 @@ def quit():
 
 
 def run():
+    # no idea what the 0 does, tkinter calls it like this
     _get_app().mainloop(0)
 
 
@@ -77,7 +78,8 @@ def from_tcl(type_spec, value):
         # list internally
         if isinstance(value, tuple):
             # force it to string
-            junk, result = _get_app().call('concat', 'junk', value).split(maxsplit=1)
+            junk, result = (_get_app().call('concat', 'junk', value)
+                            .split(maxsplit=1))
             assert junk == 'junk'
             return result
         return str(value)
@@ -110,7 +112,8 @@ def from_tcl(type_spec, value):
         if isinstance(type_spec, list):
             # [int] -> [1, 2, 3]
             (item_spec,) = type_spec
-            return [from_tcl(item_spec, item) for item in _get_app().splitlist(value)]
+            return [from_tcl(item_spec, item)
+                    for item in _get_app().splitlist(value)]
 
         if isinstance(type_spec, tuple):
             # (int, str) -> (1, 'hello')
