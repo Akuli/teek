@@ -135,8 +135,16 @@ class Color:
     .. attribute:: green
     .. attribute:: blue
 
-        These are the values passed to ``Color()``. Assigning to these like
-        ``some_color.red = 255`` raises an exception.
+        These are the values passed to ``Color()``.
+
+        >>> Color(0, 0, 255).red
+        0
+        >>> Color(0, 0, 255).green
+        0
+        >>> Color(0, 0, 255).blue
+        255
+
+        Assigning to these like ``some_color.red = 255`` raises an exception.
     """
 
     def __init__(self, *args):
