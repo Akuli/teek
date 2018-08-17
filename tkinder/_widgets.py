@@ -377,6 +377,17 @@ class Toplevel(_WmMixin, Widget):
 
         ``title`` and ``wm_state`` are strings, and they can be set like
         ``my_toplevel.title = "Hello"``.
+
+    .. attribute:: on_delete_window
+    .. attribute:: on_take_focus
+
+        :class:`Callback` objects that run with no arguments when a
+        ``WM_DELETE_WINDOW`` or ``WM_TAKE_FOCUS`` event occurs. See
+        :man:`wm(3tk)`.
+
+        By default, ``some_window.on_delete_window`` is connected to
+        ``some_window.destroy``, so that closing the window destroys the
+        widget. If you don't want that, use :meth:`Callback.disconnect`.
     """
 
     # allow passing title as a positional argument
@@ -417,7 +428,8 @@ class Window(_WmMixin, Widget):
         The :class:`Toplevel` widget that the frame is in. The :class:`Window`
         object itself has all the attributes and methods of the :class:`Frame`
         inside the window, and for convenience, also many :class:`Toplevel`
-        things like :attr:`~Toplevel.title` and :meth:`~Toplevel.withdraw`.
+        things like :attr:`~Toplevel.title`, :meth:`~Toplevel.withdraw` and
+        :attr:`~Toplevel.on_delete_window`.
     """
 
     def __init__(self, *args, **kwargs):
