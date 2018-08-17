@@ -5,8 +5,9 @@ python:
   - "3.6"
   - nightly
 install:
-  - pip install pytest flake8
+  - pip install pytest flake8 sphinx
 script:
   - flake8 tkinder/ tests/ *.py
+
   # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
   - xvfb-run python -m pytest
