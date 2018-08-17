@@ -14,7 +14,7 @@ if _sys.platform.startswith("win32"):     # pragma: no cover
 if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
     # readthedocs must be able to import everything without _tkinter
     import types
-    sys.modules['_tkinter'] = types.SimpleNamespace(
+    _sys.modules['_tkinter'] = types.SimpleNamespace(
         TclError=None,
     )
 
