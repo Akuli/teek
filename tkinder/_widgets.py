@@ -40,14 +40,10 @@ class ConfigDict(collections.abc.MutableMapping):
         if option not in iter(self):    # calls the __iter__
             raise KeyError(option)
 
+    # the type of value is not checked with self._types because python is
+    # dynamically typed
     def __setitem__(self, option, value):
         self._check_option(option)
-
-        # if the option is not specified in self._types, allow a value of any
-        # type, just to make forgetting to specify something not a disaster
-        if option in self._types:
-            _tcl_calls.check_type(self._types[option], value)
-
         self._call(None, 'configure', '-' + option, value)
 
     def __getitem__(self, option):

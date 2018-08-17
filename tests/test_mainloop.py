@@ -95,49 +95,6 @@ def test_eval_and_call(handy_commands):
     ) == '1 5 3.14 {1 2} {3 4} {lol wut}'
 
 
-class IterableThatIsNotAnIteratorAndDoesntHaveLen:
-
-    def __iter__(self):
-        return iter([1, 2, 3])
-
-
-def test_check_type():
-    tk.check_type(None, 'this can be anything')
-    tk.check_type(int, 123)
-    tk.check_type(float, 1.23)
-    tk.check_type([int], [1, 2, 3])
-    tk.check_type([int], (1, 2, 3))
-    tk.check_type([int], iter([1, 2, 3]))
-    tk.check_type((int, str), [1, '2'])
-    tk.check_type((int, str), (1, '2'))
-    tk.check_type((int, str), iter([1, '2']))
-    tk.check_type({str: int}, {'a': 1, 'b': 2})
-    tk.check_type([int], IterableThatIsNotAnIteratorAndDoesntHaveLen())
-    tk.check_type((int, int, int),
-                  IterableThatIsNotAnIteratorAndDoesntHaveLen())
-
-    with pytest.raises(TypeError):
-        tk.check_type('this is a bad type spec', 'lel')
-    with pytest.raises(TypeError):
-        tk.check_type(int, 'lol')
-    with pytest.raises(TypeError):
-        tk.check_type(int, 1.23)
-    with pytest.raises(TypeError):
-        tk.check_type(float, 123)
-    with pytest.raises(TypeError):
-        tk.check_type([int], [1, 2, 'lol'])
-    with pytest.raises(TypeError):
-        tk.check_type((int, str), [1, 2])
-    with pytest.raises(ValueError):
-        tk.check_type((int, str), [1, 'asd', 'TOOT'])
-    with pytest.raises(TypeError):
-        tk.check_type({str: int}, {'a': 1, 'b': '2'})
-    with pytest.raises(TypeError):
-        tk.check_type({str: int}, {'a': 1, 123: 2})
-    with pytest.raises(TypeError):
-        tk.check_type([int], 123)
-
-
 def test_create_command(capsys):
     def working_func():
         # no type checking is done, this turns into a dict below

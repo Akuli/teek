@@ -95,7 +95,3 @@ Examples:
 {'a': [1], 'b': [2]}
 >>> tk.call([str], 'list', 123, 3.14, None, 'hello')
 ['123', '3.14', '', 'hello']
-
-If you are writing a library in tkinder, you may need this function:
-
-.. autofunction:: tkinder.check_type

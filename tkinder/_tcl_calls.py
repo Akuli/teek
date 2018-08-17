@@ -117,68 +117,6 @@ def from_tcl(type_spec, value):
     raise TypeError("unknown type specification " + repr(type_spec))
 
 
-def check_type(type_spec, value):
-    """Checks if a value matches a type specification.
-
-    If the value doesn't match, this raises :exc:`ValueError` or
-    :exc:`TypeError`.
-
-    The objects that :func:`.call` and :func:`.eval` return should always
-    match, so that after a call like
-    ``result = tk.call(type_spec, something something)``,
-    ``tk.check_type(type_spec, result)`` shouldn't raise errors.
-    """
-    if type_spec is None:   # accept anything
-        return
-
-    if isinstance(type_spec, type):     # it's a class
-        if not isinstance(value, type_spec):
-            raise TypeError("expected %s, got %r"
-                            % (type_spec.__name__, value))
-        return
-
-    if isinstance(type_spec, (list, tuple)):
-        # this raises TypeError if the value is not iterable
-        if iter(value) is value:
-            # value is an iterator, so can't loop over it to check anything
-            # because that would exhaust it
-            return
-
-        if isinstance(type_spec, list):
-            (item_spec,) = type_spec
-            for item in value:
-                check_type(item_spec, item)
-        else:
-            try:
-                len(value)
-            except TypeError:
-                # the value is an iterable that doesn't have a len(), but it's
-                # not an iterator so we don't need to worry about exhausting it
-                pass
-            else:
-                if len(type_spec) != len(value):
-                    raise ValueError("expected an iterable of %d items, got %r"
-                                     % (len(type_spec), value))
-
-            # if the value has no len(), the zip doesn't check whether its
-            # iterator yields the same number of items as in type_spec, but
-            # those cases are very rare anyway
-            for item_spec, item in zip(type_spec, value):
-                check_type(item_spec, item)
-
-        return
-
-    if isinstance(type_spec, dict):
-        # anything with .items() is dicty enough because duck-typing
-        [(key_spec, value_spec)] = type_spec.items()
-        for key, value in value.items():
-            check_type(key_spec, key)
-            check_type(value_spec, value)
-        return
-
-    raise TypeError("unknown type specification " + repr(type_spec))
-
-
 def call(returntype, command, *arguments):
     """Call a Tcl command.
 

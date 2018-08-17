@@ -92,11 +92,15 @@ def test_tags():
     assert toot not in text.get_all_tags()
     assert toot.ranges() == []
     assert toot not in text.get_all_tags()
-    with pytest.raises(TypeError):
-        toot['foreground'] = 'blue'
+
+    # if it's set to a string, it must still be a Color object when getting
+    toot['foreground'] = 'black'
+    assert toot in text.get_all_tags()
+    assert isinstance(toot['foreground'], tk.Color)
+    assert toot['foreground'] == tk.Color(0, 0, 0)
+
     toot['foreground'] = tk.Color('blue')
     assert toot['foreground'] == tk.Color('blue')
-    assert toot in text.get_all_tags()
 
     # misc other tag properties
     assert toot == toot
