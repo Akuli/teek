@@ -26,7 +26,8 @@ from _tkinter import TclError
 from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
 from pythotk._structures import Callback, Color
 from pythotk._tcl_calls import (
-    call, eval, create_command, delete_command, run, quit, on_quit)
+    call, eval, init_threads, create_command, delete_command,
+    run, quit, on_quit)
 from pythotk._timeouts import after, after_idle
 from pythotk._misc import update      # TODO: move this to _timeouts?
 

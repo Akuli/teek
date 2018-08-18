@@ -17,7 +17,8 @@ def test_after():
     end = time.time()
 
     # the upper bound used to be 0.21, but it failed once
-    assert 0.20 < (end - start) < 0.22
+    # then i tried 0.22 and after a while that failed too
+    assert 0.20 < (end - start) < 0.25
     assert repr(timeout).startswith("<successfully completed 'quit' timeout")
 
 
