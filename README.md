@@ -1,6 +1,7 @@
 # Tkinder
 
 [![Build Status](https://travis-ci.org/Akuli/tkinder.svg?branch=master)](https://travis-ci.org/Akuli/tkinder)
+[![Documentation Status](https://readthedocs.org/projects/tkinder/badge/?version=latest)](https://tkinder.readthedocs.io/en/latest/?badge=latest)
 
 Tkinder is a more pythonic and user-friendly alternative to Python's
 tkinter module. It doesn't come with Python so you need to install it
