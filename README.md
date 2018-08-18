@@ -1,6 +1,7 @@
 # Pythotk
 
 [![Build Status](https://travis-ci.org/Akuli/pythotk.svg?branch=master)](https://travis-ci.org/Akuli/pythotk)
+[![Documentation Status](https://readthedocs.org/projects/pythotk/badge/?version=latest)](https://pythotk.readthedocs.io/en/latest/?badge=latest)
 
 [comment]: # (the rtfd status link seems to always show "docs unknown", i have 0 idea why)
 [comment]: # (that's why it's not shown here)
