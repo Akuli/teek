@@ -243,6 +243,9 @@ class Widget:
         """
         return self._call(Widget, 'winfo', 'toplevel', self)
 
+    def pack_slaves(self):
+        return self._call([Widget], 'pack', 'slaves', self)
+
 
 Geometry = collections.namedtuple('Geometry', 'width height x y')
 
@@ -443,7 +446,9 @@ class ChildMixin:
     def pack(self, **kwargs):
         args = []
         for name, value in kwargs.items():
-            args.append('-' + name.rstrip('_'))   # e.g. in_
+            if name == 'in_':
+                name = 'in'
+            args.append('-' + name)
             args.append(value)
         self._call(None, 'pack', self.to_tcl(), *args)
 
@@ -451,21 +456,14 @@ class ChildMixin:
         self._call(None, 'pack', 'forget', self.to_tcl())
 
     def pack_info(self):
-        # TODO: add some way to specify a separate type for each key
-        raw_result = self._call({str: str}, 'pack', 'info', self.to_tcl())
-        result = {}
-
-        for key, value in raw_result.items():
-            if key in ('padx', 'pady', 'ipadx', 'ipady'):
-                result[key] = int(value)
-            elif key == 'expand':
-                result[key] = bool(int(value))
-            elif key == 'in':
-                result[key] = _widgets[value]
-            else:
-                result[key] = value
-
-        return result
+        types = {
+            # {i,}pad{x,y} are "screen distance, such as 2 or .5c"
+            # so better not force them to integers...
+            '-in': Widget,
+            '-expand': bool,
+        }
+        result = self._call(types, 'pack', 'info', self.to_tcl())
+        return {key.lstrip('-'): value for key, value in result.items()}
 
 
 class Frame(ChildMixin, Widget):

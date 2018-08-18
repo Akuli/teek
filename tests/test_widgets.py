@@ -293,3 +293,34 @@ def test_from_tcl():
     with pytest.raises(TypeError) as error:
         tk.Label.from_tcl(widget_path)
     assert str(error.value).endswith(" is a Window, not a Label")
+
+
+def test_packing():
+    window = tk.Window()
+    button = tk.Button(window)
+    button.pack(fill='both', expand=True)
+
+    pack_info = button.pack_info()
+    assert pack_info['in'] is window
+    assert pack_info['side'] == 'top'
+    assert pack_info['fill'] == 'both'
+    assert pack_info['expand'] is True
+    assert pack_info['anchor'] == 'center'
+    for string_key in ['padx', 'pady', 'ipadx', 'ipady']:
+        assert isinstance(pack_info[string_key], str)
+
+    button.pack_forget()
+    with pytest.raises(tk.TclError):
+        button.pack_info()
+
+    assert window.pack_slaves() == []
+    label1 = tk.Label(window, 'label one')
+    label1.pack()
+    label2 = tk.Label(window, 'label two')
+    label2.pack()
+    assert window.pack_slaves() == [label1, label2]
+
+    frame = tk.Frame(window)
+    label2.pack(in_=frame)
+    assert window.pack_slaves() == [label1]
+    assert frame.pack_slaves() == [label2]

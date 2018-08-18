@@ -16,6 +16,7 @@ pythotk.
     :caption: Contents:
 
     getting-started
+    geometry-managers
     widgets
     misc-objs
     tcl-calls
