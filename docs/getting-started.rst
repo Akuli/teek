@@ -92,6 +92,8 @@ easier to ``import pythotk as tk``.
     ``pythotk.something``.
 
 
+.. _man-pages:
+
 Manual Pages
 ------------
 

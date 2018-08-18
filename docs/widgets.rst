@@ -22,6 +22,12 @@ ways to access and change the options:
   in pythotk, you instead always use the ``config`` object. See
   :attr:`.Widget.config` for examples.
 
+.. note::
+    The options are usually *not* documented in pythotk's documentation.
+    Instead, this documentation has links to :ref:`manual pages <man-pages>`
+    that contain a list of the options as well as plenty of details about what
+    each option does.
+
 
 Widget Reference
 ----------------
