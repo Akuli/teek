@@ -110,10 +110,14 @@ def test_window_states():
 
 
 def test_window_closing():
-    window = tk.Window()
-    window.on_delete_window.run()
-    assert not window.winfo_exists()
-    assert not window.toplevel.winfo_exists()
+    for window in [tk.Window(), tk.Toplevel()]:
+        # raises an error if not connected, so this also tests the
+        # implicit connecting
+        window.on_delete_window.disconnect(tk.quit)
+
+        assert window.winfo_exists()
+        window.destroy()
+        assert not window.winfo_exists()
 
 
 def test_geometry():

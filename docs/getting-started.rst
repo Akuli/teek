@@ -154,3 +154,12 @@ The **event loop** works essentially like this pseudo code::
         print("Still alive")
 
     If you click the button, it interrupts ``tk.run()`` and the print runs.
+
+    .. note::
+        Closing a :class:`.Window` with the X button in the corner calls
+        ``tk.quit`` by default. If you don't want that, you can prevent it like
+        this::
+
+            window.on_delete_window.disconnect(tk.quit)
+
+        See :class:`.Toplevel` for details.

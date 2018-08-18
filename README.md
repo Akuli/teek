@@ -59,7 +59,6 @@ import pythotk as tk
 
 window = tk.Window("Hello")
 tk.Label(window, "Hello World!").pack()
-window.on_delete_window.connect(tk.quit)
 tk.run()
 ```
 

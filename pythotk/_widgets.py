@@ -253,7 +253,7 @@ class _WmMixin:
         super().__init__(*args, **kwargs)
 
         self.on_delete_window = _structures.Callback()
-        self.on_delete_window.connect(self._get_wm_widget().destroy)
+        self.on_delete_window.connect(pythotk.quit)
         self.on_take_focus = _structures.Callback()
 
         self._call(
@@ -291,8 +291,6 @@ class _WmMixin:
         self._call(None, 'wm', 'state', self._get_wm_widget(), state)
 
     def geometry(self, width=None, height=None, x=None, y=None):
-        """
-        """
         if (width is None) ^ (height is None):
             raise TypeError("specify both width and height, or neither")
         if (x is None) ^ (y is None):
@@ -386,8 +384,7 @@ class Toplevel(_WmMixin, Widget):
         :man:`wm(3tk)`.
 
         By default, ``some_window.on_delete_window`` is connected to
-        ``some_window.destroy``, so that closing the window destroys the
-        widget. If you don't want that, use :meth:`Callback.disconnect`.
+        :func:`pythotk.quit`.
     """
 
     # allow passing title as a positional argument
