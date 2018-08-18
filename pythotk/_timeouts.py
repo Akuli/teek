@@ -1,6 +1,7 @@
 import traceback
 
-from pythotk._tcl_calls import call, create_command
+from pythotk import TclError
+from pythotk._tcl_calls import call, on_quit, create_command, delete_command
 
 # there's no after_info because i don't see how it would be useful in
 # pythotk
@@ -17,20 +18,34 @@ class _Timeout:
         self._kwargs = kwargs
 
         self._state = 'pending'   # just for __repr__ and error messages
-        tcl_command = create_command(self._run, stack_info=stack_info)
-        self._id = call(str, 'after', after_what, tcl_command)
+        self._tcl_command = create_command(self._run, stack_info=stack_info)
+        self._id = call(str, 'after', after_what, self._tcl_command)
 
     def __repr__(self):
         name = getattr(self._callback, '__name__', self._callback)
         return '<%s %r timeout %r>' % (self._state, name, self._id)
 
     def _run(self):
+        needs_cleanup = True
+
+        # this is important, thread tests freeze without this special
+        # case for some reason
+        def quit_callback():
+            nonlocal needs_cleanup
+            needs_cleanup = False
+
+        on_quit.connect(quit_callback)
+
         try:
             self._callback(*self._args, **self._kwargs)
             self._state = 'successfully completed'
         except Exception as e:
             self._state = 'failed'
             raise e
+        finally:
+            on_quit.disconnect(quit_callback)
+            if needs_cleanup:
+                delete_command(self._tcl_command)
 
     def cancel(self):
         """Prevent this timeout from running as scheduled.
@@ -42,6 +57,7 @@ class _Timeout:
             raise RuntimeError("cannot cancel a %s timeout" % self._state)
         call(None, 'after', 'cancel', self._id)
         self._state = 'cancelled'
+        delete_command(self._tcl_command)
 
 
 def after(ms, callback, args=(), kwargs=None):
