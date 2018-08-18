@@ -44,8 +44,10 @@ def test_eval_and_call(handy_commands):
     assert tk.eval(int, 'expr 22 / 7') == 3
     assert round(tk.eval(float, 'expr 22 / 7.0'), 2) == 3.14
     assert tk.eval([int], 'list 1 2 3') == [1, 2, 3]
+    assert tk.eval([str], 'list { a} {b } { c }') == [' a', 'b ', ' c ']
     assert tk.eval((str, int, str, int), 'list a 1 b 2') == ('a', 1, 'b', 2)
-    assert tk.eval({str: int}, 'dict create a 1 b 2') == {'a': 1, 'b': 2}
+    assert tk.eval(
+        {'a': int, 'c': bool}, 'dict create a 1 b 2') == {'a': 1, 'b': '2'}
 
     with pytest.raises(ValueError):
         tk.eval(int, 'returnArg lel')
@@ -70,17 +72,13 @@ def test_eval_and_call(handy_commands):
     with pytest.raises(TypeError):
         tk.eval(object(), 'puts hello')
 
-    # i see no reason why this wouldn't work, but testing doesn't hurt
-    assert tk.eval(
-        {(str, int): (bool, [float])},
-        'dict create {wolo 123} {yes 3.14}'
-    ) == {('wolo', 123): (True, [3.14])}
-
+    # forced to string converting relies on this
     test_data = [
         ('ab', 'ab'),
         ('a b', 'a b'),
         (['a', 'b'], 'a b'),
         ([' a', 'b '], '{ a} {b }'),
+        (['a ', ' b'], '{a } { b}'),
         (['a', 'b c'], 'a {b c}'),
         (('a', 'b c'), 'a {b c}'),
         (CustomSequence(), '{a b c} 123'),
@@ -101,7 +99,7 @@ def test_create_command(capsys):
         return CustomSequence()
 
     command = tk.create_command(working_func)
-    assert tk.call({str: int}, command) == {'a b c': 123}
+    assert tk.call({'a b c': int}, command) == {'a b c': 123}
     assert capsys.readouterr() == ('', '')
 
     def broken_func(arg1, *, arg2):

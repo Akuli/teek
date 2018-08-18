@@ -247,13 +247,12 @@ def from_tcl(type_spec, value):
             return tuple(map(from_tcl, type_spec, items))
 
         if isinstance(type_spec, dict):
-            # {str, [int]} -> {'a': [1, 2], 'b': [3, 4]}
-            # TODO: support type_specs like {'a': int, 'b': str}
-            [(key_spec, value_spec)] = type_spec.items()
-            return {
-                from_tcl(key_spec, key): from_tcl(value_spec, value)
-                for key, value in _pairs(items)
-            }
+            # {'a': int, 'b': str} -> {'a': 1, 'b': 'lol', 'c': 'str assumed'}
+            result = {}
+            for key, value in _pairs(items):
+                key = from_tcl(str, key)
+                result[key] = from_tcl(type_spec.get(key, str), value)
+            return result
 
         raise RuntimeError("this should never happen")      # pragma: no cover
 
