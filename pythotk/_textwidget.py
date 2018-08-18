@@ -178,6 +178,7 @@ class Text(ChildMixin, Widget):
 
         Note that this changes when the text widget's content changes:
 
+        >>> window = tk.Window()
         >>> text = tk.Text(window)
         >>> text.end
         TextIndex(line=1, column=0)
