@@ -1,15 +1,15 @@
-# Tkinder Examples
+# PythoTk Examples
 
-This directory contains small example programs that use tkinder.
+This directory contains small example programs that use pythotk.
 
-If you haven't installed tkinder, you need to run these programs with
+If you haven't installed pythotk, you need to run these programs with
 Python's `-m` option:
 
 ```
-bla/bla/tkinder/examples$ python3 hello_world.py
+bla/bla/pythotk/examples$ python3 hello_world.py
 Traceback (most recent call last):
   ...
-ImportError: No module named 'tkinder'
-bla/bla/tkinder/examples$ cd ..
-bla/bla/tkinder$ python3 -m examples.hello_world    # this works
+ImportError: No module named 'pythotk'
+bla/bla/pythotk/examples$ cd ..
+bla/bla/pythotk$ python3 -m examples.hello_world    # this works
 ```
