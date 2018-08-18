@@ -7,6 +7,41 @@ This page shows you some basic things you need to know when programming with
 pythotk.
 
 
+Installation
+------------
+
+Install Python 3.4 or newer and tkinter (yes, you need to have tkinter
+installed, there are more details about this below). Then run this:
+
+.. code-block:: none
+
+    python3 -m pip install --user git+https://github.com/Akuli/pythotk
+
+Use ``py`` instead of ``python3`` if you are on Windows.
+
+You need to have ``git`` installed for the above command. If you don't have
+git, you can use this command instead:
+
+    python3 -m pip install --user https://github.com/Akuli/pythotk/archive/master.zip
+
+
+Why do I need to have tkinter installed to use pythotk?
+-------------------------------------------------------
+
+When we say tkinter, we really mean a combination of two things:
+
+* The ``_tkinter`` C extension module that lets you run a Tcl interpreter
+  within Python.
+* The pure-Python ``tkinter`` module. This module uses ``_tkinter``. When you
+  do something like ``root = tkinter.Tk()``, ``tkinter`` creates starts Tcl
+  interpreter using ``tkinter``. Tkinter widgets are just classes written in
+  pure Python that do things with the Tcl interpreter.
+
+Pythotk is an alternative to the pure-Python part; it uses a Tcl interpreter
+with ``_tkinter``, just like ``tkinter``, but it's much nicer to use in several
+ways as shown in `the README <https://github.com/Akuli/pythotk/#pythotk>`_.
+
+
 Manual Pages
 ------------
 
@@ -24,8 +59,11 @@ links to Tcl and Tk manual pages, like :man:`after(3tcl)` or
 
 Documentation written for Tcl users may look scary and confusing if you are not
 used to reading it, but it's not that hard after all. For example, if you want
-to change the justification of a label, open :man:`ttk_label(3tk)` and Ctrl+F
-for "justify".
+to change how a :class:`.Label` widget looks, open :man:`ttk_label(3tk)` and
+Ctrl+F for whatever you are looking for. Pythotk's documentation contains some
+examples that should get you started with writing Pythotk code, but unlike
+Pythotk's documentation, the manual pages explain every available feature in
+full detail.
 
 
 Event Loop
