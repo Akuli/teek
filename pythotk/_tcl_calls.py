@@ -137,8 +137,7 @@ def _call_thread_safely(non_threadsafe_func, args=(), kwargs=None):
 
     future = _Future()
     _main_thread_call_queue.put((non_threadsafe_func, args, kwargs, future))
-    value = future.get_value()
-    return value
+    return future.get_value()
 
 
 def _thread_safe(func):
