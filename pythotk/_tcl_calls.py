@@ -18,10 +18,6 @@ on_quit = _structures.Callback()
 counts = collections.defaultdict(lambda: itertools.count(1))
 on_quit.connect(counts.clear)
 
-# because cpython garbage collection is awesome
-_dont_gc_these = []
-on_quit.connect(_dont_gc_these.clear)
-
 
 # because readability is good
 # TODO: is there something like this in e.g. concurrent.futures?
@@ -120,9 +116,7 @@ def init_threads(poll_interval_ms=50):
         after_id = _get_app().call(
             'after', poll_interval_ms, poller_tcl_command)
 
-    _get_app().createcommand(poller_tcl_command, poller)   # doesn't incref!
-    _dont_gc_these.append(poller)
-
+    _get_app().createcommand(poller_tcl_command, poller)
     on_quit.connect(
         lambda: None if after_id is None else _get_app().call(
             'after', 'cancel', after_id))
