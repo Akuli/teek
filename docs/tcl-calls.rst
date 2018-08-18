@@ -18,6 +18,15 @@ There are two functions for doing this:
 .. autofunction:: pythotk.eval
 .. autofunction:: pythotk.call
 
+Both of these functions are ran so that they have access to Tcl's global
+variables, and if they create more variables, they will also be global.
+
+The ``None`` means that the return value is ignored, and ``int`` means that
+it's converted to a Python integer. There are more details about these
+conversions below.
+
+Tcl errors always raise the same Python exception:
+
 .. exception:: pythotk.TclError
 
     This is raised when a Tcl command fails.
@@ -49,13 +58,6 @@ There are two functions for doing this:
     >>> tk.TclError
     <class '_tkinter.TclError'>
 
-
-Both of these functions are ran so that they have access to Tcl's global
-variables, and if they create more variables, they will also be global.
-
-The ``None`` means that the return value is ignored, and ``int`` means that
-it's converted to a Python integer. There are more details about these
-conversions below.
 
 
 Data Types
