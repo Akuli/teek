@@ -25,21 +25,71 @@ git, you can use this command instead:
     python3 -m pip install --user https://github.com/Akuli/pythotk/archive/master.zip
 
 
-Why do I need to have tkinter installed to use pythotk?
--------------------------------------------------------
+Tkinter, _tkinter, Tcl, Tk and PythoTk
+--------------------------------------
 
-When we say tkinter, we really mean a combination of two things:
+After reading this section, you'll know why you needed to install tkinter in
+order to install pythotk.
+
+When we say tkinter, we really mean a combination of two things that cannot be
+installed separately:
 
 * The ``_tkinter`` C extension module that lets you run a Tcl interpreter
-  within Python.
+  within Python. **Tcl** is a programming language that can be used without
+  ``_tkinter``.
 * The pure-Python ``tkinter`` module. This module uses ``_tkinter``. When you
-  do something like ``root = tkinter.Tk()``, ``tkinter`` creates starts Tcl
-  interpreter using ``tkinter``. Tkinter widgets are just classes written in
-  pure Python that do things with the Tcl interpreter.
+  do something like ``root = tkinter.Tk()``, ``tkinter`` starts a Tcl
+  interpreter using ``_tkinter``. Tkinter widgets are just classes written in
+  pure Python that run commands in the Tcl interpreter; to be more precise,
+  they use a Tcl library called **Tk**.
 
 Pythotk is an alternative to the pure-Python part; it uses a Tcl interpreter
 with ``_tkinter``, just like ``tkinter``, but it's much nicer to use in several
 ways as shown in `the README <https://github.com/Akuli/pythotk/#pythotk>`_.
+
+.. note::
+    You don't need to know how to use ``tkinter`` in order to program with
+    ``pythotk``. You don't need to have any experience with Tcl either, but if
+    you have used Tcl before, it will help you, especially with more advanced
+    things like :ref:`Tcl calls <tcl-calls>`.
+
+.. admonition:: tl;dr
+
+    **Tcl** is a programming language with a nice GUI library named **Tk**.
+    **Tkinter** and **PythoTk** both use Tcl and Tk with ``_tkinter``.
+
+
+Importing
+---------
+
+::
+
+    import pythotk as tk
+
+That's it. Don't use e.g. ``from pythotk import *`` because that confuses both
+tools that process code automatically, and people who read your code:
+``tk.Label(parent_widget, "hello")`` obviously creates a tk label, but
+``Label(parent_widget, "hello")`` creates a label. What is a label? If you have
+many star imports...
+
+::
+
+    # this code is BAD!! DONT DO THIS!! NO!!!
+    from pythotk import *
+    from os import *
+    from sys import *
+
+...you have no idea where the ``Label`` comes from (unless you happen to know
+that ``pythotk`` has a class named ``Label`` **AND** ``os`` and ``sys`` don't
+have anything named ``Label``.
+
+You can also import ``pythotk`` and use ``pythotk.Label`` instead of
+``tk.Label``, but most pythotk programs use pythotk things a lot, and it's much
+easier to ``import pythotk as tk``.
+
+.. important::
+    From now on, if you see ``tk.something`` in this documentation, it means
+    ``pythotk.something``.
 
 
 Manual Pages

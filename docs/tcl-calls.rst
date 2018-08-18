@@ -1,3 +1,5 @@
+.. _tcl-calls:
+
 Tcl Calls
 =========
 
