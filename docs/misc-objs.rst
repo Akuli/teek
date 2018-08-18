@@ -4,7 +4,7 @@ Miscellaneous Classes
 This page contains documentation of classes that represent different kinds of
 things.
 
-.. autoclass:: tkinder.Color
+.. autoclass:: pythotk.Color
     :members:
-.. autoclass:: tkinder.Callback
+.. autoclass:: pythotk.Callback
     :members:

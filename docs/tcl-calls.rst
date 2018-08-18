@@ -3,18 +3,18 @@ Tcl Calls
 
 .. note::
     This section assumes that you know Tcl. You may have learned some of it
-    while using tkinder, but something like
+    while using pythotk, but something like
     `Learn Tcl in Y Minutes <https://learnxinyminutes.com/docs/tcl/>`_ might be
     useful for you.
 
-Tkinder does most things by calling commands in Tcl. You can also call Tcl
+Pythotk does most things by calling commands in Tcl. You can also call Tcl
 commands yourself, which is useful if you want to do something that can be done
-in Tcl, but there is no other way to do it in tkinder.
+in Tcl, but there is no other way to do it in pythotk.
 
 There are two functions for doing this:
 
-.. autofunction:: tkinder.eval
-.. autofunction:: tkinder.call
+.. autofunction:: pythotk.eval
+.. autofunction:: pythotk.call
 
 Both of these functions are ran so that they have access to Tcl's global
 variables, and if they create more variables, they will also be global.
@@ -27,8 +27,8 @@ conversions below.
 Data Types
 ----------
 
-Everything is a string in Tcl. Tkinder converts Python objects to strings and
-strings to Python objects for you, but you need to tell tkinder what types of
+Everything is a string in Tcl. Pythotk converts Python objects to strings and
+strings to Python objects for you, but you need to tell pythotk what types of
 values you want to get. This section describes how.
 
 .. _python-to-tcl:
@@ -52,7 +52,7 @@ Arguments passed to :func:`.call` are handled like this:
 
 .. _type-spec:
 
-Tkinder also has **type specifications** for converting from a Tcl object to a
+Pythotk also has **type specifications** for converting from a Tcl object to a
 Python object. Here is a list of valid type specifications:
 
     * ``str`` (that is, literally ``str``, not e.g. ``'hello'``) means that a

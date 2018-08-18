@@ -1,7 +1,7 @@
 Widgets
 =======
 
-Right now tkinder doesn't have all of the widgets that tkinter has, but many
+Right now pythotk doesn't have all of the widgets that tkinter has, but many
 widgets are implemented.
 
 
@@ -13,29 +13,29 @@ Options
 Widgets take options that change how they look or behave. There are a few
 ways to access and change the options:
 
-* Initialization arguments: ``tkinder.Label(window, text="hello")``
+* Initialization arguments: ``pythotk.Label(window, text="hello")``
   creates a label with the ``text`` option set to ``"hello"``.
 * The ``config`` attribute is a dict-like object of options, and you can change
   the text of the label like ``the_label.config['text'] = "new text"``. Note
   that this is different from tkinter where you would instead do
   ``the_label.config(text="new text")`` or ``the_label['text'] = "new text"``;
-  in tkinder, you instead always use the ``config`` object.
+  in pythotk, you instead always use the ``config`` object.
 
 
 Widget Reference
 ----------------
 
-.. autoclass:: tkinder.Widget
+.. autoclass:: pythotk.Widget
     :members:
-.. autoclass:: tkinder.Window
+.. autoclass:: pythotk.Window
     :members:
-.. autoclass:: tkinder.Label
+.. autoclass:: pythotk.Label
     :members:
-.. autoclass:: tkinder.Button
+.. autoclass:: pythotk.Button
     :members:
-.. autoclass:: tkinder.Separator
+.. autoclass:: pythotk.Separator
     :members:
-.. autoclass:: tkinder.Frame
+.. autoclass:: pythotk.Frame
     :members:
-.. autoclass:: tkinder.Toplevel
+.. autoclass:: pythotk.Toplevel
     :members:
