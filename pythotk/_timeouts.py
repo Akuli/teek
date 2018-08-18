@@ -1,6 +1,5 @@
 import traceback
 
-from pythotk import TclError
 from pythotk._tcl_calls import call, on_quit, create_command, delete_command
 
 # there's no after_info because i don't see how it would be useful in
