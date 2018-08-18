@@ -19,14 +19,14 @@ if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
     )
 
 from _tkinter import TclError
-from tkinder._structures import Callback, Color
-from tkinder._tcl_calls import (
+from pythotk._structures import Callback, Color
+from pythotk._tcl_calls import (
     call, eval, create_command, delete_command, run, quit, on_quit)
-from tkinder._timeouts import after, after_idle
-from tkinder._misc import update      # TODO: move this to _timeouts?
+from pythotk._timeouts import after, after_idle
+from pythotk._misc import update      # TODO: move this to _timeouts?
 
-# simplest widgets are in tkinder._widgets, but widgets that require many lines
+# simplest widgets are in pythotk._widgets, but widgets that require many lines
 # of code to implement are in separate files
-from tkinder._widgets import (
+from pythotk._widgets import (
     Widget, Window, Toplevel, Label, Button, Frame, Separator)
-from tkinder._textwidget import Text
+from pythotk._textwidget import Text

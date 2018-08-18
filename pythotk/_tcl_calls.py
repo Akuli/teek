@@ -5,7 +5,7 @@ import sys
 import traceback
 import _tkinter
 
-from tkinder import _structures
+from pythotk import _structures
 
 _flatten = itertools.chain.from_iterable
 
@@ -212,7 +212,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
             print(stack_info + rest, end='', file=sys.stderr)
             return ''
 
-    name = 'tkinder_command_%d' % next(counts['commands'])
+    name = 'pythotk_command_%d' % next(counts['commands'])
     _get_app().createcommand(name, real_func)
     if cache_key is not None:
         _command_cache[cache_key] = name

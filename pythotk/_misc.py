@@ -1,4 +1,4 @@
-from tkinder._tcl_calls import call
+from pythotk._tcl_calls import call
 
 
 def update(*, idletasks=False):

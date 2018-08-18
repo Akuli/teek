@@ -1,22 +1,22 @@
-# Tkinder
+# Pythotk
 
-[![Build Status](https://travis-ci.org/Akuli/tkinder.svg?branch=master)](https://travis-ci.org/Akuli/tkinder)
-[![Documentation Status](https://readthedocs.org/projects/tkinder/badge/?version=latest)](https://tkinder.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/Akuli/pythotk.svg?branch=master)](https://travis-ci.org/Akuli/pythotk)
+[![Documentation Status](https://readthedocs.org/projects/pythotk/badge/?version=latest)](https://pythotk.readthedocs.io/en/latest/?badge=latest)
 
-Tkinder is a more pythonic and user-friendly alternative to Python's
-tkinter module. It doesn't come with Python so you need to install it
-yourself, but it's nice and light-weight.
+Pythotk, short for "pythonic Tk", is a pythonic and user-friendly alternative
+to tkinter. It doesn't come with Python so you need to install it yourself, but
+it's nice and light-weight.
 
-Documentation: https://tkinder.rtfd.org/
+Documentation: https://pythotk.rtfd.org/
 
 
-## Tkinder is Pythonic
+## Pythotk is Pythonic
 
 If you have worked with tkinter a lot, you know that it's kind of annoying.
 Almost everything is represented as strings in Tcl. Tkinter is dumb and it
 doesn't try to do things like they would be usually done in Python; instead,
 tkinter users need to deal with many inconveniences themselves. On the other
-hand, Tkinder is *pythonic*; it does things like they are best done in Python,
+hand, Pythotk is *pythonic*; it does things like they are best done in Python,
 not how they are done in Tcl.
 
 
@@ -49,10 +49,10 @@ ttk.Label(big_frame, text="Hello World!").pack()
 root.mainloop()
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
-import tkinder as tk
+import pythotk as tk
 
 window = tk.Window("Hello")
 tk.Label(window, "Hello World!").pack()
@@ -60,8 +60,8 @@ window.on_delete_window.connect(tk.quit)
 tk.run()
 ```
 
-All tkinder widgets are Ttk, so you don't need to do a separate import to use
-ttk widgets. Also, when you create a tkinder `Window`, the big ttk frame is
+All pythotk widgets are Ttk, so you don't need to do a separate import to use
+ttk widgets. Also, when you create a pythotk `Window`, the big ttk frame is
 created and packed automatically for you, and you don't need to think about it
 at all; you just create a `Window` and add stuff into it.
 
@@ -76,11 +76,11 @@ print(label)        # prints something like '.140269016152776', which is confusi
 print(repr(label))  # somewhat better: <tkinter.ttk.Label object .140269016152776>
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
 label = tk.Label(some_widget, "hello world")
-print(label)    # <tkinder.Label widget: text='hello world'>
+print(label)    # <pythotk.Label widget: text='hello world'>
 ```
 
 
@@ -103,14 +103,14 @@ column = int(column)
 line, column = map(int, textwidget.index('insert').split('.'))
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
 line, column = textwidget.marks['insert']
 ```
 
 `textwidget.marks` is a dictionary-like object with mark names as keys and text
-index namedtuples as values. Tkinder represents text indexes as namedtuples
+index namedtuples as values. Pythotk represents text indexes as namedtuples
 that have `line` and `column` attributes, which is useful if you only need the
 line. In tkinter, you need to parse the `'line.column'` string with
 `.split('.')` and take the first element of the split result.
@@ -121,14 +121,14 @@ line. In tkinter, you need to parse the `'line.column'` string with
 cursor_lineno = int(textwidget.index('insert').split('.')[0])
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
 cursor_lineno = textwidget.marks['insert'].line
 ```
 
 In tkinter you also need to construct the `'line.column'` strings yourself, but
-in tkinder you can use `(line, column)` tuples.
+in pythotk you can use `(line, column)` tuples.
 
 **Tkinter:**
 
@@ -136,14 +136,14 @@ in tkinder you can use `(line, column)` tuples.
 textwidget.mark_set('insert', '{}.{}'.format(new_cursor_line, new_cursor_column))
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
 textwidget.marks['insert'] = (new_cursor_line, new_cursor_column)
 ```
 
 Tcl uses strings like `3.4 + 5 chars` to denote the position that is 5
-characters after the position `3.4`. Tkinder's text position namedtuples have a
+characters after the position `3.4`. Pythotk's text position namedtuples have a
 pythonic `forward()` method that returns a new text position.
 
 **Tkinter:**
@@ -155,7 +155,7 @@ new_position = textwidget.index('{}.{} + 5 chars - 1 line'.format(line, column))
 # separate line and column
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
 new_position = textwidget.index(line, column).forward(chars=5).back(lines=1)
@@ -169,7 +169,7 @@ In tkinter, `any_widget.after(1000, func)` runs `func()` after 1 second, and
 the `any_widget` can be any tkinter widget. That's right, you need a widget for
 scheduling timeouts. This can be a problem in library code. But what if during
 that 1 second of waiting time, you decide that you don't want to run the
-timeout after all? You can cancel the timeout, but as usual, tkinder makes it
+timeout after all? You can cancel the timeout, but as usual, pythotk makes it
 easier.
 
 **Tkinter:**
@@ -189,7 +189,7 @@ if we_actually_dont_want_to_timeout():
 # very useful at all
 ```
 
-**Tkinder:**
+**Pythotk:**
 
 ```python3
 timeout_object = tk.after(1000, func)

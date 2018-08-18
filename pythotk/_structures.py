@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import tkinder
+import pythotk
 
 
 class Callback:
@@ -11,7 +11,7 @@ class Callback:
 
         >>> c = Callback()
         >>> c.connect(print, args=["hello", "world"])
-        >>> c.run()   # runs print("hello", "world"), usually tkinder does this
+        >>> c.run()   # runs print("hello", "world"), usually pythotk does this
         hello world
         >>> c.connect(print, args=["hello", "again"])
         >>> c.run()
@@ -162,7 +162,7 @@ class Color:
 
         # any widget will do, i'm using the '.' root window because it
         # always exists
-        rgb = tkinder.call([int], 'winfo', 'rgb', '.', self._color_string)
+        rgb = pythotk.call([int], 'winfo', 'rgb', '.', self._color_string)
 
         # tk uses 16-bit colors for some reason, but most people are more
         # familiar with 8-bit colors so we'll shift away the "useless" bits

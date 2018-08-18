@@ -15,7 +15,7 @@ with open('README.md', 'r', encoding='utf-8') as readme:
 
 
 setup(
-    name='tkinder',
+    name='pythotk',
     version='0.0.1',
     author='Akuli',
     copyright='Copyright (c) 2018 Akuli',
@@ -23,6 +23,6 @@ setup(
     long_description=markdowns,
     long_description_content_type='text/markdown',
     keywords='tkinter pythonic',
-    url='https://github.com/Akuli/tkinder',
+    url='https://github.com/Akuli/pythotk',
     packages=find_packages(),
 )

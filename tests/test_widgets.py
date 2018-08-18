@@ -3,7 +3,7 @@
 import contextlib
 import itertools
 import os
-import tkinder as tk
+import pythotk as tk
 
 import pytest
 

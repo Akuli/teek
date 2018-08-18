@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-import tkinder as tk
+import pythotk as tk
 
 
 def test_basic_stuff():

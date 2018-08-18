@@ -3,7 +3,7 @@ import traceback
 
 import pytest
 
-import tkinder as tk
+import pythotk as tk
 
 
 # tkinter only handles lists and tuples, not things like this

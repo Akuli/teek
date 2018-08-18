@@ -1,8 +1,8 @@
 import collections.abc
 import functools
 
-import tkinder as tk
-from tkinder._widgets import ConfigDict, ChildMixin, Widget
+import pythotk as tk
+from pythotk._widgets import ConfigDict, ChildMixin, Widget
 
 
 # a new subclass of this is created for each text widget, and inheriting

@@ -1,9 +1,9 @@
 import traceback
 
-from tkinder._tcl_calls import call, create_command
+from pythotk._tcl_calls import call, create_command
 
 # there's no after_info because i don't see how it would be useful in
-# tkinder
+# pythotk
 
 
 class _Timeout:

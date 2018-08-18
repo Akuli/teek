@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-import tkinder as tk
+import pythotk as tk
 
 
 @pytest.mark.skipif('CI' in os.environ,

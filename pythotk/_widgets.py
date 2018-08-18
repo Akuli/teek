@@ -2,8 +2,8 @@ import collections.abc
 import re
 from _tkinter import TclError
 
-import tkinder
-from tkinder import _tcl_calls, _structures
+import pythotk
+from pythotk import _tcl_calls, _structures
 
 _widgets = {}
 _tcl_calls.on_quit.connect(_widgets.clear)
@@ -86,7 +86,7 @@ class Widget:
     Don't create instances of ``Widget`` yourself like ``Widget(...)``; use one
     of the classes documented below instead. However, you can use ``Widget``
     with :func:`isinstance`; e.g. ``isinstance(thingy, tk.Widget)`` returns
-    ``True`` if ``thingy`` is a tkinder widget.
+    ``True`` if ``thingy`` is a pythotk widget.
 
     .. attribute:: config
 
@@ -172,8 +172,8 @@ class Widget:
 
     def __repr__(self):
         class_name = type(self).__name__
-        if getattr(tkinder, class_name, None) is type(self):
-            result = 'tkinder.%s widget' % class_name
+        if getattr(pythotk, class_name, None) is type(self):
+            result = 'pythotk.%s widget' % class_name
         else:
             result = '{0.__module__}.{0.__name__} widget'.format(type(self))
 
@@ -212,7 +212,7 @@ class Widget:
         """
         for name in self._call([str], 'winfo', 'children', self):
             # allow overriding the destroy() method if the widget was
-            # created by tkinder
+            # created by pythotk
             if name in _widgets:
                 _widgets[name].destroy()
             else:
@@ -352,7 +352,7 @@ class Toplevel(_WmMixin, Widget):
 
         Examples::
 
-            >>> import tkinder as tk
+            >>> import pythotk as tk
             >>> window = tk.Window()
             >>> window.geometry(300, 200)    # resize to 300px wide, 200px high
             >>> window.geometry(x=0, y=0)    # move to upper left corner
@@ -372,7 +372,7 @@ class Toplevel(_WmMixin, Widget):
 
         These attributes and methods correspond to similarly named things in
         :man:`wm(3tk)`. Note that ``wm_state`` is ``state`` in the manual page;
-        the tkinder attribute is ``wm_state`` to make it explicit that it is
+        the pythotk attribute is ``wm_state`` to make it explicit that it is
         the wm state, not some other state.
 
         ``title`` and ``wm_state`` are strings, and they can be set like
@@ -418,7 +418,7 @@ class Window(_WmMixin, Widget):
 
     All initialization arguments are passed to :class:`Toplevel`.
 
-    There is no manual page for this class because this is purely a tkinder
+    There is no manual page for this class because this is purely a pythotk
     feature; there is no ``window`` widget in Tk.
 
     .. seealso:: :class:`Toplevel`, :class:`Frame`
@@ -572,26 +572,26 @@ class _SelectedIndexesView(abcoll.MutableSet):
         return '<Listbox selected_indexes view: %s>' % repr(set(self))
 
     def __iter__(self):
-        return iter(tkinder.tk.call(self._listbox.to_tcl(), 'curselection'))
+        return iter(pythotk.tk.call(self._listbox.to_tcl(), 'curselection'))
 
     def __len__(self):
-        return len(tkinder.tk.call(self._listbox.to_tcl(), 'curselection'))
+        return len(pythotk.tk.call(self._listbox.to_tcl(), 'curselection'))
 
     def __contains__(self, index):
-        return bool(tkinder.tk.call(
+        return bool(pythotk.tk.call(
             self._listbox.to_tcl(), 'selection', 'includes', index))
 
     def add(self, index):
         """Select an index in the listbox if it's not currently selected."""
         if index not in range(len(self._listbox)):
             raise ValueError("listbox index %r out of range" % (index,))
-        tkinder.tk.call(self._listbox.to_tcl(), 'selection', 'set', index)
+        pythotk.tk.call(self._listbox.to_tcl(), 'selection', 'set', index)
 
     def discard(self, index):
         """Unselect an index in the listbox if it's currently selected."""
         if index not in range(len(self._listbox)):
             raise ValueError("listbox index %r out of range" % (index,))
-        tkinder.tk.call(self._listbox.to_tcl(), 'selection', 'clear', index)
+        pythotk.tk.call(self._listbox.to_tcl(), 'selection', 'clear', index)
 
     # abcoll.MutableSet doesn't implement this :(
     def update(self, items):
@@ -648,7 +648,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
         self.selected_items = _SelectedItemsView(self, self.selected_indexes)
 
     def __len__(self):
-        return tkinder.tk.call(self.to_tcl(), 'index', 'end')
+        return pythotk.tk.call(self.to_tcl(), 'index', 'end')
 
     def _fix_index(self, index):
         if index < 0:
@@ -660,7 +660,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
     def __getitem__(self, index):
         if isinstance(index, slice):
             return [self[i] for i in range(*index.indices(len(self)))]
-        return tkinder.tk.call(self.to_tcl(), 'get', self._fix_index(index))
+        return pythotk.tk.call(self.to_tcl(), 'get', self._fix_index(index))
 
     def __delitem__(self, index):
         if isinstance(index, slice):
@@ -671,7 +671,7 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
             for i in indexes:
                 del self[i]
 
-        tkinder.tk.call(self.to_tcl(), 'delete', self._fix_index(index))
+        pythotk.tk.call(self.to_tcl(), 'delete', self._fix_index(index))
 
     def __setitem__(self, index, item):
         if isinstance(index, slice):
@@ -705,5 +705,5 @@ class Listbox(ChildMixin, Widget, abcoll.MutableSequence):
         if index < 0:
             index += len(self)
         assert 0 <= index <= len(self)
-        tkinder.tk.call(self.to_tcl(), 'insert', index, item)
+        pythotk.tk.call(self.to_tcl(), 'insert', index, item)
 '''
