@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.org/Akuli/pythotk.svg?branch=master)](https://travis-ci.org/Akuli/pythotk)
 
-[comment]: # (the docs status link seems to always show "docs unknown", i have 0 idea why)
-[comment]: # ([![Documentation Status](https://readthedocs.org/projects/pythotk/badge/?version=latest)](https://pythotk.readthedocs.io/en/latest/?badge=latest))
+[comment]: # (the rtfd status link seems to always show "docs unknown", i have 0 idea why)
+[comment]: # (that's why it's not shown here)
 
 Pythotk, short for "pythonic Tk", is a pythonic and user-friendly alternative
 to tkinter. It doesn't come with Python so you need to install it yourself, but
