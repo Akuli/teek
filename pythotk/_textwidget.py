@@ -199,6 +199,12 @@ class Text(ChildMixin, Widget):
         time it's not useful and 1% of the time it's confusing to people
         reading the code, so ``text.get(text.start, text.end)`` doesn't
         return anything that is not visible in the text widget.
+
+    .. attribute:: marks
+
+        A dictionary-like object with mark names as keys and
+        :ref:`index objects <textwidget-index>` as values. See
+        :ref:`textwidget-marks`.
     """
 
     def __init__(self, parent, **kwargs):

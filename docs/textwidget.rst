@@ -156,6 +156,55 @@ Text indices have the following attributes and methods:
     text index namedtuples from line and column numbers.
 
 
+.. _textwidget-marks:
+
+Marks
+-----
+
+If you have a text widget that contains ``hello world``, the position just
+before ``w`` changes if you change ``hello`` to something else, or if the user
+edits the text widget's content:
+
+>>> text.replace(text.start, text.end, "hello world")
+>>> text.get(text.start, text.end)
+'hello world'
+>>> before_w = text.index(1, 6)
+>>> before_w
+TextIndex(line=1, column=6)
+>>> text.get(before_w, text.end)
+'world'
+>>> text.replace(text.start, text.start.forward(chars=5), 'hi')
+>>> text.get(text.start, text.end)      # hello was replaced with hi
+'hi world'
+>>> text.get(before_w, text.end)        # but before_w didn't update!
+'ld'
+>>> before_w
+TextIndex(line=1, column=6)
+
+We can solve this problem by adding a **mark**:
+
+>>> text.replace(text.start, text.end, "hello world")
+>>> text.marks['before_w'] = text.index(1, 6)
+>>> text.get(text.marks['before_w'], text.end)
+'world'
+>>> text.replace(text.start, text.start.forward(chars=5), 'hi')
+>>> text.get(text.marks['before_w'], text.end)
+'world'
+>>> text.get(text.start, text.end)
+'hi world'
+
+Marks move with the text as the text before them is changed.
+:attrib:`Text.marks` is a dictionary-like object with mark name strings as keys
+and :ref:`index objects <textwidget-index>` as values. There is also a special
+``'index'`` mark that represents the cursor position::
+
+    # move cursor to new_cursor_pos
+    text.marks['insert'] = new_cursor_pos
+
+There are more details about marks in the ``MARKS`` section of
+:man:`text(3tk)`.
+
+
 Tags
 ----
 
