@@ -12,13 +12,14 @@ to pythotk, and :ref:`getting-started` for important things about using
 pythotk.
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+    :maxdepth: 1
+    :caption: Contents:
 
-   getting-started
-   widgets
-   misc-objs
-   tcl-calls
+    getting-started
+    widgets
+    misc-objs
+    tcl-calls
+    platform-info
 
 ..
     Indices and tables

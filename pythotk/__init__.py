@@ -16,9 +16,14 @@ if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
     import types
     _sys.modules['_tkinter'] = types.SimpleNamespace(
         TclError=None,
+        TCL_VERSION='8.6',
+        TK_VERSION='8.6',
     )
 
 from _tkinter import TclError
+
+# _platform_info does a version check, it must be first
+from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
 from pythotk._structures import Callback, Color
 from pythotk._tcl_calls import (
     call, eval, create_command, delete_command, run, quit, on_quit)
