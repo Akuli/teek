@@ -342,13 +342,13 @@ class Toplevel(_WmMixin, Widget):
         very pythonic, so this method works with integers and namedtuples
         instead. This method can be called in a few different ways:
 
-            * If *width* and *height* are given, the window is resized.
-            * If *x* and *y* are given, the window is moved.
-            * If all arguments are given, the window is resized and moved.
-            * If no arguments are given, the current geometry is
-              returned as a namedtuple with *width*, *height*, *x* and
-              *y* fields.
-            * Calling this method otherwise raises an error.
+        * If *width* and *height* are given, the window is resized.
+        * If *x* and *y* are given, the window is moved.
+        * If all arguments are given, the window is resized and moved.
+        * If no arguments are given, the current geometry is
+          returned as a namedtuple with *width*, *height*, *x* and
+          *y* fields.
+        * Calling this method otherwise raises an error.
 
         Examples::
 

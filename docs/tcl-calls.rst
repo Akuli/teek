@@ -75,20 +75,20 @@ Python to Tcl conversion
 
 Arguments passed to :func:`.call` are handled like this:
 
-    * Strings are passed to Tcl as is.
-    * If the argument is None, an empty string is passed to Tcl because Tcl uses an
-      empty string in many places where Python uses None.
-    * If the argument is a dictionary-like object (more precisely,
-      :class:`collections.abc.Mapping`), it is turned into a list of pairs. This is
-      because ``{'a': 'b', 'c': 'd'}`` and ``['a', 'b', 'c', 'd']`` are represented
-      the same way in Tcl.
-    * ``True`` and ``False`` are converted to ``1`` and ``0``, respectively.
-    * Integers, floats and other real numbers (:class:`numbers.Real`) are converted
-      to strings with ``str()``.
-    * If the value has a ``to_tcl()`` method, it's called with no arguments. It
-      should return a string that will be passed to Tcl.
-    * Anything else is treated as an iterable. Every element of the iterable is
-      converted as described here, and the result is a Tcl list.
+* Strings are passed to Tcl as is.
+* If the argument is None, an empty string is passed to Tcl because Tcl uses an
+  empty string in many places where Python uses None.
+* If the argument is a dictionary-like object (more precisely,
+  :class:`collections.abc.Mapping`), it is turned into a list of pairs. This is
+  because ``{'a': 'b', 'c': 'd'}`` and ``['a', 'b', 'c', 'd']`` are represented
+  the same way in Tcl.
+* ``True`` and ``False`` are converted to ``1`` and ``0``, respectively.
+* Integers, floats and other real numbers (:class:`numbers.Real`) are converted
+  to strings with ``str()``.
+* If the value has a ``to_tcl()`` method, it's called with no arguments. It
+  should return a string that will be passed to Tcl.
+* Anything else is treated as an iterable. Every element of the iterable is
+  converted as described here, and the result is a Tcl list.
 
 
 .. _type-spec:
@@ -99,33 +99,33 @@ Type Specifications
 Pythotk also has **type specifications** for converting from a Tcl object to a
 Python object. Here is a list of valid type specifications:
 
-    * ``str`` (that is, literally ``str``, not e.g. ``'hello'``) means that a
-      string is returned.
-    * ``None`` means that the value will be ignored entirely, and the Python value
-      is always None.
-    * ``bool`` means that the value is treated as a Tcl boolean. All valid Tcl
-      booleans specified in :man:`Tcl_GetBoolean(3tcl)` are supported.
-    * ``int``, ``float`` or any other subclass of :class:`numbers.Real` means that
-      the value will be converted to that class by first converting to string as if
-      ``str`` was used, and then calling the class with the stringed value as an
-      argument.
-    * If the type specification is a class with a ``from_tcl()`` classmethod, that
-      will be called with one argument, the value converted to a string. If the
-      stringed value is an empty string, None is returned and ``from_tcl()`` is not
-      called.
+* ``str`` (that is, literally ``str``, not e.g. ``'hello'``) means that a
+  string is returned.
+* ``None`` means that the value will be ignored entirely, and the Python value
+  is always None.
+* ``bool`` means that the value is treated as a Tcl boolean. All valid Tcl
+  booleans specified in :man:`Tcl_GetBoolean(3tcl)` are supported.
+* ``int``, ``float`` or any other subclass of :class:`numbers.Real` means that
+  the value will be converted to that class by first converting to string as if
+  ``str`` was used, and then calling the class with the stringed value as an
+  argument.
+* If the type specification is a class with a ``from_tcl()`` classmethod, that
+  will be called with one argument, the value converted to a string. If the
+  stringed value is an empty string, None is returned and ``from_tcl()`` is not
+  called.
 
 The type specifications can be also combined in the following ways. These
 examples use ``str`` and ``int``, but all other valid specifications work as
 well. The return types can be nested arbitrarily; for example,
 ``[(int, float)]`` means a value like ``[(12, 3.4), (56, 7.8)]``.
 
-    * ``[str]`` means a list of strings, of any length.
-    * ``(str, int)`` means a tuple of a string followed by an integer. This allows
-      you to create a sequence with different kinds of items in it. For
-      example, ``(str, str, str)`` is like ``[str]`` except that it also
-      makes sure that the length of the result is 3, and returns a tuple instead of
-      a list.
-    * ``{str: int}`` means a dictionary with string keys and integer values.
+* ``[str]`` means a list of strings, of any length.
+* ``(str, int)`` means a tuple of a string followed by an integer. This allows
+  you to create a sequence with different kinds of items in it. For
+  example, ``(str, str, str)`` is like ``[str]`` except that it also
+  makes sure that the length of the result is 3, and returns a tuple instead of
+  a list.
+* ``{str: int}`` means a dictionary with string keys and integer values.
 
 
 Examples
