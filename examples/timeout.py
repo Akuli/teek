@@ -1,7 +1,7 @@
 import pythotk as tk
 
 
-class TimeoutWindow(tk.Window):
+class TimeoutDemo(tk.Frame):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,6 +32,7 @@ class TimeoutWindow(tk.Window):
         self.timeout = None
 
 
-window = TimeoutWindow()
+window = tk.Window()
+TimeoutDemo(window).pack()
 window.on_delete_window.connect(tk.quit)
 tk.run()
