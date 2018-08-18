@@ -1,11 +1,11 @@
-import tkinder
+import pythotk as tk
 
 
-window = tkinder.Window()
+window = tk.Window()
 
-tkinder.Label(window, "asd asd").pack()
-tkinder.Separator(window).pack(fill='x')
-tkinder.Label(window, "moar asd").pack()
+tk.Label(window, "asd asd").pack()
+tk.Separator(window).pack(fill='x')
+tk.Label(window, "moar asd").pack()
 
-window.on_delete_window.connect(tkinder.quit)
-tkinder.run()
+window.on_delete_window.connect(tk.quit)
+tk.run()

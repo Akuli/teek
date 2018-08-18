@@ -1,4 +1,4 @@
-import tkinder as tk
+import pythotk as tk
 
 
 def on_click():
