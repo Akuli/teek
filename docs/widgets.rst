@@ -19,11 +19,23 @@ ways to access and change the options:
   the text of the label like ``the_label.config['text'] = "new text"``. Note
   that this is different from tkinter where you would instead do
   ``the_label.config(text="new text")`` or ``the_label['text'] = "new text"``;
-  in pythotk, you instead always use the ``config`` object.
+  in pythotk, you instead always use the ``config`` object. See
+  :attr:`.Widget.config` for examples.
 
 
 Widget Reference
 ----------------
+
+.. note::
+    Some widgets are not documented here; instead, there are separate pages
+    about them because there are so many things to talk about. Here is a list
+    of these widgets:
+
+        .. toctree::
+            :maxdepth: 1
+
+            Text <textwidget>
+
 
 .. autoclass:: pythotk.Widget
     :members:

@@ -89,10 +89,6 @@ class _Tag(ConfigDict):
         return hash(self.name)
 
     def add(self, index1, index2):
-        """Add this tag to the text between the given indexes.
-
-        See ``pathName tag add`` in the manual page.
-        """
         index1 = self._widget.index(*index1)
         index2 = self._widget.index(*index2)
         return self._call_tag_subcommand(None, 'add', index1, index2)
@@ -100,13 +96,6 @@ class _Tag(ConfigDict):
     # TODO: bind
 
     def delete(self):
-        """See ``pathName tag delete`` in the manual page.
-
-        Note that delete and remove are not the same!
-
-        The tag object is still usable after calling this, and doing something
-        with it will create a new tag with the same name.
-        """
         self._call_tag_subcommand(None, 'delete')
 
     # TODO: tests
@@ -132,11 +121,6 @@ class _Tag(ConfigDict):
     nextrange = functools.partialmethod(_prevrange_or_nextrange, 'next')
 
     def ranges(self):
-        """See ``pathName tag ranges`` in the manual page.
-
-        This returns a list of ``(start_index, end_index)`` pairs where the
-        indexes are index objects.
-        """
         flat_pairs = map(self._widget._TextIndex._from_string,
                          self._call_tag_subcommand([str], 'ranges'))
 
@@ -144,13 +128,6 @@ class _Tag(ConfigDict):
         return list(zip(flat_pairs, flat_pairs))
 
     def remove(self, index1=None, index2=None):
-        """See ``pathName tag remove`` in the manual page.
-
-        Note that delete and remove are not the same!
-
-        index1 defaults to the beginning of the text, and index2 defaults to
-        the end.
-        """
         widget = self._widget       # because pep8 line length
         index1 = widget.start if index1 is None else widget.index(*index1)
         index2 = widget.end if index2 is None else widget.index(*index2)
@@ -187,6 +164,41 @@ class _Marks(collections.abc.MutableMapping):
 
 
 class Text(ChildMixin, Widget):
+    r"""This is the text widget.
+
+    .. attribute:: start
+    .. attribute:: end
+
+        :ref:`Index objects <textwidget-index>` that represents the start and
+        end of the text.
+
+        .. tip::
+            Use ``textwidget.end.line`` to count the number of lines of text
+            in the text widget.
+
+        Note that this changes when the text widget's content changes:
+
+        >>> text = tk.Text(window)
+        >>> text.end
+        TextIndex(line=1, column=0)
+        >>> old_end = text.end
+        >>> text.insert(text.end, 'hello')
+        >>> text.end
+        TextIndex(line=1, column=5)
+        >>> old_end
+        TextIndex(line=1, column=0)
+        >>> text.get(old_end, text.end)
+        'hello'
+
+        Tk has a concept of an invisible newline character at the end of
+        the widget. In pure Tcl or in tkinter, getting the text from
+        beginning to ``end`` returns the text in the widget plus a ``\n``,
+        which is why you almost always need to do ``end - 1 char`` instead
+        of just ``end``. **Pythotk doesn't do that** because 99% of the
+        time it's not useful and 1% of the time it's confusing to people
+        reading the code, so ``text.get(text.start, text.end)`` doesn't
+        return anything that is not visible in the text widget.
+    """
 
     def __init__(self, parent, **kwargs):
         super().__init__('text', parent, **kwargs)
@@ -210,7 +222,7 @@ class Text(ChildMixin, Widget):
     def get_all_tags(self, index=None):
         """Return all tags as tag objects.
 
-        See ``pathName tag names`` in the manual page for more details.
+        See ``pathName tag names`` in :man:`text(3tk)` for more details.
         """
         args = [self, 'tag', 'names']
         if index is not None:
@@ -219,16 +231,10 @@ class Text(ChildMixin, Widget):
 
     @property
     def start(self):
-        """An index object that represents the beginning of the text widget."""
         return self.index(1, 0)
 
     @property
     def end(self):
-        """An index object that represents the end of the text widget.
-
-        Note that this changes when the number of lines of text in the text
-        widget changes. The total number of lines is ``textwidget.end.line``.
-        """
         index_string = self._call(str, self, 'index', 'end - 1 char')
         return self.index(*map(int, index_string.split('.')))
 
@@ -241,7 +247,7 @@ class Text(ChildMixin, Widget):
         return self._TextIndex._from_string('%d.%d' % (line, column))
 
     def get(self, index1=None, index2=None):
-        """See the manual page.
+        """Return text in the widget.
 
         If the indexes are not given, they default to the beginning and end of
         the text widget, respectively.
@@ -251,7 +257,7 @@ class Text(ChildMixin, Widget):
         return self._call(str, self, 'get', index1, index2)
 
     def insert(self, index, text, tag_list=()):
-        """See the manual page.
+        """Add text to the widget.
 
         The ``tag_list`` can be any iterable of tag name strings or tag
         objects.
@@ -260,6 +266,6 @@ class Text(ChildMixin, Widget):
         self._call(None, self, 'insert', index, text, tag_list)
 
     def replace(self, index1, index2, new_text, tag_list=()):
-        """See the manual page and :meth:`insert`."""
+        """See :man:`text(3tk)` and :meth:`insert`."""
         index1, index2 = self.index(*index1), self.index(*index2)
         self._call(None, self, 'replace', index1, index2, new_text, tag_list)

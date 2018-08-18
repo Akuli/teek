@@ -63,7 +63,11 @@ Everything is a string in Tcl. Pythotk converts Python objects to strings and
 strings to Python objects for you, but you need to tell pythotk what types of
 values you want to get. This section describes how.
 
-.. _python-to-tcl:
+
+.. _to-tcl:
+
+Python to Tcl conversion
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Arguments passed to :func:`.call` are handled like this:
 
@@ -82,7 +86,11 @@ Arguments passed to :func:`.call` are handled like this:
     * Anything else is treated as an iterable. Every element of the iterable is
       converted as described here, and the result is a Tcl list.
 
+
 .. _type-spec:
+
+Type Specifications
+~~~~~~~~~~~~~~~~~~~
 
 Pythotk also has **type specifications** for converting from a Tcl object to a
 Python object. Here is a list of valid type specifications:
@@ -115,7 +123,9 @@ well. The return types can be nested arbitrarily; for example,
       a list.
     * ``{str: int}`` means a dictionary with string keys and integer values.
 
-Examples:
+
+Examples
+~~~~~~~~
 
 >>> tk.call([str], 'list', 'a', 'b', 'c')
 ['a', 'b', 'c']

@@ -1,4 +1,5 @@
 import functools
+import os
 import re
 import urllib.request     # because requests might not be installed
 
@@ -7,6 +8,11 @@ from docutils import nodes
 
 @functools.lru_cache()
 def check_url(url):
+    # this is kind of slow on my system, so do nothing unless running in
+    # readthedocs
+    if os.environ.get('READTHEDOCS', None) != 'True':
+        return
+
     print("\ndocs/extensions.py: checking if url exists: %s" % url)
 
     # this doesn't work with urllib's default User-Agent for some reason
