@@ -178,7 +178,7 @@ easier.
 
 ```python3
 widget = get_some_widget_from_somewhere()
-timeout_id = widget.after(1000, func)
+timeout_id = widget.after(1000, my_function)
 ...
 # debugging
 print(timeout_id)       # prints 'after#0'... very useful, eh??
@@ -194,7 +194,7 @@ if we_actually_dont_want_to_timeout():
 **Pythotk:**
 
 ```python3
-timeout_object = tk.after(1000, func)
+timeout_object = tk.after(1000, my_function)
 ...
 # debugging
 print(timeout_object)   # prints <pending 'my_function' timeout 'after#0'>
