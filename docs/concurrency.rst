@@ -360,8 +360,10 @@ event loop after 1000 milliseconds; that is, 1 second.
 .. autofunction:: pythotk.after
 .. autofunction:: pythotk.after_idle
 
+See also :man:`after(3tcl)`.
+
 It's also possible to cancel a timeout before it runs, and do some other
-things. :func:`after` and :func:`after_idle` return **timeout objects**, and
+things. :func:`.after` and :func:`.after_idle` return **timeout objects**, and
 they have a method for canceling:
 
 .. method:: timeout_object.cancel()
