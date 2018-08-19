@@ -28,12 +28,9 @@ def test_basic_stuff(deinit_threads):
         nonlocal ran
         ran += 1
 
-    # i experimented with different values: on my system 1000 was enough, but
-    # 900 was too small, so this should be plenty
-    #
-    # ik, it's ridiculously slow, i should add a context manager for repeated
-    # calls like in thread_target()
-    tk.after(2000, done_callback)
+    # i experimented with different values: 500 was enough and 450 wasn't, so
+    # this should be plenty
+    tk.after(1000, done_callback)
     tk.run()
     thread.join()
     assert ran == 1
