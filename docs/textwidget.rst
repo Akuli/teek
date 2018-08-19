@@ -194,9 +194,9 @@ We can solve this problem by adding a **mark**:
 'hi world'
 
 Marks move with the text as the text before them is changed.
-:attrib:`Text.marks` is a dictionary-like object with mark name strings as keys
+:attr:`.Text.marks` is a dictionary-like object with mark name strings as keys
 and :ref:`index objects <textwidget-index>` as values. There is also a special
-``'index'`` mark that represents the cursor position::
+``'insert'`` mark that represents the cursor position::
 
     # move cursor to new_cursor_pos
     text.marks['insert'] = new_cursor_pos
