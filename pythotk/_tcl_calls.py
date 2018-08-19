@@ -81,6 +81,31 @@ def _get_app():
 
 
 def init_threads(poll_interval_ms=50):
+    """Allow using pythotk from other threads than the main thread.
+
+    This is implemented with a queue. This function starts an
+    :ref:`after callback <after-cb>` that checks for new messages in the queue
+    every 50 milliseconds (that is, 20 times per second), and when another
+    thread calls a pythotk function that does a :ref:`Tcl call <tcl-calls>`,
+    the information required for making the Tcl call is put to the queue and
+    the Tcl call is done by the after callback.
+
+    .. note::
+        After callbacks don't work if :func:`.run` isn't running, so make sure
+        to start :func:`.run` before using pythotk from threads.
+
+    ``poll_interval_ms`` can be given to specify a different interval than 50
+    milliseconds.
+
+    When a Tcl call is done from another thread, that thread blocks until the
+    after callback has handled it, which is slow. If this is a problem, there
+    are two things you can do:
+
+    * Use a smaller ``poll_interval_ms``. Watch your CPU usage though; if you
+      make ``poll_interval_ms`` too small, you might get 100% CPU usage when
+      your program is doing nothing.
+    * Try to rewrite the program so that it does less pythotk stuff in threads.
+    """
     global _init_threads_called
 
     if threading.current_thread() is not threading.main_thread():

@@ -120,6 +120,8 @@ Pythotk's documentation, the manual pages explain every available feature in
 full detail.
 
 
+.. _eventloop:
+
 Event Loop
 ----------
 

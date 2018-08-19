@@ -1,4 +1,5 @@
 import collections.abc
+import contextlib
 import re
 from _tkinter import TclError
 
@@ -245,6 +246,51 @@ class Widget:
 
     def pack_slaves(self):
         return self._call([Widget], 'pack', 'slaves', self)
+
+    def busy_hold(self):
+        """See ``tk busy hold`` in :man:`busy(3tk)`.
+
+        *New in Tk 8.6.*
+        """
+        self._call(None, 'tk', 'busy', 'hold', self._get_wm_widget())
+
+    def busy_forget(self):
+        """See ``tk busy forget`` in :man:`busy(3tk)`.
+
+        *New in Tk 8.6.*
+        """
+        self._call(None, 'tk', 'busy', 'forget', self._get_wm_widget())
+
+    def busy_status(self):
+        """See ``tk busy status`` in :man:`busy(3tk)`.
+
+        This Returns True or False.
+
+        *New in Tk 8.6.*
+        """
+        return self._call(bool, 'tk', 'busy', 'status', self._get_wm_widget())
+
+    @contextlib.contextmanager
+    def busy(self):
+        """A context manager that calls :func:`busy_hold` and :func:`busy_forg\
+et`.
+
+        Example::
+
+            with window.busy():
+                # window.busy_hold() has been called, do something
+                ...
+
+            # now window.busy_forget() has been called
+
+        .. seealso::
+            :ref:`something-is-happening` on the concurrency page.
+        """
+        self.busy_hold()
+        try:
+            yield
+        finally:
+            self.busy_forget()
 
 
 Geometry = collections.namedtuple('Geometry', 'width height x y')

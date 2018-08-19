@@ -21,6 +21,7 @@ pythotk.
     misc-objs
     tcl-calls
     platform-info
+    concurrency
 
 ..
     Indices and tables
