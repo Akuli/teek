@@ -2,6 +2,7 @@ import collections.abc
 import functools
 
 import pythotk as tk
+from pythotk._tcl_calls import needs_main_thread
 from pythotk._widgets import ConfigDict, ChildMixin, Widget
 
 
@@ -14,6 +15,7 @@ class _IndexBase(collections.namedtuple('TextIndex', 'line column')):
         return '%d.%d' % self       # lol, magicz
 
     @classmethod
+    @needs_main_thread
     def _from_string(cls, string):
         # tk text widgets have an implicit and invisible newline character
         # at the end of them, and i always ignore it everywhere by using
@@ -88,6 +90,7 @@ class _Tag(ConfigDict):
     def __hash__(self):
         return hash(self.name)
 
+    @needs_main_thread
     def add(self, index1, index2):
         index1 = self._widget.index(*index1)
         index2 = self._widget.index(*index2)
@@ -99,6 +102,7 @@ class _Tag(ConfigDict):
         self._call_tag_subcommand(None, 'delete')
 
     # TODO: tests
+    @needs_main_thread
     def _prevrange_or_nextrange(self, prev_or_next, index1, index2=None):
         index1 = self._widget.index(*index1)
         if index2 is None:
@@ -120,6 +124,7 @@ class _Tag(ConfigDict):
     prevrange = functools.partialmethod(_prevrange_or_nextrange, 'prev')
     nextrange = functools.partialmethod(_prevrange_or_nextrange, 'next')
 
+    @needs_main_thread
     def ranges(self):
         flat_pairs = map(self._widget._TextIndex._from_string,
                          self._call_tag_subcommand([str], 'ranges'))
@@ -127,6 +132,7 @@ class _Tag(ConfigDict):
         # magic to convert a flat iterator to pairs: a,b,c,d --> (a,b), (c,d)
         return list(zip(flat_pairs, flat_pairs))
 
+    @needs_main_thread
     def remove(self, index1=None, index2=None):
         widget = self._widget       # because pep8 line length
         index1 = widget.start if index1 is None else widget.index(*index1)
@@ -148,10 +154,12 @@ class _Marks(collections.abc.MutableMapping):
     def __len__(self):
         return len(self._get_name_list())
 
+    @needs_main_thread
     def __setitem__(self, name, index):
         index = self._widget.index(*index)
         self._widget._call(None, self._widget, 'mark', 'set', name, index)
 
+    @needs_main_thread
     def __getitem__(self, name):
         if name not in self._get_name_list():
             raise KeyError(name)
@@ -218,7 +226,7 @@ class Text(ChildMixin, Widget):
         return ['contains %d lines of text' % self.end.line]
 
     def get_tag(self, name):
-        """Return a tag object by name, or create a new if needed."""
+        """Return a tag object by name, creating a new one if needed."""
         try:
             return self._tag_objects[name]
         except KeyError:
@@ -226,6 +234,7 @@ class Text(ChildMixin, Widget):
             self._tag_objects[name] = tag
             return tag
 
+    @needs_main_thread
     def get_all_tags(self, index=None):
         """Return all tags as tag objects.
 
@@ -253,6 +262,7 @@ class Text(ChildMixin, Widget):
         """
         return self._TextIndex._from_string('%d.%d' % (line, column))
 
+    @needs_main_thread
     def get(self, index1=None, index2=None):
         """Return text in the widget.
 
@@ -263,6 +273,7 @@ class Text(ChildMixin, Widget):
         index2 = self.end if index2 is None else self.index(*index2)
         return self._call(str, self, 'get', index1, index2)
 
+    @needs_main_thread
     def insert(self, index, text, tag_list=()):
         """Add text to the widget.
 
@@ -272,6 +283,7 @@ class Text(ChildMixin, Widget):
         index = self.index(*index)
         self._call(None, self, 'insert', index, text, tag_list)
 
+    @needs_main_thread
     def replace(self, index1, index2, new_text, tag_list=()):
         """See :man:`text(3tk)` and :meth:`insert`."""
         index1, index2 = self.index(*index1), self.index(*index2)

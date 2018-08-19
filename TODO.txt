@@ -7,39 +7,25 @@ grid
 place
 
 
-make threading stuff faster:
+make threading stuff faster, this is slow:
 
     import threading
     import pythotk
 
-    def slow1():
-        pythotk.init_threads()
-        text = pythotk.Text(pythotk.Window())
-        text.pack()
+    pythotk.init_threads()
+    text = pythotk.Text(pythotk.Window())
+    text.pack()
 
-        def inserter():
-            i = 0
-            while True:
-                i += 1
-                text.insert(text.end, 'hello %d\n' % i)
+    def inserter():
+        i = 0
+        while True:
+            i += 1
+            text.insert(text.end, 'hello %d\n' % i)
+            #pythotk.call(None, text, 'insert', 'end - 1 char', 'hello %d\n' % i)
 
-        threading.Thread(target=inserter).start()
-        pythotk.run()
+    threading.Thread(target=inserter).start()
+    pythotk.run()
 
-    def slow2():
-        pythotk.init_threads()
-        label = pythotk.Label(pythotk.Window())
-        label.pack()
-
-        def text_setter():
-            i = 0
-            while True:
-                i += 1
-                print('asd')
-                label.config['text'] = 'hello %d' % i
-
-        threading.Thread(target=text_setter).start()
-        pythotk.run()
-
-    #slow1()
-    slow2()
+because text.insert and text.end end up in the queue as separate items, which
+is a problem because this is a particularly common way to use things in a
+thread... maybe add an insert_to_end method?

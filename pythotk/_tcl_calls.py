@@ -165,7 +165,41 @@ def _call_thread_safely(non_threadsafe_func, args=(), kwargs=None):
     return future.get_value()
 
 
-def _thread_safe(func):
+def needs_main_thread(func):
+    """Functions decorated with this run in the main thread.
+
+    If the function is invoked from a different thread than the main thread,
+    the queue stuff is used for running it in the main thread.
+
+    If you have many functions decorated with this, let's say ``func1``,
+    ``func2`` and ``func3``, **this code is bad**::
+
+        def func123():
+            func1()
+            func2()
+            func3()
+
+    If called from a thread different from the main thread, ``func123()`` will
+    add a separate item to the queue for each of the three functions. If you
+    do this instead...
+    ::
+
+        @needs_main_thread
+        def func123():
+            func1()
+            func2()
+            func3()
+
+    ...there will be only 1 item in the queue for every ``func123()`` call
+    because ``func1()``, ``func2()`` and ``func3()`` will already be invoked
+    from the main thread, and they don't need the queue stuff anymore. This
+    makes things a lot faster when the function is called from a thread.
+
+    This is why pythotk functions that do multiple Tcl calls should be
+    decorated with this decorator. Note that call and eval are also decorated
+    with this, so decorating functions that call and eval is purely an
+    optimization.
+    """
     @functools.wraps(func)
     def safe(*args, **kwargs):
         return _call_thread_safely(func, args, kwargs)
@@ -173,7 +207,7 @@ def _thread_safe(func):
     return safe
 
 
-@_thread_safe
+@needs_main_thread
 def quit():
     global _app
     if _app is not None:
@@ -284,7 +318,7 @@ def from_tcl(type_spec, value):
     raise TypeError("unknown type specification " + repr(type_spec))
 
 
-@_thread_safe
+@needs_main_thread
 def call(returntype, command, *arguments):
     """Call a Tcl command.
 
@@ -306,7 +340,7 @@ string"
     return from_tcl(returntype, result)
 
 
-@_thread_safe
+@needs_main_thread
 def eval(returntype, code):
     """Run a string of Tcl code.
 
@@ -325,7 +359,7 @@ on_quit.connect(_command_cache.clear)
 
 
 # TODO: add support for passing arguments!
-@_thread_safe
+@needs_main_thread
 def create_command(func, args=(), kwargs=None, stack_info=''):
     """Create a Tcl command that runs ``func(*args, **kwargs)``.
 
@@ -371,7 +405,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
     return name
 
 
-@_thread_safe
+@needs_main_thread
 def delete_command(name):
     """Delete a Tcl command by name.
 

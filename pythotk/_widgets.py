@@ -4,10 +4,12 @@ import re
 from _tkinter import TclError
 
 import pythotk
-from pythotk import _tcl_calls, _structures
+from pythotk import _structures
+from pythotk._tcl_calls import (
+    counts, call, on_quit, create_command, needs_main_thread)
 
 _widgets = {}
-_tcl_calls.on_quit.connect(_widgets.clear)
+on_quit.connect(_widgets.clear)
 
 
 # make things more tkinter-user-friendly
@@ -43,10 +45,12 @@ class ConfigDict(collections.abc.MutableMapping):
 
     # the type of value is not checked with self._types because python is
     # dynamically typed
+    @needs_main_thread
     def __setitem__(self, option, value):
         self._check_option(option)
         self._call(None, 'configure', '-' + option, value)
 
+    @needs_main_thread
     def __getitem__(self, option):
         self._check_option(option)
         returntype = self._types.get(option, str)
@@ -121,7 +125,7 @@ class Widget:
         self.parent = parent
 
         # use some_widget.to_tcl() to access some_widget._widget_path
-        counter = _tcl_calls.counts[widgetname]
+        counter = counts[widgetname]
         self._widget_path = '%s.%s%d' % (parentpath, widgetname, next(counter))
 
         # TODO: some config options can only be given when the widget is
@@ -134,7 +138,6 @@ class Widget:
         self._init_config()
         self.config.update(options)
 
-    # see _tcl_calls.call
     @classmethod
     def from_tcl(cls, path_string):
         """Creates a widget from a Tcl path names.
@@ -198,9 +201,10 @@ class Widget:
                               "widget.configure(option=value)")
 
     # like _tcl_calls.call, but with better error handling
+    @needs_main_thread
     def _call(self, *args, **kwargs):
         try:
-            return _tcl_calls.call(*args, **kwargs)
+            return call(*args, **kwargs)
         except TclError as err:
             if not self.winfo_exists():
                 raise RuntimeError("the widget has been destroyed") from None
@@ -235,7 +239,7 @@ class Widget:
         Manual page: :man:`winfo(3tk)`
         """
         # self._call uses this, so this must not use that
-        return _tcl_calls.call(bool, 'winfo', 'exists', self)
+        return call(bool, 'winfo', 'exists', self)
 
     def winfo_toplevel(self):
         """Returns the :class:`Toplevel` widget that this widget is in.
@@ -307,10 +311,10 @@ class _WmMixin:
 
         self._call(
             None, 'wm', 'protocol', self._get_wm_widget(), 'WM_DELETE_WINDOW',
-            _tcl_calls.create_command(self.on_delete_window.run))
+            create_command(self.on_delete_window.run))
         self._call(
             None, 'wm', 'protocol', self._get_wm_widget(), 'WM_TAKE_FOCUS',
-            _tcl_calls.create_command(self.on_take_focus.run))
+            create_command(self.on_take_focus.run))
 
     def _repr_parts(self):
         result = ['title=' + repr(self.title)]
@@ -586,7 +590,7 @@ class Button(ChildMixin, Widget):
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__('ttk::button', parent, text=text, **kwargs)
         self.on_click = _structures.Callback()
-        self.config['command'] = _tcl_calls.create_command(self.on_click.run)
+        self.config['command'] = create_command(self.on_click.run)
         self.config._disabled['command'] = ("use the on_click attribute " +
                                             "or an initialization argument")
         if command is not None:

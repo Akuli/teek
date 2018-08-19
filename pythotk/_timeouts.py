@@ -1,6 +1,7 @@
 import traceback
 
-from pythotk._tcl_calls import call, on_quit, create_command, delete_command
+from pythotk._tcl_calls import (
+    call, on_quit, create_command, delete_command, needs_main_thread)
 
 # there's no after_info because i don't see how it would be useful in
 # pythotk
@@ -46,6 +47,7 @@ class _Timeout:
             if needs_cleanup:
                 delete_command(self._tcl_command)
 
+    @needs_main_thread
     def cancel(self):
         """Prevent this timeout from running as scheduled.
 
@@ -59,6 +61,7 @@ class _Timeout:
         delete_command(self._tcl_command)
 
 
+@needs_main_thread
 def after(ms, callback, args=(), kwargs=None):
     """Run ``callback(*args, **kwargs)`` after waiting for the given time.
 
@@ -71,6 +74,7 @@ def after(ms, callback, args=(), kwargs=None):
     return _Timeout(ms, callback, args, kwargs, stack_info)
 
 
+@needs_main_thread
 def after_idle(callback, args=(), kwargs=None):
     """Like :func:`after`, but runs the timeout as soon as possible."""
     stack_info = traceback.format_stack()[-2]
