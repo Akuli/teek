@@ -21,8 +21,8 @@ def _tkinter_hint(good, bad):
 
 class ConfigDict(collections.abc.MutableMapping):
 
-    def __init__(self, caller):
-        self._call = caller
+    def __init__(self, configurer_func):
+        self._call_configure = configurer_func
         self._types = {}      # {option: argument for run}  str is default
         self._disabled = {}   # {option: instruction string}
 
@@ -47,13 +47,13 @@ class ConfigDict(collections.abc.MutableMapping):
     @needs_main_thread
     def __setitem__(self, option, value):
         self._check_option(option)
-        self._call(None, 'configure', '-' + option, value)
+        self._call_configure(None, '-' + option, value)
 
     @needs_main_thread
     def __getitem__(self, option):
         self._check_option(option)
-        returntype = self._types.get(option, str)
-        return self._call(returntype, 'cget', '-' + option)
+        returntype = (None, None, None, None, self._types.get(option, str))
+        return self._call_configure(returntype, '-' + option)[-1]
 
     def __delitem__(self, option):
         raise TypeError("options cannot be deleted")
@@ -69,16 +69,17 @@ class ConfigDict(collections.abc.MutableMapping):
             return False
 
     def __iter__(self):
-        # [[str]] is a 2d list of strings
-        for info in self._call([[str]], 'configure'):
+        for info in self._call_configure([(str, None, None, None, None)]):
             option = info[0].lstrip('-')
             if option not in self._disabled:
                 yield option
 
     def __len__(self):
-        # FIXME: this is wrong if one of the disableds not exists, hard 2 test
-        options = self._call([[str]], 'configure')
-        return len(options) - len(self._disabled)
+        # this is very corner-case proof
+        result = 0
+        for value in iter(self):
+            result += 1
+        return result
 
 
 class Widget:
@@ -133,7 +134,8 @@ class Widget:
         _widgets[self.to_tcl()] = self
 
         self.config = ConfigDict(
-            lambda returntype, *args: self._call(returntype, self, *args))
+            lambda returntype, *args: self._call(
+                returntype, self, 'configure', *args))
         self._init_config()
         self.config.update(options)
 

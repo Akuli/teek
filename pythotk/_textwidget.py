@@ -50,7 +50,8 @@ class _Tag(ConfigDict):
     def __init__(self, widget, name):
         self._widget = widget
         self.name = name
-        super().__init__(self._call_tag_subcommand)
+        super().__init__(lambda returntype, *args: self._call_tag_subcommand(
+            returntype, 'configure', *args))
         dict(self)      # TODO: why do tests fail without this?
 
         # these are from text(3tk)
@@ -77,7 +78,6 @@ class _Tag(ConfigDict):
     def to_tcl(self):
         return self.name
 
-    # this inserts self between the arguments, that's why it's needed
     def _call_tag_subcommand(self, returntype, subcommand, *args):
         return self._widget._call(
             returntype, self._widget, 'tag', subcommand, self, *args)
