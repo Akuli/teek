@@ -37,10 +37,10 @@ Widget Reference
     about them because there are so many things to talk about. Here is a list
     of these widgets:
 
-        .. toctree::
-            :maxdepth: 1
+    .. toctree::
+        :maxdepth: 1
 
-            Text <textwidget>
+        Text <textwidget>
 
 
 .. autoclass:: pythotk.Widget
