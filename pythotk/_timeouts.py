@@ -70,12 +70,12 @@ def after(ms, callback, args=(), kwargs=None):
     ``cancel()`` method that takes no arguments; you can use that to
     cancel the timeout before it runs.
     """
-    stack_info = traceback.format_stack()[-2]
+    stack_info = ''.join(traceback.format_stack())
     return _Timeout(ms, callback, args, kwargs, stack_info)
 
 
 @needs_main_thread
 def after_idle(callback, args=(), kwargs=None):
     """Like :func:`after`, but runs the timeout as soon as possible."""
-    stack_info = traceback.format_stack()[-2]
+    stack_info = ''.join(traceback.format_stack())
     return _Timeout('idle', callback, args, kwargs, stack_info)
