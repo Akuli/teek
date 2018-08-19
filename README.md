@@ -70,6 +70,10 @@ at all; you just create a `Window` and add stuff into it.
 
 ### Threads
 
+Here `time.sleep`s represent blocking things. In real life you could e.g. do
+network requests, run a subprocess or perform CPU-sensitive computations in the
+thread.
+
 **Tkinter:**
 
 ```python3
