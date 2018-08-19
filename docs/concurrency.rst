@@ -30,7 +30,6 @@ Here is some code that pastebins a Hello World to
             self.url_label.pack()
 
         def paste(self):
-            self.paste_button.config['state'] = 'disabled'
             self.url_label.config['text'] = "Pasting..."
 
             # api docs: http://dpaste.com/api/v2/
@@ -53,9 +52,9 @@ Run the program. If you click the pasting button, the whole GUI freezes for a
 couple seconds and the button looks like it's pressed down, and when the
 pastebinning is done, everything is fine again. **The freezing is not nice.**
 
-In this tutorial, functions and methods that take a long time to complete are
-called **blocking**. Our ``paste()`` method is blocking, and using a blocking
-command as a .
+In this documentation, functions and methods that take a long time to complete
+are called **blocking**. Our ``paste()`` method is blocking, and using a
+blocking function or method as a button click callback freezes things.
 
 If you have code like this...
 ::
@@ -98,7 +97,7 @@ program and change the last 2 lines to this...
     ``()`` at the end of ``one_thing()`` tell Python to run the function right
     away, but instead of that, we want to run it in the thread.
 
-The good *\*ehm\** **awesome** news is that threads works nicely in pythotk.
+The good *\*ehm\** **awesome** news is that threads work nicely in pythotk.
 Add ``import threading`` to the top of the file, and add this method to the
 ``Dpaster`` class...
 ::
@@ -178,14 +177,14 @@ from the event loop is fine.
 
 If you have used ``tkinter`` before, the above program probably looks quite
 wrong to you, because in tkinter, running anything like
-``self.url_label.config['text'] = "Pasting..."`` is BAD; threads and tkinter
-don't work together well, and you must not do *any* tkinter stuff from threads.
-If you wanted to write the above pastebinning program in tkinter, you would
-need to do quite a few things yourself:
+``self.url_label.config['text'] = "Pasting..."`` in a thread is **BAD**.
+Threads and tkinter don't work together well, and you must not do *any* tkinter
+stuff from threads. If you wanted to write the pastebinning program in tkinter,
+you would need to do quite a few things yourself:
 
 * Create a :class:`~queue.Queue` that will contain texts of ``self.url_label``.
-  Queues can be used from threads *and* from Tk's event loop, so we can use it
-  to communicate between the pastebinning thread and the event loop.
+  Queues can be used from threads **and** from Tk's event loop, so we can use
+  them to communicate between the pastebinning thread and the event loop.
 * Create a method that gets a text from the queue and sets it to
   ``self.url_label``.
 
@@ -193,9 +192,8 @@ need to do quite a few things yourself:
       a thread because tkinter and threads don't mix well. The only other way
       to call it is from tkinter's event loop.
     * Because the method is called from tkinter's event loop, it must not
-      block; that is, it it can't wait until a message arrives to the queue
-      from the thread. If there are no messages in the thread, it must do
-      nothing.
+      block; that is, it can't wait until a message arrives to the queue from
+      the thread. If there are no messages in the thread, it must do nothing.
     * Because the method can't wait for messages in the thread, and it can only
       check if there are messages, it must be ran repeatedly e.g. 20 times per
       second. The thread will then add a message to the queue, and the queue
@@ -210,13 +208,13 @@ behaviour (but in pythotk, you get a :exc:`RuntimeError` as shown above):
 * Things may work 90% of the time and break 10% of the time.
 * Everything may work just fine on your computer but not on someone else's
   computer.
-* When things break, you get confusing error messages that don't say
-  anything about threads.
+* When things break, you get confusing error messages that don't necessarily
+  say anything about threads.
 
-Furthermore, beginners often want to use threads with tkinter, and struggle
-with it a lot, which is not surprising; threads with tkinter is hard.
+Furthermore, beginners often want to use threads with tkinter, and they
+struggle with it a lot, which is no surprise. Threading with tkinter is hard.
 
-Pythotk's ``init_threads()`` does all of this stuff for you:
+Pythotk's ``init_threads()`` does the hard things for you:
 
 .. autofunction:: pythotk.init_threads
 
@@ -251,8 +249,8 @@ Here is a part of our example program above.
         self.url_label.config['text'] = url
 
 Can you see the problem? The paste button can be clicked while ``paste()`` is
-running in the thread. If the user accidentally double-clicks the button, we
-have two pastes running. That's not nice.
+running in the thread. If the user does that, we have two pastes running at the
+same time in different threads. That's not nice.
 
 A simple alternative is to make the button grayed out in the paste function::
 
@@ -321,6 +319,7 @@ Sometimes :ref:`threads <threads>` are overkill. Here is a clock program::
         try:
             self.label.config['text'] = time.asctime()
         except RuntimeError:
+            # the program is quitting
             return
 
     Returning from the thread target will stop the thread, and Python will exit
@@ -354,17 +353,17 @@ after callbacks might be a better alternative. They work like this::
     Clock(window).pack()
     tk.run()
 
-``tk.after(1000, self.updater_callback)`` runs ``updater_callback()`` in Tk's
-event loop after 1000 milliseconds; that is, 1 second.
+``tk.after(1000, self.updater_callback)`` runs ``self.updater_callback()`` in
+Tk's event loop after 1000 milliseconds; that is, 1 second.
 
 .. autofunction:: pythotk.after
 .. autofunction:: pythotk.after_idle
 
 See also :man:`after(3tcl)`.
 
-It's also possible to cancel a timeout before it runs, and do some other
-things. :func:`.after` and :func:`.after_idle` return **timeout objects**, and
-they have a method for canceling:
+It's also possible to cancel a timeout before it runs. :func:`.after` and
+:func:`.after_idle` return **timeout objects**, which have a method for
+canceling:
 
 .. method:: timeout_object.cancel()
 
@@ -373,7 +372,7 @@ they have a method for canceling:
     :exc:`RuntimeError` is raised if the timeout has already ran or it has been
     cancelled.
 
-Timeout objects also have a useful string representation:
+Timeout objects also have a useful string representation for debugging:
 
 >>> tk.after(1000, print)       # doctest: +ELLIPSIS
 <pending 'print' timeout 'after#...'>

@@ -91,8 +91,8 @@ def init_threads(poll_interval_ms=50):
     the Tcl call is done by the after callback.
 
     .. note::
-        After callbacks don't work if :func:`.run` isn't running, so make sure
-        to start :func:`.run` before using pythotk from threads.
+        After callbacks don't work without the event loop, so make sure to run
+        the event loop with :func:`.run` after calling :func:`.init_threads`.
 
     ``poll_interval_ms`` can be given to specify a different interval than 50
     milliseconds.
