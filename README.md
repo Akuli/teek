@@ -68,6 +68,74 @@ created and packed automatically for you, and you don't need to think about it
 at all; you just create a `Window` and add stuff into it.
 
 
+### Threads
+
+**Tkinter:**
+
+```python3
+import queue
+import threading
+import time
+import tkinter
+
+root = tkinter.Tk()
+root.title("Thread Demo")
+text = tkinter.Text(root)
+text.pack()
+
+message_queue = queue.Queue()
+
+def queue_poller():
+    while True:
+        try:
+            message = message_queue.get(block=False)
+        except queue.Empty:
+            break
+        text.insert('end', message)
+
+    root.after(50, queue_poller)
+
+def thread_target():
+    message_queue.put('doing things...\n')
+    time.sleep(1)
+    message_queue.put('doing more things...\n')
+    time.sleep(2)
+    message_queue.put('done')
+
+threading.Thread(target=thread_target).start()
+queue_poller()
+root.mainloop()
+```
+
+**Pythotk:**
+
+```python3
+import threading
+import time
+import pythotk as tk
+
+text = tk.Text(tk.Window("Thread Demo"))
+text.pack()
+
+def thread_target():
+    text.insert(text.end, 'doing things...\n')
+    time.sleep(1)
+    text.insert(text.end, 'doing more things...\n')
+    time.sleep(2)
+    text.insert(text.end, 'done')
+
+tk.init_threads()
+threading.Thread(target=thread_target).start()
+tk.run()
+```
+
+This is not a joke. Using threads with tkinter is a horrible mess, but pythotk
+works with threads nicely. All you need is `tk.init_threads()`, and then you
+can do pythotk things from threads. See [concurrency docs] for details.
+
+[concurrency docs]: https://pythotk.readthedocs.io/en/latest/concurrency.html
+
+
 ### Debuggability
 
 **Tkinter:**
