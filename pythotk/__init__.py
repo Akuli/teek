@@ -3,14 +3,6 @@
 import os as _os
 import sys as _sys
 
-if _sys.platform.startswith("win32"):     # pragma: no cover
-    try:
-        # tkinter's __init__.py does this with some python versions, i haven't
-        # checked which
-        from tkinter import _fix
-    except ImportError:
-        pass
-
 if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
     # readthedocs must be able to import everything without _tkinter
     import types
@@ -19,6 +11,10 @@ if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
         TCL_VERSION='8.6',
         TK_VERSION='8.6',
     )
+else:       # pragma: no cover
+    # python 3.4's tkinter does this BEFORE importing _tkinter
+    if _sys.platform.startswith("win32") and _sys.version_info < (3, 5):
+        import tkinter._fix
 
 from _tkinter import TclError
 
