@@ -40,8 +40,8 @@ def test_init_threads_errors(deinit_threads):
     ran1 = 0
 
     def thread1_target():
-        # the Tcl interpreter isn't started yet, so this runs an error that is not
-        # covered by the code below
+        # the Tcl interpreter isn't started yet, so this runs an error that is
+        # not covered by the code below
         with pytest.raises(RuntimeError) as error:
             tk.eval(None, '')
         assert str(error.value) == "init_threads() wasn't called"
