@@ -26,10 +26,8 @@ def raise_pythotk_tclerror(func):
     return result
 
 
-on_quit = _structures.Callback()
-
 counts = collections.defaultdict(lambda: itertools.count(1))
-on_quit.connect(counts.clear)
+on_quit = _structures.Callback()
 
 
 # because readability is good
@@ -60,37 +58,200 @@ class _Future:
         return self._value
 
 
-# when call or eval is called from some other thread than the main thread, a
-# tuple like this is added to this queue:
-#
-#    (func, args, kwargs, future)
-#
-# * func is a function that MUST be called from main thread
-# * args and kwargs are arguments for func
-# * future will be set when the function has been called from Tk's event loop
-_main_thread_call_queue = queue.Queue()
+class _TclInterpreter:
 
-# globalz ftw
-# TODO: use less globals, this is kind of creepy
-_app = None
+    def __init__(self):
+        assert threading.current_thread() is threading.main_thread()
 
-_init_threads_called = False
-on_quit.connect(lambda: globals().update({'_init_threads_called': False}))
+        self._init_threads_called = False
 
-
-# this must be called from main thread
-def _get_app():
-    global _app
-
-    assert threading.current_thread() is threading.main_thread()
-    if _app is None:
         # tkinter does this :D i have no idea what each argument means
-        _app = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
+        self._app = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
 
-        _app.call('wm', 'withdraw', '.')
-        _app.call('package', 'require', 'tile')
+        self._app.call('wm', 'withdraw', '.')
+        self._app.call('package', 'require', 'tile')
 
-    return _app
+        # when call or eval is called from some other thread than the main
+        # thread, a tuple like this is added to this queue:
+        #
+        #    (func, args, kwargs, future)
+        #
+        # func is a function that MUST be called from main thread
+        # args and kwargs are arguments for func
+        # future will be set when the function has been called
+        #
+        # the function is called from Tk's event loop
+        self._call_queue = queue.Queue()
+
+    @raise_pythotk_tclerror
+    def init_threads(self, poll_interval_ms=50):
+        if threading.current_thread() is not threading.main_thread():
+            raise RuntimeError(
+                "init_threads() must be called from main thread")
+
+        # there is a race condition here, but if it actually creates problems,
+        # you are doing something very wrong
+        if self._init_threads_called:
+            raise RuntimeError("init_threads() was called twice")
+
+        # hard-coded name is ok because there is only one of these in each
+        # Tcl interpreter
+        poller_tcl_command = 'pythotk_init_threads_queue_poller'
+
+        after_id = None
+
+        @raise_pythotk_tclerror
+        def poller():
+            nonlocal after_id
+
+            while True:
+                try:
+                    item = self._call_queue.get(block=False)
+                except queue.Empty:
+                    break
+
+                func, args, kwargs, future = item
+                try:
+                    value = func(*args, **kwargs)
+                except Exception as e:
+                    future.set_error(e)
+                else:
+                    future.set_value(value)
+
+            after_id = self._app.call(
+                'after', poll_interval_ms, 'pythotk_init_threads_queue_poller')
+
+        self._app.createcommand(poller_tcl_command, poller)
+        on_quit.connect(
+            lambda: None if after_id is None else self._app.call(
+                'after', 'cancel', after_id))
+
+        poller()
+        self._init_threads_called = True
+
+    def call_thread_safely(self, non_threadsafe_func, args=(), kwargs=None):
+        if kwargs is None:
+            kwargs = {}
+
+        if threading.current_thread() is threading.main_thread():
+            return non_threadsafe_func(*args, **kwargs)
+
+        if not self._init_threads_called:
+            raise RuntimeError("init_threads() wasn't called")
+
+        future = _Future()
+        self._call_queue.put((non_threadsafe_func, args, kwargs, future))
+        return future.get_value()
+
+    # self._app must be accessed from the main thread, and this class provides
+    # methods for calling it thread-safely
+
+    @raise_pythotk_tclerror
+    def run(self):
+        if threading.current_thread() is not threading.main_thread():
+            raise RuntimeError("run() must be called from main thread")
+
+        # no idea what the 0 does, tkinter calls it like this
+        self._app.mainloop(0)
+
+    @raise_pythotk_tclerror
+    def getboolean(self, arg):
+        return self.call_thread_safely(self._app.getboolean, [arg])
+
+    # _tkinter returns tuples when tcl represents something as a
+    # list internally, but this forces it to string
+    @raise_pythotk_tclerror
+    def get_string(self, from_underscore_tkinter):
+        if isinstance(from_underscore_tkinter, str):
+            return from_underscore_tkinter
+        if isinstance(from_underscore_tkinter, _tkinter.Tcl_Obj):
+            return from_underscore_tkinter.string
+
+        # it's probably a tuple because _tkinter returns tuples when tcl
+        # represents something as a list internally, this forces tcl to
+        # represent it as a string instead
+        concatted = self.call_thread_safely(
+            self._app.call, ['concat', 'junk', from_underscore_tkinter])
+        junk, result = concatted.split(maxsplit=1)
+        assert junk == 'junk'
+        return result
+
+    @raise_pythotk_tclerror
+    def splitlist(self, value):
+        return self.call_thread_safely(self._app.splitlist, [value])
+
+    @raise_pythotk_tclerror
+    def call(self, *args):
+        return self.call_thread_safely(self._app.call, args)
+
+    @raise_pythotk_tclerror
+    def eval(self, code):
+        return self.call_thread_safely(self._app.eval, [code])
+
+    @raise_pythotk_tclerror
+    def createcommand(self, name, func):
+        return self.call_thread_safely(self._app.createcommand, [name, func])
+
+    @raise_pythotk_tclerror
+    def deletecommand(self, name):
+        return self.call_thread_safely(self._app.deletecommand, [name])
+
+
+# a global _TclInterpreter instance
+_interp = None
+
+
+# these are the only functions that access _interp directly
+def _get_interp():
+    global _interp
+
+    if _interp is None:
+        if threading.current_thread() is not threading.main_thread():
+            raise RuntimeError("init_threads() wasn't called")
+        _interp = _TclInterpreter()
+    return _interp
+
+
+def quit():
+    """Stop the event loop and destroy all widgets.
+
+    This function calls ``destroy .`` in Tcl, and that's documented in
+    :man:`destroy(3tk)`. Note that this function does not tell Python to quit;
+    only pythotk quits, so you can do this::
+
+        import pythotk as tk
+
+        window = tk.Window()
+        tk.Button(window, "Quit", tk.quit).pack()
+        tk.run()
+        print("Still alive")
+
+    If you click the button, it interrupts ``tk.run()`` and the print runs.
+
+    .. note::
+        Closing a :class:`.Window` with the X button in the corner calls
+        ``tk.quit`` by default. If you don't want that, you can prevent it like
+        this::
+
+            window.on_delete_window.disconnect(tk.quit)
+
+        See :class:`.Toplevel` for details.
+    """
+    global _interp
+
+    if threading.current_thread() is not threading.main_thread():
+        # TODO: allow quitting from other threads or document this
+        raise RuntimeError("can only quit from main thread")
+
+    if _interp is not None:
+        on_quit.run()
+        _interp.call('destroy', '.')
+        _interp = None
+
+
+def run():
+    """Runs the event loop until :func:`~pythotk.quit` is called."""
+    _get_interp().run()
 
 
 @raise_pythotk_tclerror
@@ -120,64 +281,7 @@ def init_threads(poll_interval_ms=50):
       your program is doing nothing.
     * Try to rewrite the program so that it does less pythotk stuff in threads.
     """
-    global _init_threads_called
-
-    if threading.current_thread() is not threading.main_thread():
-        raise RuntimeError("init_threads() must be called from main thread")
-
-    # there is a race condition here, but if it actually creates problems, you
-    # are doing something very wrong
-    if _init_threads_called:
-        raise RuntimeError("init_threads() was called twice")
-
-    unique_number = str(next(counts['init_threads_poller']))
-    poller_tcl_command = 'pythotk_init_threads_queue_poller_' + unique_number
-
-    after_id = None
-
-    @raise_pythotk_tclerror
-    def poller():
-        nonlocal after_id
-
-        while True:
-            try:
-                item = _main_thread_call_queue.get(block=False)
-            except queue.Empty:
-                break
-
-            func, args, kwargs, future = item
-            try:
-                value = func(*args, **kwargs)
-            except Exception as e:
-                future.set_error(e)
-            else:
-                future.set_value(value)
-
-        after_id = _get_app().call(
-            'after', poll_interval_ms, poller_tcl_command)
-
-    _get_app().createcommand(poller_tcl_command, poller)
-    on_quit.connect(
-        lambda: None if after_id is None else _get_app().call(
-            'after', 'cancel', after_id))
-
-    poller()
-    _init_threads_called = True
-
-
-def _call_thread_safely(non_threadsafe_func, args=(), kwargs=None):
-    if kwargs is None:
-        kwargs = {}
-
-    if threading.current_thread() is threading.main_thread():
-        return non_threadsafe_func(*args, **kwargs)
-
-    if not _init_threads_called:
-        raise RuntimeError("init_threads() wasn't called")
-
-    future = _Future()
-    _main_thread_call_queue.put((non_threadsafe_func, args, kwargs, future))
-    return future.get_value()
+    _get_interp().init_threads()
 
 
 def needs_main_thread(func):
@@ -217,27 +321,9 @@ def needs_main_thread(func):
     """
     @functools.wraps(func)
     def safe(*args, **kwargs):
-        return _call_thread_safely(func, args, kwargs)
+        return _get_interp().call_thread_safely(func, args, kwargs)
 
     return safe
-
-
-@needs_main_thread
-def quit():
-    global _app
-    if _app is not None:
-        on_quit.run()
-        _app.call('destroy', '.')
-        _app = None
-
-
-@raise_pythotk_tclerror
-def run():
-    if threading.current_thread() is not threading.main_thread():
-        raise RuntimeError("run() must be called from main thread")
-
-    # no idea what the 0 does, tkinter calls it like this
-    _get_app().mainloop(0)
 
 
 def to_tcl(value):
@@ -265,23 +351,12 @@ def _pairs(sequence):
     return zip(sequence[0::2], sequence[1::2])
 
 
-@raise_pythotk_tclerror
 def from_tcl(type_spec, value):
     if type_spec is None:
         return None
 
     if type_spec is str:
-        # _tkinter returns tuples when tcl represents something as a
-        # list internally
-        if isinstance(value, tuple):
-            # force it to string, this doesn't recurse if concat returns
-            # a string, which it seems to always do
-            concatted = _call_thread_safely(
-                lambda: _get_app().call('concat', 'junk', value))
-            junk, result = concatted.split(maxsplit=1)
-            assert junk == 'junk'
-            return result
-        return str(value)
+        return _get_interp().get_string(value)
 
     if type_spec is bool:
         if not from_tcl(str, value):
@@ -290,9 +365,8 @@ def from_tcl(type_spec, value):
             return None
 
         try:
-            # this may raise _tkinter.TclError or ValueError
-            return _call_thread_safely(lambda: _get_app().getboolean(value))
-        except _tkinter.TclError as e:
+            return _get_interp().getboolean(value)
+        except pythotk.TclError as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
     if isinstance(type_spec, type):     # it's a class
@@ -309,7 +383,7 @@ def from_tcl(type_spec, value):
             return type_spec.from_tcl(string)
 
     elif isinstance(type_spec, (list, tuple, dict)):
-        items = _call_thread_safely(lambda: _get_app().splitlist(value))
+        items = _get_interp().splitlist(value)
 
         if isinstance(type_spec, list):
             # [int] -> [1, 2, 3]
@@ -336,7 +410,6 @@ def from_tcl(type_spec, value):
     raise TypeError("unknown type specification " + repr(type_spec))
 
 
-@needs_main_thread
 @raise_pythotk_tclerror
 def call(returntype, command, *arguments):
     """Call a Tcl command.
@@ -355,11 +428,10 @@ string"
     >>> tk.call(None, 'puts', message)   # 1 argument to puts  # doctest: +SKIP
     hello world thing
     """
-    result = _get_app().call(tuple(map(to_tcl, (command,) + arguments)))
+    result = _get_interp().call(tuple(map(to_tcl, (command,) + arguments)))
     return from_tcl(returntype, result)
 
 
-@needs_main_thread
 @raise_pythotk_tclerror
 def eval(returntype, code):
     """Run a string of Tcl code.
@@ -370,12 +442,8 @@ def eval(returntype, code):
     >>> call(int, 'add', 1, 2)      # usually this is better, see below
     3
     """
-    result = _get_app().eval(code)
+    result = _get_interp().eval(code)
     return from_tcl(returntype, result)
-
-
-_command_cache = {}     # {function: name}
-on_quit.connect(_command_cache.clear)
 
 
 # TODO: add support for passing arguments!
@@ -383,6 +451,9 @@ on_quit.connect(_command_cache.clear)
 @raise_pythotk_tclerror
 def create_command(func, args=(), kwargs=None, stack_info=''):
     """Create a Tcl command that runs ``func(*args, **kwargs)``.
+
+    Created commands should be deleted with :func:`.delete_command` when they
+    are no longer needed.
 
     The Tcl command's name is returned as a string. The return value is
     converted to string for Tcl similarly as with :func:`call`.
@@ -396,19 +467,8 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
     .. seealso::
         Use :func:`traceback.format_stack` to get a *stack_info* string.
     """
-    args = tuple(args)
     if kwargs is None:
         kwargs = {}
-    cache_key = (func, args, tuple(kwargs.items()), stack_info)
-
-    try:
-        return _command_cache[cache_key]
-    except KeyError:
-        pass
-    except TypeError:
-        # something isn't hashable and we can't cache :( fortunately
-        # this doesn't happen often
-        cache_key = None
 
     def real_func():
         try:
@@ -420,9 +480,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
             return ''
 
     name = 'pythotk_command_%d' % next(counts['commands'])
-    _get_app().createcommand(name, real_func)
-    if cache_key is not None:
-        _command_cache[cache_key] = name
+    _get_interp().createcommand(name, real_func)
     return name
 
 
@@ -434,4 +492,4 @@ def delete_command(name):
     You can delete commands returned from :func:`create_command` to
     avoid memory leaks.
     """
-    _get_app().deletecommand(name)
+    _get_interp().deletecommand(name)

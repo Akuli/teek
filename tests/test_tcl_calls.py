@@ -92,6 +92,21 @@ def test_eval_and_call(handy_commands):
         str, 'list', True, 5, 3.14, [1, 2], {3: 4}, ('lol', 'wut'),
     ) == '1 5 3.14 {1 2} {3 4} {lol wut}'
 
+    # special case: Tcl empty string is None in python
+    tk.eval(None, 'proc returnEmpty {} { return {} }')
+
+    class BrokenFromTcl:
+
+        oh_no = False
+
+        @classmethod
+        def from_tcl(cls, tcl_string):
+            cls.oh_no = True
+            raise RuntimeError("NO!! THIS WASNT SUPPSOED TO RUN!!!")
+
+    assert tk.call(BrokenFromTcl, 'returnEmpty') is None
+    assert not BrokenFromTcl.oh_no
+
 
 def test_create_command(capsys):
     def working_func():
@@ -100,6 +115,7 @@ def test_create_command(capsys):
 
     command = tk.create_command(working_func)
     assert tk.call({'a b c': int}, command) == {'a b c': 123}
+    tk.delete_command(command)
     assert capsys.readouterr() == ('', '')
 
     def broken_func(arg1, *, arg2):
@@ -111,6 +127,7 @@ def test_create_command(capsys):
 
     command = tk.create_command(broken_func, ['one'], {'arg2': 'two'})
     assert tk.call(str, command) == ''
+    tk.delete_command(command)
 
     output, errors = capsys.readouterr()
     assert output == 'it works\n'
@@ -123,6 +140,7 @@ def test_create_command(capsys):
 
     command = create_the_command()
     assert tk.call(str, command) == ''
+    tk.delete_command(command)
 
     output, errors = capsys.readouterr()
     assert output == 'it works\n'
@@ -135,24 +153,6 @@ def test_create_command(capsys):
 
     command = tk.create_command(lel)
     assert tk.call((bool, int, [str]), command) == (True, 3, ['a', 'b', 'c'])
+    tk.delete_command(command)
 
-
-class NonHashableCallable:
-    __hash__ = None
-
-    def __call__(self):
-        pass
-
-
-def test_callback_cache(capsys):
-    assert (tk.create_command(print) !=
-            tk.create_command(print, args=['hello']) !=
-            tk.create_command(print, kwargs={'sep': '-'}) !=
-            tk.create_command(print, stack_info='lol'))
-    assert tk.create_command(print) == tk.create_command(print)
-
-    assert (tk.create_command(print, args=[{'lel'}]) !=
-            tk.create_command(print, args=[{'lel'}]))
-
-    func = NonHashableCallable()
-    assert tk.create_command(func) != tk.create_command(func)
+    assert capsys.readouterr() == ('', '')

@@ -137,33 +137,5 @@ The **event loop** works essentially like this pseudo code::
         if there_are_no_more_events_because_we_handled_all_of_them:
             wait_for_more_events()
 
-.. function:: pythotk.run
-
-    This function runs the event loop as shown above until
-    :func:`~pythotk.quit` is called.
-
-.. function:: pythotk.quit
-
-    Stop the event loop and destroy all widgets.
-
-    This function calls ``destroy .`` in Tcl, and that's documented in
-    :man:`destroy(3tk)`. Note that this function does not tell Python to quit;
-    only pythotk quits, so you can do this::
-
-        import pythotk as tk
-
-        window = tk.Window()
-        tk.Button(window, "Quit", tk.quit).pack()
-        tk.run()
-        print("Still alive")
-
-    If you click the button, it interrupts ``tk.run()`` and the print runs.
-
-    .. note::
-        Closing a :class:`.Window` with the X button in the corner calls
-        ``tk.quit`` by default. If you don't want that, you can prevent it like
-        this::
-
-            window.on_delete_window.disconnect(tk.quit)
-
-        See :class:`.Toplevel` for details.
+.. autofunction:: pythotk.run
+.. autofunction:: pythotk.quit
