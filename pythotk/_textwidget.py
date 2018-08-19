@@ -176,7 +176,7 @@ class Text(ChildMixin, Widget):
             Use ``textwidget.end.line`` to count the number of lines of text
             in the text widget.
 
-        Note that this changes when the text widget's content changes:
+        Note that ``end`` changes when the text widget's content changes:
 
         >>> window = tk.Window()
         >>> text = tk.Text(window)

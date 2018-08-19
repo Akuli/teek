@@ -244,6 +244,9 @@ their options with their dictionary-like behaviour. See ``TAGS`` in
 given without a leading ``-``, like ``'foreground'`` instead of
 ``'-foreground'``.
 
+There is a special tag named ``'sel'`` that represents the currently selected
+text.
+
 Tag objects have these attributes and methods. Search for ``pathName tag`` in
 :man:`text(3tk)` for more information about them.
 
