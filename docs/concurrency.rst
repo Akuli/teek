@@ -162,6 +162,10 @@ Let's fix it by adding ``tk.init_threads()`` before the line that creates
 
 Run the program. It works!
 
+.. warning::
+    Creating new widgets in threads is not supported yet; you can only do
+    things with existing widgets.
+
 
 How does it work, and why did it freeze??
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
