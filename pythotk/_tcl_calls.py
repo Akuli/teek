@@ -8,9 +8,22 @@ import threading
 import traceback
 import _tkinter
 
+import pythotk
 from pythotk import _structures
 
 _flatten = itertools.chain.from_iterable
+
+
+def raise_pythotk_tclerror(func):
+    @functools.wraps(func)
+    def result(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except _tkinter.TclError as e:
+            raise (pythotk.TclError(str(e))
+                   .with_traceback(e.__traceback__)) from None
+
+    return result
 
 
 on_quit = _structures.Callback()
@@ -80,6 +93,7 @@ def _get_app():
     return _app
 
 
+@raise_pythotk_tclerror
 def init_threads(poll_interval_ms=50):
     """Allow using pythotk from other threads than the main thread.
 
@@ -121,6 +135,7 @@ def init_threads(poll_interval_ms=50):
 
     after_id = None
 
+    @raise_pythotk_tclerror
     def poller():
         nonlocal after_id
 
@@ -216,6 +231,7 @@ def quit():
         _app = None
 
 
+@raise_pythotk_tclerror
 def run():
     if threading.current_thread() is not threading.main_thread():
         raise RuntimeError("run() must be called from main thread")
@@ -249,6 +265,7 @@ def _pairs(sequence):
     return zip(sequence[0::2], sequence[1::2])
 
 
+@raise_pythotk_tclerror
 def from_tcl(type_spec, value):
     if type_spec is None:
         return None
@@ -273,8 +290,9 @@ def from_tcl(type_spec, value):
             return None
 
         try:
+            # this may raise _tkinter.TclError or ValueError
             return _call_thread_safely(lambda: _get_app().getboolean(value))
-        except (_tkinter.TclError, ValueError) as e:
+        except _tkinter.TclError as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
     if isinstance(type_spec, type):     # it's a class
@@ -319,6 +337,7 @@ def from_tcl(type_spec, value):
 
 
 @needs_main_thread
+@raise_pythotk_tclerror
 def call(returntype, command, *arguments):
     """Call a Tcl command.
 
@@ -331,7 +350,7 @@ def call(returntype, command, *arguments):
     >>> tk.eval(None, 'puts %s' % message)  # 3 arguments to puts, tcl error
     Traceback (most recent call last):
         ...
-    _tkinter.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
+    pythotk.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
 string"
     >>> tk.call(None, 'puts', message)   # 1 argument to puts  # doctest: +SKIP
     hello world thing
@@ -341,6 +360,7 @@ string"
 
 
 @needs_main_thread
+@raise_pythotk_tclerror
 def eval(returntype, code):
     """Run a string of Tcl code.
 
@@ -360,6 +380,7 @@ on_quit.connect(_command_cache.clear)
 
 # TODO: add support for passing arguments!
 @needs_main_thread
+@raise_pythotk_tclerror
 def create_command(func, args=(), kwargs=None, stack_info=''):
     """Create a Tcl command that runs ``func(*args, **kwargs)``.
 
@@ -406,6 +427,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
 
 
 @needs_main_thread
+@raise_pythotk_tclerror
 def delete_command(name):
     """Delete a Tcl command by name.
 

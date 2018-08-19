@@ -1,7 +1,6 @@
 import collections.abc
 import contextlib
 import re
-from _tkinter import TclError
 
 import pythotk
 from pythotk import _structures
@@ -205,7 +204,7 @@ class Widget:
     def _call(self, *args, **kwargs):
         try:
             return call(*args, **kwargs)
-        except TclError as err:
+        except pythotk.TclError as err:
             if not self.winfo_exists():
                 raise RuntimeError("the widget has been destroyed") from None
             raise err

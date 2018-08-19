@@ -16,7 +16,13 @@ else:       # pragma: no cover
     if _sys.platform.startswith("win32") and _sys.version_info < (3, 5):
         import tkinter._fix
 
-from _tkinter import TclError
+
+# not to be confused with _tkinter's TclError, this is defined here because
+# this way error messages say pythotk.TclError instead of
+# pythotk._something.TclError, or worse yet, _tkinter.TclError
+class TclError(Exception):
+    """This is raised when a Tcl command fails."""
+
 
 # _platform_info does a version check, it must be first
 from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem

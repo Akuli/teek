@@ -27,37 +27,7 @@ conversions below.
 
 Tcl errors always raise the same Python exception:
 
-.. exception:: pythotk.TclError
-
-    This is raised when a Tcl command fails.
-
-    Note that error messages call this ``_tkinter.TclError`` instead of
-    ``pythotk.TclError``. This is because pythotk implements the Tcl calls by
-    calling things in the ``_tkinter`` module. Note that ``_tkinter`` is not
-    the same as ``tkinter``; ``tkinter`` is the pure-Python parts of tkinter
-    (and pythotk has nothing to do with ``tkinter``), and ``_tkinter`` is an
-    extension module written in C that both ``tkinter`` and ``pythotk`` use.
-
-    >>> tk.eval(float, 'expr "1/0"')
-    Traceback (most recent call last):
-      ...
-    _tkinter.TclError: divide by zero
-
-    Note that you should catch these errors by referring to them as
-    ``tk.TclError``, where pythotk is imported like ``import pythotk as tk``.
-
-    >>> try:
-    ...     tk.eval(float, 'expr "1/0"')
-    ... except tk.TclError:
-    ...     print("oh no")
-    ...
-    oh no
-
-    This works because ``tk.TclError`` is ``_tkinter.TclError``:
-
-    >>> tk.TclError
-    <class '_tkinter.TclError'>
-
+.. autoexception:: pythotk.TclError
 
 
 Data Types
