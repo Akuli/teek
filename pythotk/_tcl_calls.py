@@ -446,11 +446,17 @@ def tcl_eval(returntype, code):
     return from_tcl(returntype, result)
 
 
-# TODO: add support for passing arguments!
+# TODO: add support for functions that take *args or something
+# TODO: maybe some magic that uses type hints for this?
 @needs_main_thread
 @raise_pythotk_tclerror
-def create_command(func, args=(), kwargs=None, stack_info=''):
+def create_command(func, arg_type_specs=(), *, stack_info=''):
     """Create a Tcl command that runs ``func(*args, **kwargs)``.
+
+    The function will take ``len(arg_type_specs)`` arguments, and the arguments
+    are converted to Python objects using ``arg_type_specs``. The
+    ``arg_type_specs`` must be a sequence of
+    :ref:`type specifications <type-specs>`.
 
     Created commands should be deleted with :func:`.delete_command` when they
     are no longer needed.
@@ -467,12 +473,14 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
     .. seealso::
         Use :func:`traceback.format_stack` to get a *stack_info* string.
     """
-    if kwargs is None:
-        kwargs = {}
-
-    def real_func():
+    def real_func(*args):
         try:
-            return to_tcl(func(*args, **kwargs))
+            if len(args) != len(arg_type_specs):
+                # python raises TypeError for wrong number of args
+                raise TypeError("expected %d arguments, got %d"
+                                % (len(arg_type_specs), len(args)))
+
+            return to_tcl(func(*map(from_tcl, arg_type_specs, args)))
         except Exception as e:
             traceback_blabla, rest = traceback.format_exc().split('\n', 1)
             print(traceback_blabla, file=sys.stderr)

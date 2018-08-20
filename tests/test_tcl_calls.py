@@ -20,13 +20,13 @@ class CustomSequence(collections.abc.Sequence):
 
 def test_delete_command():
     result = []
-    command = tk.create_command(result.append, ['hello'])
-    tk.tcl_eval(None, command)
-    assert result == ['hello']
+    command = tk.create_command(result.append, [int])
+    tk.tcl_call(None, command, '123')
+    assert result == [123]
 
     tk.delete_command(command)
     with pytest.raises(tk.TclError):
-        tk.tcl_eval(None, command)
+        tk.tcl_call(None, command, '123')
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_eval_and_call(handy_commands):
         assert tk.tcl_call(str, 'concat', before) == after
         assert tk.tcl_call(str, 'concat', 'blah', before) == 'blah ' + after
 
-    # test conversion to strings when tk.calling
+    # test conversion to strings when tk.tcl_calling
     assert tk.tcl_call(
         str, 'list', True, 5, 3.14, [1, 2], {3: 4}, ('lol', 'wut'),
     ) == '1 5 3.14 {1 2} {3 4} {lol wut}'
@@ -115,19 +115,26 @@ def test_create_command(capsys):
         return CustomSequence()
 
     command = tk.create_command(working_func)
+
     assert tk.tcl_call({'a b c': int}, command) == {'a b c': 123}
-    tk.delete_command(command)
     assert capsys.readouterr() == ('', '')
 
-    def broken_func(arg1, *, arg2):
-        if arg1 == 'one' and arg2 == 'two':
+    tk.tcl_call(None, command, 'asda')
+    output, errors = capsys.readouterr()
+    assert not output
+    assert errors.endswith("TypeError: expected 0 arguments, got 1\n")
+
+    tk.delete_command(command)
+
+    def broken_func(arg1):
+        if arg1 == 'lol':
             print('it works')
         else:
-            print('it doesnt work :( arg1=%r arg2=%r' % (arg1, arg2))
+            print('it doesnt works :(', arg1)
         raise RuntimeError("oh noes")
 
-    command = tk.create_command(broken_func, ['one'], {'arg2': 'two'})
-    assert tk.tcl_call(str, command) == ''
+    command = tk.create_command(broken_func, [str])
+    assert tk.tcl_call(str, command, 'lol') == ''
     tk.delete_command(command)
 
     output, errors = capsys.readouterr()
@@ -136,8 +143,7 @@ def test_create_command(capsys):
 
     def create_the_command():
         stack_info = traceback.format_stack()[-2]
-        return tk.create_command(broken_func, ['one'], {'arg2': 'two'},
-                                 stack_info=stack_info)
+        return tk.create_command(broken_func, [str], stack_info=stack_info)
 
     command = create_the_command()
     assert tk.tcl_call(str, command) == ''
