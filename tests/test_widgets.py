@@ -1,7 +1,11 @@
 # most of the tests don't destroy the widgets they use, all widgets are
 # destroyed the next time quit() is called or python exits anyway
 import contextlib
+<<<<<<< HEAD
 import platform
+=======
+import functools
+>>>>>>> add bind stuff without event objects
 import itertools
 import os
 import pythotk as tk
@@ -206,6 +210,54 @@ def test_options():
     assert widget1.config == widget2.config
     widget2.config['text'] = 'tootie'
     assert widget1.config != widget2.config
+
+
+# TODO: use this in many other tests too
+def count_calls(callback):
+    count = 0
+
+    @functools.wraps(callback)
+    def result(*args, **kwargs):
+        nonlocal count
+        return_value = callback(*args, **kwargs)
+        count += 1
+        return return_value
+
+    def assert_called_once():
+        assert count == 1
+
+    result.assert_called_once = assert_called_once
+    return result
+
+
+def test_bind():
+    widget = tk.Window()
+    assert not widget.bindings.keys()
+
+    @count_calls
+    def tcl_call_bound_callback():
+        pass
+
+    @count_calls
+    def pythotk_bound_callback():
+        pass
+
+    command = tk.create_command(tcl_call_bound_callback)
+
+    tk.call(None, 'bind', widget, '<<Asd>>', command)
+    assert widget.bindings.keys() == {'<<Asd>>'}
+    widget.bind('<<Asd>>', pythotk_bound_callback)
+    tk.update()
+    tk.call(None, 'event', 'generate', widget, '<<Asd>>')
+
+    tk.delete_command(command)
+
+    tcl_call_bound_callback.assert_called_once()    # tests binding with +
+    pythotk_bound_callback.assert_called_once()
+
+    # some binding strings are equivalent
+    assert widget.bindings['<Button-3>'] is widget.bindings['<Button-3>']
+    assert widget.bindings['<3>'] is widget.bindings['<Button-3>']
 
 
 def test_labels():

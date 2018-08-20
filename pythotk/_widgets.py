@@ -5,7 +5,7 @@ import re
 import pythotk
 from pythotk import _structures
 from pythotk._tcl_calls import (
-    counts, tcl_call, on_quit, create_command, needs_main_thread)
+    counts, tcl_call, on_quit, create_command, delete_command, needs_main_thread)
 from pythotk._font import Font
 
 _widgets = {}
@@ -82,6 +82,44 @@ class ConfigDict(collections.abc.MutableMapping):
         return len(options) - len(self._disabled)
 
 
+class BindingDict(collections.abc.Mapping):
+
+    # bind(3tk) calls things like '<Button-1>' sequences, so this code is
+    # consistent with that
+    def __init__(self, bind_caller, command_list):
+        self._call_bind = bind_caller
+        self._command_list = command_list
+        self._callback_objects = {}     # {sequence: callback}
+
+    def __iter__(self):
+        # loops over all existing bindings, not all possible bindings
+        return iter(self._call_bind([str]))
+
+    def __len__(self):
+        return len(self._call_bind([str]))
+
+    def __getitem__(self, sequence):
+        if sequence in self._callback_objects:
+            return self._callback_objects[sequence]
+
+        # <1> and <Button-1> are equivalent, this handles that
+        for equiv_sequence, equiv_callback in self._callback_objects.items():
+            # this equivalence check should handle corner cases imo because the
+            # command names from create_command are unique
+            if (self._call_bind(str, sequence) ==
+                self._call_bind(str, equiv_sequence)):      # flake8: noqa
+                # found an equivalent binding, tcl commands are the same
+                self._callback_objects[sequence] = equiv_callback
+                return equiv_callback
+
+        callback = _structures.Callback()
+        command = create_command(callback.run)
+        self._call_bind(None, sequence, '+' + command)   # TODO: test the +
+
+        self._callback_objects[sequence] = callback
+        return callback
+
+
 class Widget:
     """This is a base class for all widgets.
 
@@ -137,6 +175,13 @@ class Widget:
             lambda returntype, *args: self._call(returntype, self, *args))
         self._init_config()
         self.config.update(options)
+
+        # command strings that are deleted when the widget is destroyed
+        self._command_list = []
+
+        self.bindings = BindingDict(
+         lambda returntype, *args: self._call(returntype, 'bind', self, *args),
+         self._command_list)
 
     @classmethod
     def from_tcl(cls, path_string):
@@ -200,6 +245,13 @@ class Widget:
     configure = _tkinter_hint("widget.config['option'] = value",
                               "widget.configure(option=value)")
 
+    def bind(self, sequence, func):
+        """
+        For convenience, ``widget.bind(sequence, func)`` does
+        ``widget.bindings[sequence].connect(func)``.
+        """
+        self.bindings[sequence].connect(func)
+
     # like _tcl_calls.tcl_call, but with better error handling
     @needs_main_thread
     def _call(self, *args, **kwargs):
@@ -210,6 +262,7 @@ class Widget:
                 raise RuntimeError("the widget has been destroyed") from None
             raise err
 
+    # TODO: document overriding this
     def destroy(self):
         """Delete this widget and all child widgets.
 
@@ -222,6 +275,10 @@ class Widget:
                 _widgets[name].destroy()
             else:
                 self._call(None, 'destroy', name)
+
+        for command in self._command_list:
+            delete_command(command)
+        self._command_list.clear()      # why not
 
         self._call(None, 'destroy', self)
         del _widgets[self.to_tcl()]
