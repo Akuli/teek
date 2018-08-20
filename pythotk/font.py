@@ -1,7 +1,5 @@
-from pythotk._tcl_calls import call as tcl_call, to_tcl
-
-# Font man page:
-# https://www.tcl.tk/man/tcl8.5/TkCmd/font.html
+from ._tcl_calls import call as tcl_call, to_tcl
+from . import TclError
 
 
 def _tcl_options(py_options):
@@ -11,18 +9,33 @@ def _tcl_options(py_options):
         tcl_options.append(to_tcl(v))
     return tcl_options
 
-def _font_configure_property(name):
+
+def _remove_dashes(options):
+    return {k[1:]: v for k, v in options.items()}
+
+
+def _font_configure_property(attribute):
     def getter(self):
-        return self._options[name]
+        return self._options[attribute]
 
     def setter(self, value):
-        self._options[name] = value
-        tcl_call(None, "font", "configure", name, value)
+        self._options[attribute] = value
+        tcl_call(None, "font", "configure", self.name, "-" + attribute, value)
 
     return property(getter, setter)
 
 
 class Font:
+    # XXX: Akuli, please add docs.
+    _OPTIONS_TYPE = {
+        "-family": str,
+        "-size": int,
+        "-weight": str,
+        "-slant": str,
+        "-underline": bool,
+        "-overstrike": bool,
+    }
+
     def __init__(
         self,
         name=None,
@@ -53,24 +66,19 @@ class Font:
         if overstrike is not None:
             options["overstrike"] = overstrike
 
-        options = _tcl_options(options)
+        tcl_options = _tcl_options(options)
 
         if name is None:
-            name = tcl_call(str, "font", "create", *options)
+            name = tcl_call(str, "font", "create", *tcl_options)
         else:
-            tcl_call(None, "font", "create", name, *options)
+            try:
+                tcl_call(None, "font", "create", name, *tcl_options)
+            except TclError as e:
+                self._options = self._get_options_for_name(name)
+            else:
+                self._options = options
 
         self.name = name
-        self._options = {
-            "family": family,
-            "size": size,
-            "weight": weight,
-            "slant": slant,
-            "underline": underline,
-            "overstrike": overstrike,
-        }
-
-        # TODO: Call 'font actual' on the font.
 
     family = _font_configure_property("family")
     size = _font_configure_property("size")
@@ -79,17 +87,23 @@ class Font:
     underline = _font_configure_property("underline")
     overstrike = _font_configure_property("overstrike")
 
+    def actual(self):
+        return _remove_dashes(
+            tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
+        )
+
     def delete(self):
         tcl_call(None, "font", "delete", self.name)
 
     def measure(self, text):
         return tcl_call(int, "font", "measure", self.name, text)
 
-    def metrics(self, option=None, ty=str):
-        if option is None:
-            return tcl_call(ty, "font", "metrics")
-        else:
-            return tcl_call(ty, "font", "metrics", option)
+    def metrics(self):
+        return tcl_call(
+            {"ascent": int, "descent": int, "linespace": int, "fixed": bool},
+            "font",
+            "metrics",
+        )
 
     @classmethod
     def families(self):
@@ -98,3 +112,9 @@ class Font:
     @classmethod
     def names(self):
         return tcl_call([str], "font", "names")
+
+    @classmethod
+    def _get_options_for_name(cls, name):
+        return _remove_dashes(
+            tcl_call(cls._OPTIONS_TYPE, "font", "configure", name)
+        )
