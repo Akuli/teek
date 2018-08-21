@@ -3,7 +3,7 @@ from pythotk.font import NamedFont, AnonymousFont
 
 def test_get_properties():
     font = AnonymousFont(
-        family="Helvetica",
+        family="Arial",
         weight="bold",
         overstrike=True,
         underline=False,
@@ -11,7 +11,7 @@ def test_get_properties():
         slant="roman",
     )
 
-    assert font.family == "Helvetica"
+    assert font.family == "Arial"
     assert font.weight == "bold"
     assert font.overstrike is True
     assert font.underline is False
@@ -105,13 +105,13 @@ def test_named_from_tcl():
 
 
 def test_anonymous_from_tcl():
-    font = AnonymousFont.from_tcl("Helvetica 7 bold underline")
-    assert font.family == "Helvetica"
+    font = AnonymousFont.from_tcl("Calibri 7 bold underline")
+    assert font.family == "Calibri"
     assert font.size == 7
     assert font.weight == "bold"
     assert font.underline is True
 
     font = AnonymousFont.from_tcl("-family Times -size 3 -overstrike 1")
-    assert font.family == "Times"
+    assert font.family == "Times New Roman"
     assert font.size == 3
     assert font.overstrike is True

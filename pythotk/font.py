@@ -72,8 +72,18 @@ class AnonymousFont:
         if overstrike is not None:
             description["overstrike"] = overstrike
 
+        if description:
+            options = _dict2options(description)
+            description = tcl_call(
+                self._OPTIONS_TYPE, "font", "actual", options
+            )
+        else:
+            description = tcl_call(
+                self._OPTIONS_TYPE, "font", "actual", "TkDefaultFont"
+            )
+
         self.name = None
-        self._description = description
+        self._description = _options2dict(description)
 
     family = _anonymous_font_property("family")
     size = _anonymous_font_property("size")
@@ -84,12 +94,10 @@ class AnonymousFont:
 
     def actual(self):
         if self.name is None:
-            options = _dict2options(self._description)
-            actual = tcl_call(self._OPTIONS_TYPE, "font", "actual", options)
+            return self._description
         else:
             actual = tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
-
-        return _options2dict(actual)
+            return _options2dict(actual)
 
     def delete(self):
         if self.name is None:
@@ -143,7 +151,7 @@ class AnonymousFont:
 
     @classmethod
     def from_tcl(cls, data):
-        options = from_tcl(cls._OPTIONS_TYPE, "font", "actual", data)
+        options = tcl_call(cls._OPTIONS_TYPE, "font", "actual", data)
         return cls(**_options2dict(options))
 
     def to_tcl(self):
