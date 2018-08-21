@@ -1,4 +1,4 @@
-from ._tcl_calls import call as tcl_call, eval as tcl_eval, to_tcl, from_tcl
+from ._tcl_calls import call as tcl_call, to_tcl, from_tcl
 from . import TclError
 
 
@@ -87,7 +87,9 @@ class Font:
     overstrike = _font_configure_property("overstrike")
 
     def actual(self):
-        return _remove_dashes(tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name))
+        return _remove_dashes(
+            tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
+        )
 
     def delete(self):
         tcl_call(None, "font", "delete", self.name)
