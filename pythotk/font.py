@@ -16,10 +16,10 @@ def _remove_dashes(options):
 
 def _font_configure_property(attribute):
     def getter(self):
-        return self._options[attribute]
+        ty = self._OPTIONS_TYPE["-" + attribute]
+        return tcl_call(ty, "font", "configure", self.name, "-" + attribute)
 
     def setter(self, value):
-        self._options[attribute] = value
         tcl_call(None, "font", "configure", self.name, "-" + attribute, value)
 
     return property(getter, setter)
@@ -74,9 +74,8 @@ class Font:
             try:
                 tcl_call(None, "font", "create", name, *tcl_options)
             except TclError as e:
-                self._options = self._get_options_for_name(name)
-            else:
-                self._options = options
+                # font exists
+                pass
 
         self.name = name
 
@@ -112,9 +111,3 @@ class Font:
     @classmethod
     def names(self):
         return tcl_call([str], "font", "names")
-
-    @classmethod
-    def _get_options_for_name(cls, name):
-        return _remove_dashes(
-            tcl_call(cls._OPTIONS_TYPE, "font", "configure", name)
-        )
