@@ -1,4 +1,4 @@
-from ._tcl_calls import call as tcl_call, to_tcl, from_tcl
+from ._tcl_calls import call as tcl_call, to_tcl
 from . import TclError
 
 
@@ -14,20 +14,19 @@ def _options2dict(options):
     return {k.lstrip("-"): v for k, v in options.items()}
 
 
-def _anonymous_font_property(attribute):
+def _font_property(attribute):
     def fget(self):
-        return self._description[attribute]
-
-    return property(fget)
-
-
-def _named_font_property(attribute):
-    def fget(self):
-        ty = self._OPTIONS_TYPE["-" + attribute]
-        return tcl_call(ty, "font", "configure", self.name, "-" + attribute)
+        if self.name is None:
+            return self._description[attribute]
+        else:
+            ty = self._OPTIONS_TYPE["-" + attribute]
+            return tcl_call(ty, "font", "configure", self.name, "-" + attribute)
 
     def fset(self, value):
-        tcl_call(None, "font", "configure", self.name, "-" + attribute, value)
+        if self.name is None:
+            raise RuntimeError("You can't change an AnonymousFont's properties.")
+        else:
+            tcl_call(None, "font", "configure", self.name, "-" + attribute, value)
 
     return property(fget, fset)
 
@@ -43,35 +42,7 @@ class AnonymousFont:
         "-overstrike": bool,
     }
 
-    def __init__(
-        self,
-        family=None,
-        size=None,
-        weight=None,
-        slant=None,
-        underline=None,
-        overstrike=None,
-    ):
-        description = {}
-
-        if family is not None:
-            description["family"] = family
-
-        if size is not None:
-            description["size"] = size
-
-        if weight is not None:
-            description["weight"] = weight
-
-        if slant is not None:
-            description["slant"] = slant
-
-        if underline is not None:
-            description["underline"] = underline
-
-        if overstrike is not None:
-            description["overstrike"] = overstrike
-
+    def __init__(self, **description):
         if description:
             options = _dict2options(description)
             description = tcl_call(
@@ -85,12 +56,12 @@ class AnonymousFont:
         self.name = None
         self._description = _options2dict(description)
 
-    family = _anonymous_font_property("family")
-    size = _anonymous_font_property("size")
-    weight = _anonymous_font_property("weight")
-    slant = _anonymous_font_property("slant")
-    underline = _anonymous_font_property("underline")
-    overstrike = _anonymous_font_property("overstrike")
+    family = _font_property("family")
+    size = _font_property("size")
+    weight = _font_property("weight")
+    slant = _font_property("slant")
+    underline = _font_property("underline")
+    overstrike = _font_property("overstrike")
 
     def actual(self):
         if self.name is None:
@@ -127,24 +98,9 @@ class AnonymousFont:
         return tcl_call([str], "font", "families")
 
     def __repr__(self):
-        return (
-            "%s("
-            "family=%s, "
-            "size=%s, "
-            "weight=%s, "
-            "slant=%s, "
-            "underline=%s, "
-            "overstrike=%s"
-            ")"
-        ) % (
-            self.__class__.__name__,
-            self.family,
-            self.size,
-            self.weight,
-            self.slant,
-            self.underline,
-            self.overstrike,
-        )
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join("%s=%r" % key, value
+                                     for key, value in self._description))
 
     def __eq__(self, other):
         return self._description == other._description
@@ -174,13 +130,6 @@ class NamedFont(AnonymousFont):
                 # font already exists
                 pass
 
-    family = _named_font_property("family")
-    size = _named_font_property("size")
-    weight = _named_font_property("weight")
-    slant = _named_font_property("slant")
-    underline = _named_font_property("underline")
-    overstrike = _named_font_property("overstrike")
-
     @classmethod
     def names(self):
         return tcl_call([str], "font", "names")
@@ -196,7 +145,7 @@ class NamedFont(AnonymousFont):
         return self.name
 
     def __repr__(self):
-        return ("%s(name=%s)") % (self.__class__.__name__, self.name)
+        return "%s(name=%s)" % (self.__class__.__name__, self.name)
 
     def __eq__(self, other):
         return self.name == other.name
