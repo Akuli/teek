@@ -2,30 +2,40 @@ from ._tcl_calls import call as tcl_call, to_tcl, from_tcl
 from . import TclError
 
 
-def _tcl_options(py_options):
+def _dict2options(dict_):
     tcl_options = []
-    for k, v in py_options.items():
+    for k, v in dict_.items():
         tcl_options.append("-" + k)
         tcl_options.append(to_tcl(v))
     return tcl_options
 
 
-def _remove_dashes(options):
+def _options2dict(options):
     return {k.lstrip("-"): v for k, v in options.items()}
 
 
-def _font_configure_property(attribute):
+def _font_property(attribute):
     def getter(self):
-        ty = self._OPTIONS_TYPE["-" + attribute]
-        return tcl_call(ty, "font", "configure", self.name, "-" + attribute)
+        if self.name is None:
+            return self._description[attribute]
+        else:
+            ty = self._OPTIONS_TYPE["-" + attribute]
+            return tcl_call(
+                ty, "font", "configure", self.name, "-" + attribute
+            )
 
     def setter(self, value):
-        tcl_call(None, "font", "configure", self.name, "-" + attribute, value)
+        if self.name is None:
+            self._description[attribute] = value
+        else:
+            tcl_call(
+                None, "font", "configure", self.name, "-" + attribute, value
+            )
 
     return property(getter, setter)
 
 
-class Font:
+class AnonymousFont:
     # XXX: Akuli, please add docs.
     _OPTIONS_TYPE = {
         "-family": str,
@@ -38,7 +48,6 @@ class Font:
 
     def __init__(
         self,
-        name=None,
         family=None,
         size=None,
         weight=None,
@@ -66,56 +75,59 @@ class Font:
         if overstrike is not None:
             options["overstrike"] = overstrike
 
-        tcl_options = _tcl_options(options)
+        self.name = None
+        self._description = options
 
-        if name is None:
-            name = tcl_call(str, "font", "create", *tcl_options)
-        else:
-            try:
-                tcl_call(None, "font", "create", name, *tcl_options)
-            except TclError as e:
-                # font exists
-                pass
-
-        self.name = name
-
-    family = _font_configure_property("family")
-    size = _font_configure_property("size")
-    weight = _font_configure_property("weight")
-    slant = _font_configure_property("slant")
-    underline = _font_configure_property("underline")
-    overstrike = _font_configure_property("overstrike")
+    family = _font_property("family")
+    size = _font_property("size")
+    weight = _font_property("weight")
+    slant = _font_property("slant")
+    underline = _font_property("underline")
+    overstrike = _font_property("overstrike")
 
     def actual(self):
-        return _remove_dashes(
-            tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
-        )
+        if self.name is None:
+            options = tcl_call(
+                self._OPTIONS_TYPE,
+                "font",
+                "actual",
+                _dict2options(self._description)
+            )
+        else:
+            options = tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
+
+        return _options2dict(options)
 
     def delete(self):
+        if self.name is None:
+            raise RuntimeError("Can't delete an AnonymousFont!")
+
         tcl_call(None, "font", "delete", self.name)
 
     def measure(self, text):
-        return tcl_call(int, "font", "measure", self.name, text)
+        if self.name is None:
+            return tcl_call(
+                int, "font", "measure", _dict2options(self._description), text
+            )
+        else:
+            return tcl_call(int, "font", "measure", self.name, text)
 
     def metrics(self):
-        return tcl_call(
-            {"ascent": int, "descent": int, "linespace": int, "fixed": bool},
-            "font",
-            "metrics",
-        )
+        ty = {"ascent": int, "descent": int, "linespace": int, "fixed": bool}
+        if self.name is None:
+            return tcl_call(ty, "font", "metrics", self.name)
+        else:
+            return tcl_call(
+                ty, "font", "metrics", _dict2options(self._description)
+            )
 
     @classmethod
     def families(self):
         return tcl_call([str], "font", "families")
 
-    @classmethod
-    def names(self):
-        return tcl_call([str], "font", "names")
-
     def __repr__(self):
         return (
             "%s("
-            "name=%s,"
             "family=%s,"
             "size=%s,"
             "weight=%s,"
@@ -125,7 +137,6 @@ class Font:
             ")"
         ) % (
             self.__class__.__name__,
-            self.name,
             self.family,
             self.size,
             self.weight,
@@ -135,7 +146,7 @@ class Font:
         )
 
     def __eq__(self, other):
-        return self.name == other.name
+        return self._description == other._description
 
     @classmethod
     def from_tcl(cls, data):
@@ -146,7 +157,7 @@ class Font:
         except (TclError, ValueError, AssertionError):
             pass
         else:
-            return cls(**_remove_dashes(options))
+            return cls(**_options2dict(options))
 
         # Check if this is a font description in the form of
         # a "family size *styles" list.
@@ -178,15 +189,59 @@ class Font:
 
             return cls(
                 family=family,
-                size=size,
+                size=int(size),
                 weight=weight,
                 slant=slant,
                 underline=underline,
                 overstrike=overstrike,
             )
 
-        # If it was neither, just assume it's a font name.
-        return cls(name=from_tcl(str, data))
+        raise ValueError(
+            "Don't know how to get a %s from %r" % (cls.__name__, data)
+        )
+
+    def to_tcl(self):
+        return _dict2options(self._description)
+
+
+class NamedFont(AnonymousFont):
+    def __init__(self, name=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if name is None:
+            self.name = tcl_call(
+                str, "font", "create", *_dict2options(self._description)
+            )
+        else:
+            self.name = name
+            try:
+                tcl_call(
+                    str,
+                    "font",
+                    "create",
+                    name,
+                    *_dict2options(self._description)
+                )
+            except TclError:
+                # font already exists
+                pass
+
+    @classmethod
+    def names(self):
+        return tcl_call([str], "font", "names")
+
+    @classmethod
+    def from_tcl(cls, data):
+        if data in cls.names():
+            return cls(data)
+        else:
+            return super().from_tcl(data)
 
     def to_tcl(self):
         return self.name
+
+    def __repr__(self):
+        return ("%s(name=%s)") % (self.__class__.__name__, self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
