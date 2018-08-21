@@ -20,10 +20,8 @@ def test_get_properties():
 
 
 def test_set_properties():
-    NAME = "set_properties_test"
-
     font1 = NamedFont(
-        name=NAME,
+        name="set_properties_test",
         family="Helvetica",
         weight="bold",
         overstrike=True,
@@ -31,7 +29,7 @@ def test_set_properties():
         size=42,
         slant="roman",
     )
-    font2 = NamedFont(name=NAME)
+    font2 = NamedFont(name=font1.name)
 
     assert font1 is not font2
 
@@ -45,13 +43,11 @@ def test_set_properties():
 
 
 def test_deletion():
-    NAME = "deletion_test"
+    font = NamedFont(name="deletion_test")
 
-    font = NamedFont(name=NAME)
-
-    assert NAME in NamedFont.names()
+    assert font.name in NamedFont.names()
     font.delete()
-    assert NAME not in NamedFont.names()
+    assert font.name not in NamedFont.names()
 
 
 def test_actual_is_valid_init_args():
@@ -64,10 +60,8 @@ def test_actual_is_valid_init_args():
 
 
 def test_named_to_tcl():
-    NAME = "to_tcl_test"
-
     font = NamedFont(
-        name=NAME,
+        name="to_tcl_test",
         family="Calibri",
         weight="bold",
         slant="italic",
