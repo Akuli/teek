@@ -14,25 +14,25 @@ def _options2dict(options):
     return {k.lstrip("-"): v for k, v in options.items()}
 
 
-def _anonymous_font_property(attribute):
-    def fget(self):
-        return self._description[attribute]
+def _font_property(attribute):
+    def getter(self):
+        if self.name is None:
+            return self._description[attribute]
+        else:
+            ty = self._OPTIONS_TYPE["-" + attribute]
+            return tcl_call(
+                ty, "font", "configure", self.name, "-" + attribute
+            )
 
-    return property(fget)
+    def setter(self, value):
+        if self.name is None:
+            self._description[attribute] = value
+        else:
+            tcl_call(
+                None, "font", "configure", self.name, "-" + attribute, value
+            )
 
-def _named_font_property(attribute):
-    def fget(self):
-        ty = self._OPTIONS_TYPE["-" + attribute]
-        return tcl_call(
-            ty, "font", "configure", self.name, "-" + attribute
-        )
-
-    def fset(self, value):
-        tcl_call(
-            None, "font", "configure", self.name, "-" + attribute, value
-        )
-
-    return property(fget, fset)
+    return property(getter, setter)
 
 
 class AnonymousFont:
@@ -78,12 +78,12 @@ class AnonymousFont:
         self.name = None
         self._description = description
 
-    family = _anonymous_font_property("family")
-    size = _anonymous_font_property("size")
-    weight = _anonymous_font_property("weight")
-    slant = _anonymous_font_property("slant")
-    underline = _anonymous_font_property("underline")
-    overstrike = _anonymous_font_property("overstrike")
+    family = _font_property("family")
+    size = _font_property("size")
+    weight = _font_property("weight")
+    slant = _font_property("slant")
+    underline = _font_property("underline")
+    overstrike = _font_property("overstrike")
 
     def actual(self):
         if self.name is None:
@@ -215,13 +215,6 @@ class NamedFont(AnonymousFont):
             except TclError:
                 # font already exists
                 pass
-
-    family = _named_font_property("family")
-    size = _named_font_property("size")
-    weight = _named_font_property("weight")
-    slant = _named_font_property("slant")
-    underline = _named_font_property("underline")
-    overstrike = _named_font_property("overstrike")
 
     @classmethod
     def names(self):
