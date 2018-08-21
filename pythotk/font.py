@@ -172,7 +172,7 @@ class Font:
                 elif style == "overstrike":
                     overstrike = True
                 else:
-                    raise ValueError("Unkwnon style %r" % style)
+                    raise ValueError("Unknown style %r" % style)
 
             return cls(
                 family=family,
