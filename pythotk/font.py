@@ -87,9 +87,7 @@ class Font:
     overstrike = _font_configure_property("overstrike")
 
     def actual(self):
-        return _remove_dashes(
-            tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
-        )
+        return _remove_dashes(tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name))
 
     def delete(self):
         tcl_call(None, "font", "delete", self.name)
@@ -111,3 +109,25 @@ class Font:
     @classmethod
     def names(self):
         return tcl_call([str], "font", "names")
+
+    def __repr__(self):
+        return (
+            "%s("
+            "name=%s,"
+            "family=%s,"
+            "size=%s,"
+            "weight=%s,"
+            "slant=%s,"
+            "underline=%s,"
+            "overstrike=%s"
+            ")"
+        ) % (
+            self.__class__.__name__,
+            self.name,
+            self.family,
+            self.size,
+            self.weight,
+            self.slant,
+            self.underline,
+            self.overstrike,
+        )
