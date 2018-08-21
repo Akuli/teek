@@ -20,17 +20,14 @@ def _anonymous_font_property(attribute):
 
     return property(fget)
 
+
 def _named_font_property(attribute):
     def fget(self):
         ty = self._OPTIONS_TYPE["-" + attribute]
-        return tcl_call(
-            ty, "font", "configure", self.name, "-" + attribute
-        )
+        return tcl_call(ty, "font", "configure", self.name, "-" + attribute)
 
     def fset(self, value):
-        tcl_call(
-            None, "font", "configure", self.name, "-" + attribute, value
-        )
+        tcl_call(None, "font", "configure", self.name, "-" + attribute, value)
 
     return property(fget, fset)
 
@@ -146,55 +143,8 @@ class AnonymousFont:
 
     @classmethod
     def from_tcl(cls, data):
-        # Check if this is a font description in the form of an options list.
-        try:
-            options = from_tcl(cls._OPTIONS_TYPE, data)
-            assert not (options.keys() - cls._OPTIONS_TYPE.keys())
-        except (TclError, ValueError, AssertionError):
-            pass
-        else:
-            return cls(**_options2dict(options))
-
-        # Check if this is a font description in the form of
-        # a "family size *styles" list.
-        try:
-            family, size, *styles = from_tcl([str], data)
-        except (TclError, ValueError, AssertionError):
-            pass
-        else:
-            weight = "normal"
-            slant = "roman"
-            underline = False
-            overstrike = False
-
-            for style in styles:
-                if style == "normal":
-                    weight = "normal"
-                elif style == "bold":
-                    weight = "bold"
-                elif style == "roman":
-                    slant = "roman"
-                elif style == "italic":
-                    slant = "italic"
-                elif style == "underline":
-                    underline = True
-                elif style == "overstrike":
-                    overstrike = True
-                else:
-                    raise ValueError("Unknown style %r" % style)
-
-            return cls(
-                family=family,
-                size=int(size),
-                weight=weight,
-                slant=slant,
-                underline=underline,
-                overstrike=overstrike,
-            )
-
-        raise ValueError(
-            "Don't know how to get a %s from %r" % (cls.__name__, data)
-        )
+        options = from_tcl(cls._OPTIONS_TYPE, "font", "actual", data)
+        return cls(**_options2dict(options))
 
     def to_tcl(self):
         return _dict2options(self._description)
