@@ -11,7 +11,7 @@ def _tcl_options(py_options):
 
 
 def _remove_dashes(options):
-    return {k[1:]: v for k, v in options.items()}
+    return {k.lstrip("-"): v for k, v in options.items()}
 
 
 def _font_configure_property(attribute):
