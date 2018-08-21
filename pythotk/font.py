@@ -1,4 +1,4 @@
-from ._tcl_calls import call as tcl_call, to_tcl
+from ._tcl_calls import call as tcl_call, eval as tcl_eval, to_tcl, from_tcl
 from . import TclError
 
 
@@ -134,3 +134,57 @@ class Font:
 
     def __eq__(self, other):
         return self.name == other.name
+
+    @classmethod
+    def from_tcl(cls, data):
+        # Check if this is a font description in the form of an options list.
+        try:
+            options = from_tcl(cls._OPTIONS_TYPE, data)
+            assert not (options.keys() - cls._OPTIONS_TYPE.keys())
+        except (TclError, ValueError, AssertionError):
+            pass
+        else:
+            return cls(**_remove_dashes(options))
+
+        # Check if this is a font description in the form of
+        # a "family size *styles" list.
+        try:
+            family, size, *styles = from_tcl([str], data)
+        except (TclError, ValueError, AssertionError):
+            pass
+        else:
+            weight = "normal"
+            slant = "roman"
+            underline = False
+            overstrike = False
+
+            for style in styles:
+                if style == "normal":
+                    weight = "normal"
+                elif style == "bold":
+                    weight = "bold"
+                elif style == "roman":
+                    slant = "roman"
+                elif style == "italic":
+                    slant = "italic"
+                elif style == "underline":
+                    underline = True
+                elif style == "overstrike":
+                    overstrike = True
+                else:
+                    raise ValueError("Unkwnon style %r" % style)
+
+            return cls(
+                family=family,
+                size=size,
+                weight=weight,
+                slant=slant,
+                underline=underline,
+                overstrike=overstrike,
+            )
+
+        # If it was neither, just assume it's a font name.
+        return cls(name=from_tcl(str, data))
+
+    def to_tcl(self):
+        return self.name

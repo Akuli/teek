@@ -45,19 +45,15 @@ def test_actual_is_valid_init_args():
     )
     clone_font = Font(name=CLONE_NAME, **prime_font.actual())
 
-    assert prime_font.name == PRIME_NAME
-    assert clone_font.name == CLONE_NAME
-
-    assert clone_font.actual() == clone_font._options
-    assert prime_font.actual() == clone_font._options
+    assert clone_font.actual() == prime_font.actual()
 
 
-def test_double_creation():
-    NAME = "double_creation_test"
+def test_existing_name():
+    NAME = "existing_name_test"
 
     font_x = Font(
         name=NAME,
-        family="Calibri",
+        family="Courier",
         weight="bold",
         slant="italic",
         size=37,
@@ -67,35 +63,44 @@ def test_double_creation():
     font_y = Font(name=NAME)
 
     assert font_x is not font_y
-    assert font_x.name == font_y.name
-    assert font_x._options == font_y._options
+    assert font_x == font_y
 
 
-def test_internal_get_options_for_name():
-    NAME = "internal_get_options_for_name_test"
+def test_to_tcl():
+    NAME = "to_tcl_test"
 
     font = Font(
         name=NAME,
-        family="Helvetica",
+        family="Calibri",
         weight="bold",
+        slant="italic",
+        size=37,
         overstrike=True,
-        underline=False,
-        size=42,
-        slant="roman",
+        underline=True,
     )
 
-    assert font._options == Font._get_options_for_name(NAME)
+    assert font.to_tcl() == font.name
 
 
-def test_options_is_valid_init_args():
-    PRIME_NAME = "options_init_args_test_prime"
-    CLONE_NAME = "options_init_args_test_clone"
-
-    prime_font = Font(
-        name=PRIME_NAME, family="Helvetica", weight="bold", overstrike=True
+def test_from_tcl():
+    font = Font(
+        name="from_tcl_test",
+        family="Calibri",
+        weight="bold",
+        slant="italic",
+        size=37,
+        overstrike=True,
+        underline=True,
     )
-    clone_font = Font(name=CLONE_NAME, **prime_font._options)
+    assert Font.from_tcl(font.name) == font
 
-    assert prime_font.name != clone_font.name
-    assert prime_font._options == clone_font._options
-    assert prime_font.actual() == clone_font.actual()
+    font = Font.from_tcl("Helvetica 7 bold underline")
+    assert font.family == "Helvetica"
+    assert font.size == 7
+    assert font.weight == "bold"
+    assert font.underline is True
+
+    font = Font.from_tcl("-family Times -size 3 -overstrike 1")
+    assert font.family == "Times"
+    assert font.size == 3
+    assert font.overstrike is True
