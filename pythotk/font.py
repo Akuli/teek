@@ -1,17 +1,9 @@
-from ._tcl_calls import call as tcl_call, eval as tcl_eval, to_tcl, from_tcl
+import itertools
+
+from ._tcl_calls import call as tcl_call
 from . import TclError
 
-
-def _tcl_options(py_options):
-    tcl_options = []
-    for k, v in py_options.items():
-        tcl_options.append("-" + k)
-        tcl_options.append(to_tcl(v))
-    return tcl_options
-
-
-def _remove_dashes(options):
-    return {k.lstrip("-"): v for k, v in options.items()}
+_flatten = itertools.chain.from_iterable
 
 
 def _font_configure_property(attribute):
@@ -36,48 +28,43 @@ class Font:
         "-overstrike": bool,
     }
 
-    def __init__(
-        self,
-        name=None,
-        family=None,
-        size=None,
-        weight=None,
-        slant=None,
-        underline=None,
-        overstrike=None,
-    ):
-        options = {}
+    # self.description is a "font description", see manual page
 
-        if family is not None:
-            options["family"] = family
-
-        if size is not None:
-            options["size"] = size
-
-        if weight is not None:
-            options["weight"] = weight
-
-        if slant is not None:
-            options["slant"] = slant
-
-        if underline is not None:
-            options["underline"] = underline
-
-        if overstrike is not None:
-            options["overstrike"] = overstrike
-
-        tcl_options = _tcl_options(options)
-
+    # TODO: Font('Helvetica') does the wrong thing, change this somehow?
+    def __init__(self, name=None, **kwargs):
+        options = list(_flatten(('-' + option, value)
+                                for option, value in kwargs.items()))
         if name is None:
-            name = tcl_call(str, "font", "create", *tcl_options)
+            # let tk choose a name that's not used yet
+            self.name = tcl_call(str, "font", "create", *options)
         else:
+            self.name = name
             try:
-                tcl_call(None, "font", "create", name, *tcl_options)
-            except TclError as e:
-                # font exists
-                pass
+                tcl_call(None, "font", "create", name, *options)
+            except TclError:
+                # font exists, update the options to it
+                tcl_call(None, "font", "configure", name, *options)
 
-        self.name = name
+    @classmethod
+    def from_tcl(cls, font_description):
+        # is the font description a name of a font?
+        try:
+            tcl_call(None, 'font', 'configure', font_description)
+        except TclError:
+            # no, it is one of the other font description kinds in font(3tk)
+            # {} is a dict with all names and values strings
+            # TODO: avoid creating a new named font?
+            actual = tcl_call({}, 'font', 'actual', font_description)
+            return cls(**{name.lstrip('-'): value
+                          for name, value in actual.items()})
+
+        # yes, the description is a font name
+        result = cls.__new__(cls)   # create a new object without __init__
+        result.name = font_description
+        return result
+
+    def to_tcl(self):
+        return self.name
 
     family = _font_configure_property("family")
     size = _font_configure_property("size")
@@ -87,10 +74,14 @@ class Font:
     overstrike = _font_configure_property("overstrike")
 
     def actual(self):
-        return _remove_dashes(tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name))
+        dashed = tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
+        return {name.lstrip('-'): value for name, value in dashed.items()}
 
     def delete(self):
-        tcl_call(None, "font", "delete", self.name)
+        # deleting a font object that represents a non-name description
+        # does nothing
+        if self._description_is_name():
+            tcl_call(None, "font", "delete", self.name)
 
     def measure(self, text):
         return tcl_call(int, "font", "measure", self.name, text)
@@ -133,58 +124,10 @@ class Font:
         )
 
     def __eq__(self, other):
+        if not isinstance(other, Font):
+            return NotImplemented
         return self.name == other.name
 
-    @classmethod
-    def from_tcl(cls, data):
-        # Check if this is a font description in the form of an options list.
-        try:
-            options = from_tcl(cls._OPTIONS_TYPE, data)
-            assert not (options.keys() - cls._OPTIONS_TYPE.keys())
-        except (TclError, ValueError, AssertionError):
-            pass
-        else:
-            return cls(**_remove_dashes(options))
-
-        # Check if this is a font description in the form of
-        # a "family size *styles" list.
-        try:
-            family, size, *styles = from_tcl([str], data)
-        except (TclError, ValueError, AssertionError):
-            pass
-        else:
-            weight = "normal"
-            slant = "roman"
-            underline = False
-            overstrike = False
-
-            for style in styles:
-                if style == "normal":
-                    weight = "normal"
-                elif style == "bold":
-                    weight = "bold"
-                elif style == "roman":
-                    slant = "roman"
-                elif style == "italic":
-                    slant = "italic"
-                elif style == "underline":
-                    underline = True
-                elif style == "overstrike":
-                    overstrike = True
-                else:
-                    raise ValueError("Unknown style %r" % style)
-
-            return cls(
-                family=family,
-                size=size,
-                weight=weight,
-                slant=slant,
-                underline=underline,
-                overstrike=overstrike,
-            )
-
-        # If it was neither, just assume it's a font name.
-        return cls(name=from_tcl(str, data))
-
-    def to_tcl(self):
-        return self.name
+    # make font objects hashable, defining an __eq__ undefines __hash__
+    def __hash__(self):
+        return hash(self.name)
