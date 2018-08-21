@@ -128,11 +128,11 @@ class AnonymousFont:
     def __repr__(self):
         return (
             "%s("
-            "family=%s,"
-            "size=%s,"
-            "weight=%s,"
-            "slant=%s,"
-            "underline=%s,"
+            "family=%s, "
+            "size=%s, "
+            "weight=%s, "
+            "slant=%s, "
+            "underline=%s, "
             "overstrike=%s"
             ")"
         ) % (
