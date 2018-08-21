@@ -91,7 +91,7 @@ class AnonymousFont:
                 self._OPTIONS_TYPE,
                 "font",
                 "actual",
-                _dict2options(self._description)
+                _dict2options(self._description),
             )
         else:
             options = tcl_call(self._OPTIONS_TYPE, "font", "actual", self.name)
@@ -209,19 +209,13 @@ class NamedFont(AnonymousFont):
         super().__init__(*args, **kwargs)
 
         if name is None:
-            self.name = tcl_call(
-                str, "font", "create", *_dict2options(self._description)
-            )
+            options = _dict2options(self._description)
+            self.name = tcl_call(str, "font", "create", *options)
         else:
             self.name = name
+            options = _dict2options(self._description)
             try:
-                tcl_call(
-                    str,
-                    "font",
-                    "create",
-                    name,
-                    *_dict2options(self._description)
-                )
+                tcl_call(str, "font", "create", name, *options)
             except TclError:
                 # font already exists
                 pass
