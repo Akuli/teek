@@ -96,12 +96,18 @@ def test_metrics():
 
 
 def test_families():
-    families = tk.Font.families()
-    assert isinstance(families, list)
-    assert families
-    for family in families:
-        assert isinstance(family, str)
-        assert not family.startswith('@')
+    for at in [True, False]:
+        families = tk.Font.families(allow_at_prefix=at)
+        assert isinstance(families, list)
+        assert families
+        for family in families:
+            assert isinstance(family, str)
+            if not at:
+                assert not family.startswith('@')
+
+        # default should be False
+        if not at:
+            assert set(tk.Font.families()) == set(families)
 
 
 def fonts_are_similar(font1, font2):

@@ -6,6 +6,7 @@ import pythotk
 from pythotk import _structures
 from pythotk._tcl_calls import (
     counts, call, on_quit, create_command, needs_main_thread)
+from pythotk._font import Font
 
 _widgets = {}
 on_quit.connect(_widgets.clear)
@@ -559,6 +560,9 @@ class Label(ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__('ttk::label', parent, text=text, **kwargs)
+
+        # TODO: fill in other types
+        self.config._types['font'] = Font
 
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
