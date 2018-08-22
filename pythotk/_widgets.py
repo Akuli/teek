@@ -5,7 +5,7 @@ import re
 import pythotk
 from pythotk import _structures
 from pythotk._tcl_calls import (
-    counts, call, on_quit, create_command, needs_main_thread)
+    counts, tcl_call, on_quit, create_command, needs_main_thread)
 from pythotk._font import Font
 
 _widgets = {}
@@ -200,11 +200,11 @@ class Widget:
     configure = _tkinter_hint("widget.config['option'] = value",
                               "widget.configure(option=value)")
 
-    # like _tcl_calls.call, but with better error handling
+    # like _tcl_calls.tcl_call, but with better error handling
     @needs_main_thread
     def _call(self, *args, **kwargs):
         try:
-            return call(*args, **kwargs)
+            return tcl_call(*args, **kwargs)
         except pythotk.TclError as err:
             if not self.winfo_exists():
                 raise RuntimeError("the widget has been destroyed") from None
@@ -239,7 +239,7 @@ class Widget:
         Manual page: :man:`winfo(3tk)`
         """
         # self._call uses this, so this must not use that
-        return call(bool, 'winfo', 'exists', self)
+        return tcl_call(bool, 'winfo', 'exists', self)
 
     def winfo_toplevel(self):
         """Returns the :class:`Toplevel` widget that this widget is in.

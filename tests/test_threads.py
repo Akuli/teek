@@ -38,7 +38,7 @@ def test_init_threads_errors(deinit_threads, handy_callback):
         # the Tcl interpreter isn't started yet, so this runs an error that is
         # not covered by the code below
         with pytest.raises(RuntimeError) as error:
-            tk.eval(None, '')
+            tk.tcl_eval(None, '')
         assert str(error.value) == "init_threads() wasn't called"
 
     thread1 = threading.Thread(target=thread1_target)
@@ -47,7 +47,7 @@ def test_init_threads_errors(deinit_threads, handy_callback):
     assert thread1_target.ran_once()
 
     # this starts the Tcl interpreter
-    tk.eval(None, '')
+    tk.tcl_eval(None, '')
 
     @handy_callback
     def thread2_target():
@@ -56,8 +56,8 @@ def test_init_threads_errors(deinit_threads, handy_callback):
         assert (str(error.value) ==
                 "init_threads() must be called from main thread")
 
-        for cb in [functools.partial(tk.call, None, 'puts', 'hello'),
-                   functools.partial(tk.eval, None, 'puts hello')]:
+        for cb in [functools.partial(tk.tcl_call, None, 'puts', 'hello'),
+                   functools.partial(tk.tcl_eval, None, 'puts hello')]:
             with pytest.raises(RuntimeError) as error:
                 cb()
             assert str(error.value) == "init_threads() wasn't called"
@@ -78,7 +78,7 @@ def test_init_threads_errors(deinit_threads, handy_callback):
 
 def test_run_called_from_wrong_thread(handy_callback):
     # this starts the Tcl interpreter, we get different errors without this
-    tk.eval(None, '')
+    tk.tcl_eval(None, '')
 
     @handy_callback
     def thread_target():
@@ -98,7 +98,7 @@ def test_error_in_thread_call(deinit_threads, handy_callback):
     @handy_callback
     def thread_target():
         with pytest.raises(tk.TclError) as error:
-            tk.eval(None, "expr {1/0}")
+            tk.tcl_eval(None, "expr {1/0}")
 
         exc = error.value
         assert isinstance(exc, tk.TclError)
@@ -112,7 +112,7 @@ def test_error_in_thread_call(deinit_threads, handy_callback):
 
         regex = (r'\n'
                  r'  File ".*test_threads\.py", line \d+, in thread_target\n'
-                 r'    tk\.eval\(None, "expr {1/0}"\)\n')
+                 r'    tk\.tcl_eval\(None, "expr {1/0}"\)\n')
         assert re.search(regex, error_message) is not None
 
     thread = threading.Thread(target=thread_target)

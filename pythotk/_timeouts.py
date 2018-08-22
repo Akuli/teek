@@ -1,7 +1,7 @@
 import traceback
 
 from pythotk._tcl_calls import (
-    call, on_quit, create_command, delete_command, needs_main_thread)
+    tcl_call, on_quit, create_command, delete_command, needs_main_thread)
 
 # there's no after_info because i don't see how it would be useful in
 # pythotk
@@ -19,7 +19,7 @@ class _Timeout:
 
         self._state = 'pending'   # just for __repr__ and error messages
         self._tcl_command = create_command(self._run, stack_info=stack_info)
-        self._id = call(str, 'after', after_what, self._tcl_command)
+        self._id = tcl_call(str, 'after', after_what, self._tcl_command)
 
     def __repr__(self):
         name = getattr(self._callback, '__name__', self._callback)
@@ -56,7 +56,7 @@ class _Timeout:
         """
         if self._state != 'pending':
             raise RuntimeError("cannot cancel a %s timeout" % self._state)
-        call(None, 'after', 'cancel', self._id)
+        tcl_call(None, 'after', 'cancel', self._id)
         self._state = 'cancelled'
         delete_command(self._tcl_command)
 

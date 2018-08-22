@@ -1,9 +1,9 @@
-from pythotk._tcl_calls import call
+from pythotk._tcl_calls import tcl_call
 
 
 def update(*, idletasks=False):
     """See :man:`update(3tk)`."""
     if idletasks:
-        call(None, 'update', 'idletasks')
+        tcl_call(None, 'update', 'idletasks')
     else:
-        call(None, 'update')
+        tcl_call(None, 'update')

@@ -71,8 +71,8 @@ class _TclInterpreter:
         self._app.call('wm', 'withdraw', '.')
         self._app.call('package', 'require', 'tile')
 
-        # when call or eval is called from some other thread than the main
-        # thread, a tuple like this is added to this queue:
+        # when a main-thread-needing function is called from another thread, a
+        # tuple like this is added to this queue:
         #
         #    (func, args, kwargs, future)
         #
@@ -315,9 +315,9 @@ def needs_main_thread(func):
     makes things a lot faster when the function is called from a thread.
 
     This is why pythotk functions that do multiple Tcl calls should be
-    decorated with this decorator. Note that call and eval are also decorated
-    with this, so decorating functions that call and eval is purely an
-    optimization.
+    decorated with this decorator. Note that :func:`.tcl_call` and
+    :func:`.tcl_eval` are also decorated with this, so decorating functions
+    that use them is purely an optimization.
     """
     @functools.wraps(func)
     def safe(*args, **kwargs):
@@ -411,21 +411,21 @@ def from_tcl(type_spec, value):
 
 
 @raise_pythotk_tclerror
-def call(returntype, command, *arguments):
+def tcl_call(returntype, command, *arguments):
     """Call a Tcl command.
 
     The arguments are passed correctly, even if they contain spaces:
 
-    >>> tk.eval(None, 'puts "hello world thing"')  # 1 arguments to puts \
+    >>> tk.tcl_eval(None, 'puts "hello world thing"')  # 1 arguments to puts \
         # doctest: +SKIP
     hello world thing
     >>> message = 'hello world thing'
-    >>> tk.eval(None, 'puts %s' % message)  # 3 arguments to puts, tcl error
+    >>> tk.tcl_eval(None, 'puts %s' % message)  # 3 args to puts, tcl error
     Traceback (most recent call last):
         ...
     pythotk.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
 string"
-    >>> tk.call(None, 'puts', message)   # 1 argument to puts  # doctest: +SKIP
+    >>> tk.tcl_call(None, 'puts', message)   # 1 arg to puts  # doctest: +SKIP
     hello world thing
     """
     result = _get_interp().call(tuple(map(to_tcl, (command,) + arguments)))
@@ -433,13 +433,13 @@ string"
 
 
 @raise_pythotk_tclerror
-def eval(returntype, code):
+def tcl_eval(returntype, code):
     """Run a string of Tcl code.
 
-    >>> eval(None, 'proc add {a b} { return [expr $a + $b] }')
-    >>> eval(int, 'add 1 2')
+    >>> tk.tcl_eval(None, 'proc add {a b} { return [expr $a + $b] }')
+    >>> tk.tcl_eval(int, 'add 1 2')
     3
-    >>> call(int, 'add', 1, 2)      # usually this is better, see below
+    >>> tk.tcl_call(int, 'add', 1, 2)      # usually this is better, see below
     3
     """
     result = _get_interp().eval(code)
@@ -456,7 +456,7 @@ def create_command(func, args=(), kwargs=None, stack_info=''):
     are no longer needed.
 
     The Tcl command's name is returned as a string. The return value is
-    converted to string for Tcl similarly as with :func:`call`.
+    converted to string for Tcl similarly as with :func:`tcl_call`.
 
     If the function raises an exception, a traceback will be printed
     with *stack_info* right after the "Traceback (bla bla bla)" line.

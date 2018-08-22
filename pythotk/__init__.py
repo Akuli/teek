@@ -28,7 +28,7 @@ class TclError(Exception):
 from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
 from pythotk._structures import Callback, Color
 from pythotk._tcl_calls import (
-    call, eval, init_threads, create_command, delete_command,
+    tcl_call, tcl_eval, init_threads, create_command, delete_command,
     run, quit, on_quit)
 from pythotk._timeouts import after, after_idle
 from pythotk._misc import update      # TODO: move this to _timeouts?

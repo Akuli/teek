@@ -15,8 +15,8 @@ in Tcl, but there is no other way to do it in pythotk.
 
 There are two functions for doing this:
 
-.. autofunction:: pythotk.eval
-.. autofunction:: pythotk.call
+.. autofunction:: pythotk.tcl_eval
+.. autofunction:: pythotk.tcl_call
 
 Both of these functions are ran so that they have access to Tcl's global
 variables, and if they create more variables, they will also be global.
@@ -43,7 +43,7 @@ values you want to get. This section describes how.
 Python to Tcl conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Arguments passed to :func:`.call` are handled like this:
+Arguments passed to :func:`.tcl_call` are handled like this:
 
 * Strings are passed to Tcl as is.
 * If the argument is None, an empty string is passed to Tcl because Tcl uses an
@@ -97,17 +97,19 @@ well. The return types can be nested arbitrarily; for example,
   a list.
 * ``{str: int}`` means a dictionary with string keys and integer values.
 
+.. FIXME: the ``{str: int}`` crap, it's outdated!!!
+
 
 Examples
 ~~~~~~~~
 
->>> tk.call([str], 'list', 'a', 'b', 'c')
+>>> tk.tcl_call([str], 'list', 'a', 'b', 'c')
 ['a', 'b', 'c']
->>> tk.call((str, int, float), 'list', 'hello', '3', '3.14')
+>>> tk.tcl_call((str, int, float), 'list', 'hello', '3', '3.14')
 ('hello', 3, 3.14)
->>> tk.call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
+>>> tk.tcl_call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
 [True, True, True, True, True, True]
->>> tk.call({str: [int]}, 'dict', 'create', 'a', '1', 'b', '2')  # doctest: +SKIP
+>>> tk.tcl_call({str: [int]}, 'dict', 'create', 'a', '1', 'b', '2')  # doctest: +SKIP
 {'a': [1], 'b': [2]}
->>> tk.call([str], 'list', 123, 3.14, None, 'hello')
+>>> tk.tcl_call([str], 'list', 123, 3.14, None, 'hello')
 ['123', '3.14', '', 'hello']

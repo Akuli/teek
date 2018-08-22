@@ -21,7 +21,7 @@ make threading stuff faster, this is slow:
         while True:
             i += 1
             text.insert(text.end, 'hello %d\n' % i)
-            #pythotk.call(None, text, 'insert', 'end - 1 char', 'hello %d\n' % i)
+            #pythotk.tcl_call(None, text, 'insert', 'end - 1 char', 'hello %d\n' % i)
 
     threading.Thread(target=inserter).start()
     pythotk.run()

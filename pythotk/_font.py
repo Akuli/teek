@@ -1,6 +1,6 @@
 import itertools
 
-from ._tcl_calls import call as tcl_call
+from ._tcl_calls import tcl_call
 from . import TclError
 
 _flatten = itertools.chain.from_iterable

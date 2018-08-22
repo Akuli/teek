@@ -21,4 +21,4 @@ _version_check()
 
 
 def windowingsystem():
-    return pythotk.call(str, 'tk', 'windowingsystem')
+    return pythotk.tcl_call(str, 'tk', 'windowingsystem')

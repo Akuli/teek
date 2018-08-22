@@ -8,7 +8,7 @@ def test_font_magic_new_method():
     assert isinstance(font, tk.Font)
     assert not isinstance(font, tk.NamedFont)
 
-    tk.eval(None, 'font create test_font_name')
+    tk.tcl_eval(None, 'font create test_font_name')
     named_font = tk.Font('test_font_name')
     assert isinstance(named_font, tk.NamedFont)
     named_font.delete()
@@ -42,7 +42,7 @@ def test_from_and_to_tcl():
     assert descriptiony_font.to_tcl() is description
     assert tk.Font.from_tcl(description) == descriptiony_font
 
-    tk.eval(None, 'font create test_font_name')
+    tk.tcl_eval(None, 'font create test_font_name')
     named_font = tk.NamedFont.from_tcl('test_font_name')
     assert isinstance(named_font, tk.NamedFont)
     assert named_font.to_tcl() == 'test_font_name'

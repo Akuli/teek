@@ -21,56 +21,57 @@ class CustomSequence(collections.abc.Sequence):
 def test_delete_command():
     result = []
     command = tk.create_command(result.append, ['hello'])
-    tk.eval(None, command)
+    tk.tcl_eval(None, command)
     assert result == ['hello']
 
     tk.delete_command(command)
     with pytest.raises(tk.TclError):
-        tk.eval(None, command)
+        tk.tcl_eval(None, command)
 
 
 @pytest.fixture
 def handy_commands():
-    tk.eval(None, 'proc returnArg {arg} { return $arg }')
-    tk.eval(None, 'proc returnEmptyString {} {}')
+    tk.tcl_eval(None, 'proc returnArg {arg} { return $arg }')
+    tk.tcl_eval(None, 'proc returnEmptyString {} {}')
     yield
     tk.delete_command('returnArg')
     tk.delete_command('returnEmptyString')
 
 
 def test_eval_and_call(handy_commands):
-    assert tk.eval(None, 'if {1 == 2} {puts omg}') is None
-    assert tk.eval(str, 'list a b c') == 'a b c'
-    assert tk.eval(int, 'expr 22 / 7') == 3
-    assert round(tk.eval(float, 'expr 22 / 7.0'), 2) == 3.14
-    assert tk.eval([int], 'list 1 2 3') == [1, 2, 3]
-    assert tk.eval([str], 'list { a} {b } { c }') == [' a', 'b ', ' c ']
-    assert tk.eval((str, int, str, int), 'list a 1 b 2') == ('a', 1, 'b', 2)
-    assert tk.eval(
+    assert tk.tcl_eval(None, 'if {1 == 2} {puts omg}') is None
+    assert tk.tcl_eval(str, 'list a b c') == 'a b c'
+    assert tk.tcl_eval(int, 'expr 22 / 7') == 3
+    assert round(tk.tcl_eval(float, 'expr 22 / 7.0'), 2) == 3.14
+    assert tk.tcl_eval([int], 'list 1 2 3') == [1, 2, 3]
+    assert tk.tcl_eval([str], 'list { a} {b } { c }') == [' a', 'b ', ' c ']
+    assert (tk.tcl_eval((str, int, str, int), 'list a 1 b 2') ==
+            ('a', 1, 'b', 2))
+    assert tk.tcl_eval(
         {'a': int, 'c': bool}, 'dict create a 1 b 2') == {'a': 1, 'b': '2'}
 
     with pytest.raises(ValueError):
-        tk.eval(int, 'returnArg lel')
+        tk.tcl_eval(int, 'returnArg lel')
     with pytest.raises(ValueError):
-        tk.eval((str, str), 'list a b c')
+        tk.tcl_eval((str, str), 'list a b c')
     with pytest.raises(ValueError):
-        tk.eval([int], 'list 1 2 3 yay')
+        tk.tcl_eval([int], 'list 1 2 3 yay')
 
     bools = ['true false', 'tru fal', 'yes no', 'y n', 'on off', '1 0']
     for yes, no in map(str.split, bools):
-        assert tk.call(bool, 'returnArg', yes.upper()) is True
-        assert tk.call(bool, 'returnArg', no.upper()) is False
-        assert tk.call(bool, 'returnArg', yes.lower()) is True
-        assert tk.call(bool, 'returnArg', no.lower()) is False
-    assert tk.eval(bool, 'returnEmptyString') is None
+        assert tk.tcl_call(bool, 'returnArg', yes.upper()) is True
+        assert tk.tcl_call(bool, 'returnArg', no.upper()) is False
+        assert tk.tcl_call(bool, 'returnArg', yes.lower()) is True
+        assert tk.tcl_call(bool, 'returnArg', no.lower()) is False
+    assert tk.tcl_eval(bool, 'returnEmptyString') is None
 
     with pytest.raises(ValueError):
-        tk.eval(bool, 'returnArg lolwut')
+        tk.tcl_eval(bool, 'returnArg lolwut')
 
     with pytest.raises(TypeError):
-        tk.call(None, 'puts', object())
+        tk.tcl_call(None, 'puts', object())
     with pytest.raises(TypeError):
-        tk.eval(object(), 'puts hello')
+        tk.tcl_eval(object(), 'puts hello')
 
     # forced to string converting relies on this
     test_data = [
@@ -84,16 +85,16 @@ def test_eval_and_call(handy_commands):
         (CustomSequence(), '{a b c} 123'),
     ]
     for before, after in test_data:
-        assert tk.call(str, 'concat', before) == after
-        assert tk.call(str, 'concat', 'blah', before) == 'blah ' + after
+        assert tk.tcl_call(str, 'concat', before) == after
+        assert tk.tcl_call(str, 'concat', 'blah', before) == 'blah ' + after
 
     # test conversion to strings when tk.calling
-    assert tk.call(
+    assert tk.tcl_call(
         str, 'list', True, 5, 3.14, [1, 2], {3: 4}, ('lol', 'wut'),
     ) == '1 5 3.14 {1 2} {3 4} {lol wut}'
 
     # special case: Tcl empty string is None in python
-    tk.eval(None, 'proc returnEmpty {} { return {} }')
+    tk.tcl_eval(None, 'proc returnEmpty {} { return {} }')
 
     class BrokenFromTcl:
 
@@ -104,7 +105,7 @@ def test_eval_and_call(handy_commands):
             cls.oh_no = True
             raise RuntimeError("NO!! THIS WASNT SUPPSOED TO RUN!!!")
 
-    assert tk.call(BrokenFromTcl, 'returnEmpty') is None
+    assert tk.tcl_call(BrokenFromTcl, 'returnEmpty') is None
     assert not BrokenFromTcl.oh_no
 
 
@@ -114,7 +115,7 @@ def test_create_command(capsys):
         return CustomSequence()
 
     command = tk.create_command(working_func)
-    assert tk.call({'a b c': int}, command) == {'a b c': 123}
+    assert tk.tcl_call({'a b c': int}, command) == {'a b c': 123}
     tk.delete_command(command)
     assert capsys.readouterr() == ('', '')
 
@@ -126,7 +127,7 @@ def test_create_command(capsys):
         raise RuntimeError("oh noes")
 
     command = tk.create_command(broken_func, ['one'], {'arg2': 'two'})
-    assert tk.call(str, command) == ''
+    assert tk.tcl_call(str, command) == ''
     tk.delete_command(command)
 
     output, errors = capsys.readouterr()
@@ -139,7 +140,7 @@ def test_create_command(capsys):
                                  stack_info=stack_info)
 
     command = create_the_command()
-    assert tk.call(str, command) == ''
+    assert tk.tcl_call(str, command) == ''
     tk.delete_command(command)
 
     output, errors = capsys.readouterr()
@@ -152,7 +153,8 @@ def test_create_command(capsys):
         return (True, 3, ['a', 'b', 'c'])
 
     command = tk.create_command(lel)
-    assert tk.call((bool, int, [str]), command) == (True, 3, ['a', 'b', 'c'])
+    assert (tk.tcl_call((bool, int, [str]), command) ==
+            (True, 3, ['a', 'b', 'c']))
     tk.delete_command(command)
 
     assert capsys.readouterr() == ('', '')
