@@ -38,3 +38,4 @@ from pythotk._misc import update      # TODO: move this to _timeouts?
 from pythotk._widgets import (
     Widget, Window, Toplevel, Label, Button, Frame, Separator)
 from pythotk._textwidget import Text
+from pythotk._font import Font, NamedFont
