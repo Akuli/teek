@@ -8,7 +8,7 @@ import pytest
 import pythotk as tk
 
 
-def test_basic_stuff(deinit_threads):
+def test_basic_stuff(deinit_threads, handy_callback):
     tk.init_threads()
     text = tk.Text(tk.Window())
 
@@ -19,26 +19,21 @@ def test_basic_stuff(deinit_threads):
     thread = threading.Thread(target=thread_target)
     thread.start()
 
-    ran = 0
-
+    @handy_callback
     def done_callback():
         assert text.get(text.start, text.end) == 'hello 1\nhello 2\nhello 3\n'
         tk.quit()
-
-        nonlocal ran
-        ran += 1
 
     # i experimented with different values: 500 was enough and 450 wasn't, so
     # this should be plenty
     tk.after(1000, done_callback)
     tk.run()
     thread.join()
-    assert ran == 1
+    assert done_callback.ran_once()
 
 
-def test_init_threads_errors(deinit_threads):
-    ran1 = 0
-
+def test_init_threads_errors(deinit_threads, handy_callback):
+    @handy_callback
     def thread1_target():
         # the Tcl interpreter isn't started yet, so this runs an error that is
         # not covered by the code below
@@ -46,19 +41,15 @@ def test_init_threads_errors(deinit_threads):
             tk.eval(None, '')
         assert str(error.value) == "init_threads() wasn't called"
 
-        nonlocal ran1
-        ran1 += 1
-
     thread1 = threading.Thread(target=thread1_target)
     thread1.start()
     thread1.join()
-    assert ran1 == 1
+    assert thread1_target.ran_once()
 
     # this starts the Tcl interpreter
     tk.eval(None, '')
 
-    ran2 = 0
-
+    @handy_callback
     def thread2_target():
         with pytest.raises(RuntimeError) as error:
             tk.init_threads()
@@ -71,13 +62,10 @@ def test_init_threads_errors(deinit_threads):
                 cb()
             assert str(error.value) == "init_threads() wasn't called"
 
-        nonlocal ran2
-        ran2 += 1
-
     thread2 = threading.Thread(target=thread2_target)
     thread2.start()
     thread2.join()
-    assert ran2 == 1
+    assert thread2_target.ran_once()
 
     tk.init_threads()
     with pytest.raises(RuntimeError) as error:
@@ -88,30 +76,26 @@ def test_init_threads_errors(deinit_threads):
     tk.run()
 
 
-def test_run_called_from_wrong_thread():
-    ran = 0
-
+def test_run_called_from_wrong_thread(handy_callback):
     # this starts the Tcl interpreter, we get different errors without this
     tk.eval(None, '')
 
+    @handy_callback
     def thread_target():
         with pytest.raises(RuntimeError) as error:
             tk.run()
         assert str(error.value) == "run() must be called from main thread"
 
-        nonlocal ran
-        ran += 1
-
     thread = threading.Thread(target=thread_target)
     thread.start()
     thread.join()
-    assert ran == 1
+    assert thread_target.ran_once()
 
 
-def test_error_in_thread_call(deinit_threads):
+def test_error_in_thread_call(deinit_threads, handy_callback):
     tk.init_threads()
-    ran = 0
 
+    @handy_callback
     def thread_target():
         with pytest.raises(tk.TclError) as error:
             tk.eval(None, "expr {1/0}")
@@ -131,30 +115,24 @@ def test_error_in_thread_call(deinit_threads):
                  r'    tk\.eval\(None, "expr {1/0}"\)\n')
         assert re.search(regex, error_message) is not None
 
-        nonlocal ran
-        ran += 1
-
     thread = threading.Thread(target=thread_target)
     thread.start()
     tk.after(100, tk.quit)
     tk.run()
     thread.join()
-    assert ran == 1
+    assert thread_target.ran_once()
 
 
-def test_quitting_from_another_thread():
+def test_quitting_from_another_thread(handy_callback):
     tk.init_threads()
-    ran = 0
 
+    @handy_callback
     def thread_target():
         with pytest.raises(RuntimeError) as error:
             tk.quit()
         assert str(error.value) == "can only quit from main thread"
 
-        nonlocal ran
-        ran += 1
-
     thread = threading.Thread(target=thread_target)
     thread.start()
     thread.join()
-    assert ran == 1
+    assert thread_target.ran_once()

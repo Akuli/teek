@@ -25,3 +25,21 @@ def deinit_threads():
     yield
     tk.after_idle(tk.quit)
     tk.run()
+
+
+def handy_callback_decorator(function):
+    ran = 0
+
+    def result(*args, **kwargs):
+        nonlocal ran
+        return_value = function(*args, **kwargs)
+        ran += 1
+        return return_value
+
+    result.ran_once = (lambda: ran == 1)
+    return result
+
+
+@pytest.fixture
+def handy_callback():
+    return handy_callback_decorator
