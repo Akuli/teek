@@ -85,8 +85,8 @@ Python object. Here is a list of valid type specifications:
   called.
 
 The type specifications can be also combined in the following ways. These
-examples use ``str`` and ``int``, but all other valid specifications work as
-well. The return types can be nested arbitrarily; for example,
+examples use ``str``, ``int`` and ``float``, but all other valid specifications
+work as well. The return types can be nested arbitrarily; for example,
 ``[(int, float)]`` means a value like ``[(12, 3.4), (56, 7.8)]``.
 
 * ``[str]`` means a list of strings, of any length.
@@ -95,9 +95,11 @@ well. The return types can be nested arbitrarily; for example,
   example, ``(str, str, str)`` is like ``[str]`` except that it also
   makes sure that the length of the result is 3, and returns a tuple instead of
   a list.
-* ``{str: int}`` means a dictionary with string keys and integer values.
-
-.. FIXME: the ``{str: int}`` crap, it's outdated!!!
+* ``{'a': int, 'b': float}`` means a dictionary with string keys. If the Tcl
+  dictionary happens to have a key named ``a`` or ``b``, it is converted to
+  ``int`` or ``float`` respectively; other keys will be strings. This means
+  that ``{}`` is a dictionary with all keys as strings and values as integers.
+  There is no way to work with dictionaries that have non-string keys.
 
 
 Examples
@@ -109,7 +111,7 @@ Examples
 ('hello', 3, 3.14)
 >>> tk.tcl_call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
 [True, True, True, True, True, True]
->>> tk.tcl_call({str: [int]}, 'dict', 'create', 'a', '1', 'b', '2')  # doctest: +SKIP
-{'a': [1], 'b': [2]}
+>>> tk.tcl_call({}, 'dict', 'create', 'a', 1, 'b', 2)  # doctest: +SKIP
+{'a': '1', 'b': '2'}
 >>> tk.tcl_call([str], 'list', 123, 3.14, None, 'hello')
 ['123', '3.14', '', 'hello']
