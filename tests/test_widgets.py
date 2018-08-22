@@ -1,11 +1,8 @@
 # most of the tests don't destroy the widgets they use, all widgets are
 # destroyed the next time quit() is called or python exits anyway
 import contextlib
-<<<<<<< HEAD
 import platform
-=======
 import functools
->>>>>>> add bind stuff without event objects
 import itertools
 import os
 import pythotk as tk
