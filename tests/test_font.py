@@ -36,7 +36,7 @@ def test_repr_eq_hash():
     assert named_font != 'toot'
 
 
-def test_from_to_tcl():
+def test_from_and_to_tcl():
     description = ["Helvetica", 42, "bold"]
     descriptiony_font = tk.Font(description)
     assert descriptiony_font.to_tcl() is description
