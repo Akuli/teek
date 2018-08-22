@@ -131,3 +131,8 @@ def test_to_named_font():
 
     named.delete()
     named2.delete()
+
+
+def test_special_font_names():
+    assert isinstance(tk.Font('TkFixedFont'), tk.NamedFont)
+    assert isinstance(tk.Font.from_tcl('TkFixedFont'), tk.NamedFont)
