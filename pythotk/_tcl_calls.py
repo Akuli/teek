@@ -69,7 +69,7 @@ class _TclInterpreter:
         self._app = _tkinter.create(None, sys.argv[0], 'Tk', 1, 1, 1, 0, None)
 
         self._app.call('wm', 'withdraw', '.')
-        self._app.call('package', 'require', 'tile')
+        self._app.call('package', 'require', 'Ttk')
 
         # when a main-thread-needing function is called from another thread, a
         # tuple like this is added to this queue:
