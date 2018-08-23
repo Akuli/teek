@@ -209,33 +209,15 @@ def test_options():
     assert widget1.config != widget2.config
 
 
-# TODO: use this in many other tests too
-def count_calls(callback):
-    count = 0
-
-    @functools.wraps(callback)
-    def result(*args, **kwargs):
-        nonlocal count
-        return_value = callback(*args, **kwargs)
-        count += 1
-        return return_value
-
-    def assert_called_once():
-        assert count == 1
-
-    result.assert_called_once = assert_called_once
-    return result
-
-
-def test_bind():
+def test_bind(handy_callback):
     widget = tk.Window()
     assert not widget.bindings.keys()
 
-    @count_calls
+    @handy_callback
     def tcl_call_bound_callback():
         pass
 
-    @count_calls
+    @handy_callback
     def pythotk_bound_callback():
         pass
 
@@ -249,8 +231,8 @@ def test_bind():
 
     tk.delete_command(command)
 
-    tcl_call_bound_callback.assert_called_once()    # tests binding with +
-    pythotk_bound_callback.assert_called_once()
+    assert tcl_call_bound_callback.ran_once()    # tests binding with +
+    assert pythotk_bound_callback.ran_once()
 
     # some binding strings are equivalent
     assert widget.bindings['<Button-3>'] is widget.bindings['<Button-3>']
