@@ -1,11 +1,14 @@
 import collections.abc
 import contextlib
+import functools
+import operator
 import re
 
 import pythotk
-from pythotk import _structures
+from pythotk import _structures, TclError
 from pythotk._tcl_calls import (
-    counts, tcl_call, on_quit, create_command, delete_command, needs_main_thread)
+    counts, tcl_call, from_tcl, on_quit, create_command, delete_command,
+    needs_main_thread)
 from pythotk._font import Font
 
 _widgets = {}
@@ -82,45 +85,6 @@ class ConfigDict(collections.abc.MutableMapping):
         return len(options) - len(self._disabled)
 
 
-class BindingDict(collections.abc.Mapping):
-
-    # bind(3tk) calls things like '<Button-1>' sequences, so this code is
-    # consistent with that
-    def __init__(self, bind_caller, command_list):
-        self._call_bind = bind_caller
-        self._command_list = command_list
-        self._callback_objects = {}     # {sequence: callback}
-
-    def __iter__(self):
-        # loops over all existing bindings, not all possible bindings
-        return iter(self._call_bind([str]))
-
-    def __len__(self):
-        return len(self._call_bind([str]))
-
-    def __getitem__(self, sequence):
-        if sequence in self._callback_objects:
-            return self._callback_objects[sequence]
-
-        # <1> and <Button-1> are equivalent, this handles that
-        for equiv_sequence, equiv_callback in self._callback_objects.items():
-            # this equivalence check should handle corner cases imo because the
-            # command names from create_command are unique
-            if (self._call_bind(str, sequence) ==
-                self._call_bind(str, equiv_sequence)):      # flake8: noqa
-                # found an equivalent binding, tcl commands are the same
-                self._callback_objects[sequence] = equiv_callback
-                return equiv_callback
-
-        callback = _structures.Callback()
-        command = create_command(callback.run)
-        self._command_list.append(command)
-        self._call_bind(None, sequence, '+' + command)   # TODO: test the +
-
-        self._callback_objects[sequence] = callback
-        return callback
-
-
 class Widget:
     """This is a base class for all widgets.
 
@@ -180,7 +144,7 @@ class Widget:
         # command strings that are deleted when the widget is destroyed
         self._command_list = []
 
-        self.bindings = BindingDict(
+        self.bindings = BindingDict(    # BindingDict is defined below
          lambda returntype, *args: self._call(returntype, 'bind', self, *args),
          self._command_list)
 
@@ -246,12 +210,17 @@ class Widget:
     configure = _tkinter_hint("widget.config['option'] = value",
                               "widget.configure(option=value)")
 
-    def bind(self, sequence, func):
+    def bind(self, sequence, func, *, event=False):
         """
-        For convenience, ``widget.bind(sequence, func)`` does
+        For convenience, ``widget.bind(sequence, func, event=True)`` does
         ``widget.bindings[sequence].connect(func)``.
+
+        If ``event=True`` is not given, ``widget.bindings[sequence]`` is
+        connected to a function that calls ``func`` with no arguments, ignoring
+        the event object.
         """
-        self.bindings[sequence].connect(func)
+        eventy_func = func if event else (lambda event: func())
+        self.bindings[sequence].connect(eventy_func)
 
     # like _tcl_calls.tcl_call, but with better error handling
     @needs_main_thread
@@ -353,6 +322,131 @@ et`.
             yield
         finally:
             self.busy_forget()
+
+
+# these are from bind(3tk), Tk 8.5 and 8.6 support all of these
+# the ones marked "event(3tk)" use names listed in event(3tk), and "tkinter"
+# ones use same names as tkinter's event object attributes
+#
+# event(3tk) says that width and height are screen distances, but bind seems to
+# convert them to ints, so they are ints here
+#
+# if you change this, also change docs/bind.rst
+_BIND_SUBS = [
+    # tested:
+
+    # not tested:
+    ('%#', int, 'serial'),
+    ('%a', int, 'above'),
+    ('%b', int, 'button'),
+    ('%c', int, 'count'),
+    ('%d', str, '_data'),
+    ('%f', bool, 'focus'),
+    ('%h', int, 'height'),
+    ('%i', int, 'i_window'),
+    ('%k', int, 'keycode'),
+    ('%m', str, 'mode'),
+    ('%o', bool, 'override'),
+    ('%p', str, 'place'),
+    ('%s', str, 'state'),
+    ('%t', int, 'time'),
+    ('%w', int, 'width'),
+    ('%x', int, 'x'),
+    ('%y', int, 'y'),
+    ('%A', str, 'char'),
+    ('%B', int, 'borderwidth'),
+    ('%D', int, 'delta'),
+    ('%E', bool, 'sendevent'),
+    ('%K', str, 'keysym'),
+    ('%N', int, 'keysym_num'),
+    ('%P', str, 'property_name'),
+    ('%R', int, 'root'),
+    ('%S', int, 'subwindow'),
+    ('%T', int, 'type'),
+    ('%W', Widget, 'widget'),
+    ('%X', int, 'rootx'),
+    ('%Y', int, 'rooty'),
+]
+
+
+class Event:
+
+    def __repr__(self):
+        # try to avoid making the repr too verbose
+        ignored_names = ['widget', 'send_event', 'subwindow', 'time', 'window',
+                         'root', 'state']
+        ignored_values = [None, '??']
+
+        pairs = []
+        for name, value in sorted(self.__dict__.items(),
+                                  key=operator.itemgetter(0)):
+            if name not in ignored_names and value not in ignored_values:
+                display_name = 'data' if name == '_data' else name
+                pairs.append('%s=%r' % (display_name, value))
+
+        return '<Event: %s>' % ', '.join(pairs)
+
+    def data(self, type_spec):
+        return from_tcl(type_spec, self._data)
+
+
+class BindingDict(collections.abc.Mapping):
+
+    # bind(3tk) calls things like '<Button-1>' sequences, so this code is
+    # consistent with that
+    def __init__(self, bind_caller, command_list):
+        self._call_bind = bind_caller
+        self._command_list = command_list
+        self._callback_objects = {}     # {sequence: callback}
+
+    def __iter__(self):
+        # loops over all existing bindings, not all possible bindings
+        return iter(self._call_bind([str]))
+
+    def __len__(self):
+        return len(self._call_bind([str]))
+
+    def _callback_runner(self, callback, *args):
+        assert len(args) == len(_BIND_SUBS)
+
+        event = Event()
+        for (character, type_, attrib), string_value in zip(_BIND_SUBS, args):
+            assert isinstance(string_value, str)
+            try:
+                value = from_tcl(type_, string_value)
+            except (ValueError, TclError) as e:
+                if string_value == '??':
+                    value = None
+                else:
+                    raise e
+
+            setattr(event, attrib, value)
+
+        callback.run(event)
+
+    def __getitem__(self, sequence):
+        if sequence in self._callback_objects:
+            return self._callback_objects[sequence]
+
+        # <1> and <Button-1> are equivalent, this handles that
+        for equiv_sequence, equiv_callback in self._callback_objects.items():
+            # this equivalence check should handle corner cases imo because the
+            # command names from create_command are unique
+            if (self._call_bind(str, sequence) ==
+                self._call_bind(str, equiv_sequence)):      # flake8: noqa
+                # found an equivalent binding, tcl commands are the same
+                self._callback_objects[sequence] = equiv_callback
+                return equiv_callback
+
+        callback = _structures.Callback(Event)
+        runner = functools.partial(self._callback_runner, callback)
+        command = create_command(runner, [str] * len(_BIND_SUBS))
+        self._command_list.append(command)      # avoid memory leaks
+
+        self._call_bind(None, sequence, '+%s %s' % (
+            command, ' '.join(subs for subs, type_, name in _BIND_SUBS)))
+        self._callback_objects[sequence] = callback
+        return callback
 
 
 Geometry = collections.namedtuple('Geometry', 'width height x y')

@@ -18,6 +18,7 @@ pythotk.
     getting-started
     geometry-managers
     widgets
+    bind
     misc-objs
     tcl-calls
     platform-info

@@ -60,6 +60,9 @@ Arguments passed to :func:`.tcl_call` are handled like this:
 * Anything else is treated as an iterable. Every element of the iterable is
   converted as described here, and the result is a Tcl list.
 
+Conversions should raise :class:`ValueError` or :class:`.TclError` when they
+fail.
+
 
 .. _type-spec:
 
