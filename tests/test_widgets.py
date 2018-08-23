@@ -257,6 +257,16 @@ def test_bind():
     assert widget.bindings['<3>'] is widget.bindings['<Button-3>']
 
 
+def test_bind_deletes_tcl_commands(handy_callback):
+    widget = tk.Window()
+    widget.bind('<Button-1>', print)
+    command_string = tk.tcl_call(str, 'bind', widget, '<Button-1>')
+    assert command_string
+    assert command_string in tk.tcl_call([str], 'info', 'commands')
+    widget.destroy()
+    assert command_string not in tk.tcl_call([str], 'info', 'commands')
+
+
 def test_labels():
     window = tk.Window()
 

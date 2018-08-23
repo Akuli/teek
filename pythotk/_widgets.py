@@ -114,6 +114,7 @@ class BindingDict(collections.abc.Mapping):
 
         callback = _structures.Callback()
         command = create_command(callback.run)
+        self._command_list.append(command)
         self._call_bind(None, sequence, '+' + command)   # TODO: test the +
 
         self._callback_objects[sequence] = callback
