@@ -2,7 +2,6 @@
 # destroyed the next time quit() is called or python exits anyway
 import contextlib
 import platform
-import functools
 import itertools
 import os
 import pythotk as tk
