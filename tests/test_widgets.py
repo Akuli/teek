@@ -271,7 +271,7 @@ def test_event_objects():
     assert event.root == 0
     assert event.rootx == -1
     assert event.rooty == -1
-    assert event.sendevent == False
+    assert event.sendevent is False
     assert isinstance(event.serial, int)
     assert event.state == '0'
     assert event.subwindow == 0
