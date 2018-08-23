@@ -323,6 +323,19 @@ et`.
         finally:
             self.busy_forget()
 
+    def event_generate(self, event, **kwargs):
+        """Calls ``event generate`` documented in :man:`event(3tk)`.
+
+        As usual, options are given without dashes as keyword arguments, so Tcl
+        code like ``event generate $widget <SomeEvent> -data $theData`` looks
+        like ``widget.event_generate('<SomeEvent>', data=the_data)`` in
+        pythotk.
+        """
+        option_args = []
+        for name, value in kwargs.items():
+            option_args.extend(['-' + name, value])
+        tcl_call(None, 'event', 'generate', self, event, *option_args)
+
 
 # these are from bind(3tk), Tk 8.5 and 8.6 support all of these
 # the ones marked "event(3tk)" use names listed in event(3tk), and "tkinter"
@@ -333,9 +346,6 @@ et`.
 #
 # if you change this, also change docs/bind.rst
 _BIND_SUBS = [
-    # tested:
-
-    # not tested:
     ('%#', int, 'serial'),
     ('%a', int, 'above'),
     ('%b', int, 'button'),
@@ -373,9 +383,9 @@ class Event:
 
     def __repr__(self):
         # try to avoid making the repr too verbose
-        ignored_names = ['widget', 'send_event', 'subwindow', 'time', 'window',
-                         'root', 'state']
-        ignored_values = [None, '??']
+        ignored_names = ['widget', 'sendevent', 'subwindow', 'time',
+                         'i_window', 'root', 'state']
+        ignored_values = [None, '??', -1]
 
         pairs = []
         for name, value in sorted(self.__dict__.items(),

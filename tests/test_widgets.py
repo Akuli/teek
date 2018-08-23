@@ -6,6 +6,7 @@ import functools
 import itertools
 import os
 import pythotk as tk
+import re
 
 import pytest
 
@@ -237,6 +238,52 @@ def test_bind(handy_callback):
     # some binding strings are equivalent
     assert widget.bindings['<Button-3>'] is widget.bindings['<Button-3>']
     assert widget.bindings['<3>'] is widget.bindings['<Button-3>']
+
+
+def test_event_objects():
+    events = []
+
+    widget = tk.Window()
+    widget.bind('<<Asd>>', events.append, event=True)
+    tk.update()     # needed for virtual events to work
+    widget.event_generate('<<Asd>>', data='asd asd')
+    event = events.pop()
+    assert not events
+
+    # if some of these checks fail, feel free to make them less strict
+    assert event.data(str) == 'asd asd'
+    assert event.above is None
+    assert event.borderwidth is None
+    assert event.button is None
+    assert event.char == '??'
+    assert event.count is None
+    assert event.delta is None
+    assert event.focus is None
+    assert event.height is None
+    assert isinstance(event.i_window, int)
+    assert event.keycode is None
+    assert event.keysym == '??'
+    assert event.keysym_num is None
+    assert event.mode == '??'
+    assert event.override is None
+    assert event.place == '??'
+    assert event.property_name == '??'
+    assert event.root == 0
+    assert event.rootx == -1
+    assert event.rooty == -1
+    assert event.sendevent == False
+    assert isinstance(event.serial, int)
+    assert event.state == '0'
+    assert event.subwindow == 0
+    assert event.time == 0
+    assert event.type == 35     # see some docs somewhere i dunno why 35
+    assert event.widget is widget
+    assert event.width is None
+    assert event.x == 0
+    assert event.y == 0
+
+    regex = r"<Event: data='asd asd', serial=\d+, type=35, x=0, y=0>"
+    assert re.fullmatch(regex, repr(event)) is not None
 
 
 def test_bind_deletes_tcl_commands(handy_callback):

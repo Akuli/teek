@@ -113,7 +113,12 @@ the type of the event. Pythotk uses that internally, but it doesn't keep track
 of the event types for you, so you need to do ``event.data(str)`` if you want
 the ``detail`` string.
 
-
+.. note::
+    If the value is not available, it's usually None, but the attributes whose
+    pythotk type is ``str`` are ``'??'`` instead. The reason is that the Tcl
+    substitution gets a ``??`` value for some reason in these cases, but
+    ``'??'`` could be also a valid value of e.g. ``data``, so pythotk doesn't
+    try to hide it.
 
 The "Tcl bind substitution" and "tkinter event attribute" columns are for
 porting Tcl code and tkinter code to pythotk. If you are writing a new program
