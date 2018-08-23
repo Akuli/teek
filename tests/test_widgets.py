@@ -241,11 +241,11 @@ def test_bind():
 
     command = tk.create_command(tcl_call_bound_callback)
 
-    tk.call(None, 'bind', widget, '<<Asd>>', command)
+    tk.tcl_call(None, 'bind', widget, '<<Asd>>', command)
     assert widget.bindings.keys() == {'<<Asd>>'}
     widget.bind('<<Asd>>', pythotk_bound_callback)
     tk.update()
-    tk.call(None, 'event', 'generate', widget, '<<Asd>>')
+    tk.tcl_call(None, 'event', 'generate', widget, '<<Asd>>')
 
     tk.delete_command(command)
 

@@ -146,7 +146,7 @@ def test_create_command(capsys):
         return tk.create_command(broken_func, [str], stack_info=stack_info)
 
     command = create_the_command()
-    assert tk.tcl_call(str, command) == ''
+    assert tk.tcl_call(str, command, 'lol') == ''
     tk.delete_command(command)
 
     output, errors = capsys.readouterr()
