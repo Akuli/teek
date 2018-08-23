@@ -242,8 +242,8 @@ def test_bind(handy_callback):
 def test_bind_deletes_tcl_commands(handy_callback):
     widget = tk.Window()
     widget.bind('<Button-1>', print)
-    command_string = tk.tcl_call(str, 'bind', widget, '<Button-1>')
-    assert command_string
+    command_string = tk.tcl_call([str], 'bind', widget, '<Button-1>')[0]
+    assert command_string.startswith('pythotk_command_')
     assert command_string in tk.tcl_call([str], 'info', 'commands')
     widget.destroy()
     assert command_string not in tk.tcl_call([str], 'info', 'commands')
