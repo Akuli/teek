@@ -47,6 +47,7 @@ def test_eval_and_call(handy_commands):
     assert tk.tcl_eval([str], 'list { a} {b } { c }') == [' a', 'b ', ' c ']
     assert (tk.tcl_eval((str, int, str, int), 'list a 1 b 2') ==
             ('a', 1, 'b', 2))
+    assert tk.tcl_eval([int], 'list 0b11111111 0o377 0xff') == [255, 255, 255]
     assert tk.tcl_eval(
         {'a': int, 'c': bool}, 'dict create a 1 b 2') == {'a': 1, 'b': '2'}
 
