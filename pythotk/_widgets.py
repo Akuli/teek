@@ -543,6 +543,9 @@ class _WmMixin:
     def deiconify(self):
         self._call(None, 'wm', 'deiconify', self._get_wm_widget())
 
+    def wait_window(self):
+        self._call(None, 'tkwait', 'window', self)
+
     # to be overrided
     def _get_wm_widget(self):
         raise NotImplementedError
@@ -600,6 +603,16 @@ class Toplevel(_WmMixin, Widget):
 
         ``title`` and ``wm_state`` are strings, and they can be set like
         ``my_toplevel.title = "Hello"``.
+
+    .. method:: wait_window()
+
+        Waits until the window is destroyed with :meth:`~Widget.destroy`.
+
+        This method blocks until the window is destroyed, but it can still be
+        called from the :ref:`event loop <eventloop>`; behind the covers, it
+        runs another event loop that makes the GUI not freeze.
+
+        See ``tkwait window`` in :man:`tkwait(3tk)` for more details.
 
     .. attribute:: on_delete_window
     .. attribute:: on_take_focus
