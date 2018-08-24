@@ -1,5 +1,15 @@
-from pythotk._tcl_calls import tcl_call
-from pythotk._structures import Color
+from functools import partial as _partial
+
+import pythotk as tk
+
+
+def _options(kwargs):
+    if 'parent' in kwargs and isinstance(kwargs['parent'], tk.Window):
+        kwargs['parent'] = kwargs['parent'].toplevel
+
+    for name, value in kwargs.items():
+        yield '-' + name
+        yield value
 
 
 def color(**kwargs):
@@ -8,8 +18,34 @@ def color(**kwargs):
     The color selected by the user is returned, or ``None`` if the user
     cancelled the dialog.
     """
-    options = []
-    for name, value in kwargs.items():
-        options.extend(['-' + name, value])
+    return tk.tcl_call(tk.Color, 'tk_chooseColor', *_options(kwargs))
 
-    return tcl_call(Color, 'tk_chooseColor', *options)
+
+def _messagebox(type, message, detail=None, **kwargs):
+    kwargs['type'] = type
+    kwargs['message'] = message
+    if detail is not None:
+        kwargs['detail'] = detail
+
+    if type == 'ok':
+        tk.tcl_call(None, 'tk_messageBox', *_options(kwargs))
+        return None
+    if type == 'okcancel':
+        return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'ok'
+    if type == 'retrycancel':
+        return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'retry'
+    if type == 'yesno':
+        return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'yes'
+
+    # for anything else, return a string
+    return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs))
+
+
+info = _partial(_messagebox, 'ok', icon='info')
+warning = _partial(_messagebox, 'ok', icon='warning')
+error = _partial(_messagebox, 'ok', icon='error')
+ok_cancel = _partial(_messagebox, 'okcancel', icon='question')
+retry_cancel = _partial(_messagebox, 'retrycancel', icon='warning')
+yes_no = _partial(_messagebox, 'yesno', icon='question')
+yes_no_cancel = _partial(_messagebox, 'yesnocancel', icon='question')
+abort_retry_ignore = _partial(_messagebox, 'abortretryignore', icon='error')
