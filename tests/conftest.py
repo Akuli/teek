@@ -28,15 +28,13 @@ def deinit_threads():
 
 
 def handy_callback_decorator(function):
-    ran = 0
-
     def result(*args, **kwargs):
-        nonlocal ran
         return_value = function(*args, **kwargs)
-        ran += 1
+        result.ran += 1
         return return_value
 
-    result.ran_once = (lambda: ran == 1)
+    result.ran = 0
+    result.ran_once = (lambda: result.ran == 1)
     return result
 
 

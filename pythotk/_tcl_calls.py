@@ -453,20 +453,37 @@ def tcl_eval(returntype, code):
 # TODO: add support for functions that take *args or something
 # TODO: maybe some magic that uses type hints for this?
 @needs_main_thread
-@raise_pythotk_tclerror
-def create_command(func, arg_type_specs=(), *, stack_info=''):
+def create_command(func, arg_type_specs=(), *,
+                   extra_args_type=None, stack_info=''):
     """Create a Tcl command that runs ``func(*args, **kwargs)``.
+
+    Created commands should be deleted with :func:`.delete_command` when they
+    are no longer needed.
 
     The function will take ``len(arg_type_specs)`` arguments, and the arguments
     are converted to Python objects using ``arg_type_specs``. The
     ``arg_type_specs`` must be a sequence of
     :ref:`type specifications <type-specs>`.
 
-    Created commands should be deleted with :func:`.delete_command` when they
-    are no longer needed.
+    If ``extra_args_type`` is given, the function can also take more than
+    ``len(arg_type_specs)`` arguments, and the type of each extra argument will
+    be *extra_args_type*. For example:
 
-    The Tcl command's name is returned as a string. The return value is
-    converted to string for Tcl similarly as with :func:`tcl_call`.
+    >>> def func(a, b, *args):
+    ...     print(a - b)
+    ...     for arg in args:
+    ...         print(arg)
+    ...
+    >>> command = create_command(func, [int, int], extra_args_type=str)
+    >>> tk.tcl_call(None, command, 123, 23, 'asd', 'toot', 'boom boom')
+    100
+    asd
+    toot
+    boom boom
+
+    The Tcl command's name is returned as a string. The return value from the
+    Python function is converted to string for Tcl similarly as with
+    :func:`tcl_call`.
 
     If the function raises an exception, a traceback will be printed
     with *stack_info* right after the "Traceback (bla bla bla)" line.
@@ -479,16 +496,31 @@ def create_command(func, arg_type_specs=(), *, stack_info=''):
     """
     def real_func(*args):
         try:
-            if len(args) != len(arg_type_specs):
-                # python raises TypeError for wrong number of args
-                raise TypeError("expected %d arguments, got %d"
-                                % (len(arg_type_specs), len(args)))
+            # python raises TypeError for wrong number of args
+            if extra_args_type is None:
+                expected = "%d arguments" % len(arg_type_specs)
+                ok = (len(args) == len(arg_type_specs))
+            else:
+                expected = "at least %d arguments" % len(arg_type_specs)
+                ok = (len(args) >= len(arg_type_specs))
+            if not ok:
+                raise TypeError("expected %s, got %d arguments"
+                                % (expected, len(args)))
 
-            return to_tcl(func(*map(from_tcl, arg_type_specs, args)))
+            # map(func, a, b) stops when the shortest of a and b ends
+            basic_args = map(from_tcl,
+                             arg_type_specs, args[:len(arg_type_specs)])
+            extra_args = (from_tcl(extra_args_type, arg)
+                          for arg in args[len(arg_type_specs):])
+
+            # to_tcl(*basic_args, *extra_args) doesn't work in 3.4
+            # basic_args + extra_args doesn't work because they are iterators
+            return to_tcl(func(*itertools.chain(basic_args, extra_args)))
+
         except Exception as e:
             traceback_blabla, rest = traceback.format_exc().split('\n', 1)
-            print(traceback_blabla, file=sys.stderr)
-            print(stack_info + rest, end='', file=sys.stderr)
+            print(traceback_blabla + '\n' + stack_info + rest,
+                  end='', file=sys.stderr)
             return ''
 
     name = 'pythotk_command_%d' % next(counts['commands'])
@@ -497,7 +529,6 @@ def create_command(func, arg_type_specs=(), *, stack_info=''):
 
 
 @needs_main_thread
-@raise_pythotk_tclerror
 def delete_command(name):
     """Delete a Tcl command by name.
 

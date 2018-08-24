@@ -123,7 +123,8 @@ def test_create_command(capsys):
     tk.tcl_call(None, command, 'asda')
     output, errors = capsys.readouterr()
     assert not output
-    assert errors.endswith("TypeError: expected 0 arguments, got 1\n")
+    assert errors.endswith(
+        "TypeError: expected 0 arguments, got 1 arguments\n")
 
     tk.delete_command(command)
 
@@ -165,3 +166,26 @@ def test_create_command(capsys):
     tk.delete_command(command)
 
     assert capsys.readouterr() == ('', '')
+
+
+def test_create_command_arbitrary_args(capsys, handy_callback):
+    @handy_callback
+    def callback(a, b, *args):
+        assert a == 1
+        assert isinstance(a, int)
+        assert b == 'lol'
+        assert list(args) == expected_args
+
+    command = tk.create_command(callback, [int, str], extra_args_type=float)
+
+    expected_args = [1.2, 3.4, 5.6]
+    tk.tcl_call(None, command, '1', 'lol', '1.2', '3.4', '5.6')
+    expected_args = []
+    tk.tcl_call(None, command, '1', 'lol')
+    assert callback.ran == 2
+
+    tk.tcl_call(None, command, '1')
+    output, errors = capsys.readouterr()
+    assert not output
+    assert errors.endswith(
+        'TypeError: expected at least 2 arguments, got 1 arguments\n')
