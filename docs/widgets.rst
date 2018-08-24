@@ -44,7 +44,7 @@ Widget Reference
 
 
 .. autoclass:: pythotk.Widget
-    :members:
+    :members: from_tcl, to_tcl, destroy, winfo_exists, winfo_children, winfo_toplevel
 .. autoclass:: pythotk.Window
     :members:
 .. autoclass:: pythotk.Label

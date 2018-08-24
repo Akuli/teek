@@ -20,20 +20,20 @@ Tcl code like ``-anchor center`` looks like ``anchor='center'`` in pythotk.
 
 Pythotk widgets have these methods:
 
-.. method:: Widget.pack(**kwargs)
+.. method:: pythotk.Widget.pack(**kwargs)
 
     Search for ``pack configure`` in :man:`pack(3tk)` for details. If you want
     to use the ``-in`` option, you can't do ``widget1.pack(in=widget2)``
     because ``in`` is a reserved keyword in Python and you get a syntax error,
     but pythotk lets you do ``widget1.pack(in_=widget2)`` instead.
 
-.. method:: Widget.pack_forget()
+.. method:: pythotk.Widget.pack_forget()
 
     See ``pack forget`` in :man:`pack(3tk)`.
 
-.. method:: Widget.pack_info()
+.. method:: pythotk.Widget.pack_info()
 
-    This returns the keyword arguments passed to :meth:`~Widget.pack` with
+    This returns the keyword arguments passed to :meth:`~.Widget.pack` with
     string keys. The types of values are as follows:
 
     * The value of ``'in'`` is a pythotk widget.
@@ -48,7 +48,7 @@ Pythotk widgets have these methods:
         ...do something...
         widget.pack(**pack_info)
 
-.. method:: Widget.pack_slaves()
+.. method:: pythotk.Widget.pack_slaves()
 
     Returns a list of other :class:`Widgets <.Widget>` packed into the widget.
     See ``pack slaves`` in :man:`pack(3tk)` for more details.

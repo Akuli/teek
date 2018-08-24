@@ -159,7 +159,7 @@ The bindings attribute
 ----------------------
 
 Pythotk uses :class:`.Callback` objects for most things that it runs for you.
-It also does that with bindings. All widgets have the following attribute:
+It also does that with bindings.
 
 .. attribute:: pythotk.Widget.bindings
 
@@ -204,3 +204,5 @@ retrieves the data as a list of strings.
 >>> label.bind('<<ThingyThing>>', callback, event=True)
 >>> label.event_generate('<<ThingyThing>>', data=['a', 'b', 'c'])  # doctest: +ELLIPSIS
 got data string list: ['a', 'b', 'c']
+
+.. automethod:: pythotk.Widget.event_generate

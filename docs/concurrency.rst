@@ -272,6 +272,13 @@ all widgets in it, you can use :meth:`.Widget.busy` instead, like this::
         with self.busy():
             ...
 
+Here is the reference.
+
+.. automethod:: pythotk.Widget.busy_hold
+.. automethod:: pythotk.Widget.busy_forget
+.. automethod:: pythotk.Widget.busy_status
+.. automethod:: pythotk.Widget.busy
+
 
 .. _after-cb:
 
