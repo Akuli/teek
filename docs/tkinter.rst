@@ -200,3 +200,29 @@ Tkinter has one font class, ``tkinter.font.Font``, which represents a font that
 has a name in Tcl. There are two font classes in pythotk, and usually you
 should use :class:`.NamedFont` in pythotk when ``tkinter.font.Font`` is used in
 tkinter. See :ref:`font documentation <font-objs>` for details.
+
+
+Tcl Calls
+---------
+
+In tkinter, you might see code like this::
+
+    if root.tk.call('tk', 'windowingsystem') == 'aqua':
+        ...some mac specific code...
+
+Here ``root.tk.call('tk', 'windowingsystem')`` calls ``tk windowingsystem`` in
+Tcl, and that returns ``'win32'``, ``'aqua'`` or ``'x11'`` as documented in
+:man:`tk(3tk)`. Notice that the return type is a string, but it's not specified
+anywhere. Pythotk is more explicit::
+
+    if tk.tcl_call(str, 'tk', 'windowingsystem') == 'aqua':
+        ...
+
+``1.2 == '1.2'`` is false in python, but there is no distinction like that in
+Tcl; all objects are essentially strings, and ``1.2`` is literally the same
+thing as ``'1.2'``. There is no good way to figure out what type tkinter's
+``root.tk.call`` will return, and it's easiest to try it and see.
+
+Pythotk gets rid of this problem by requiring explicit return types everywhere.
+If you want a Tcl call to return a string, you pass it ``str``. See
+:ref:`tcl calls` for more documentation.
