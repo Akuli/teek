@@ -19,6 +19,7 @@ pythotk.
     geometry-managers
     widgets
     bind
+    dialog
     misc-objs
     tcl-calls
     platform-info

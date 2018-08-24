@@ -227,4 +227,11 @@ thing as ``'1.2'``. There is no good way to figure out what type tkinter's
 
 Pythotk gets rid of this problem by requiring explicit return types everywhere.
 If you want a Tcl call to return a string, you pass it ``str``. See
-:ref:`tcl calls` for more documentation.
+:ref:`tcl-calls` for more documentation.
+
+
+Dialogs
+-------
+
+Dialog functions are named differently in pythotk. For example, instead of
+``tkinter.colorchooser.askcolor`` you use ``tk.dialog.color``.

@@ -21,7 +21,6 @@ def check_url(url):
     assert response.status == 200
     assert (b'The page you are looking for cannot be found.'
             not in response.read())
-    assert urllib.request.urlopen(request).status == 200
 
 
 # there are urls like .../man/tcl8.6/... and .../man/tcl/...
@@ -38,13 +37,19 @@ MANPAGE_REDIRECTS = {
 
 
 def get_manpage_url(manpage_name, tcl_or_tk):
-    name_part = MANPAGE_REDIRECTS.get(manpage_name, manpage_name)
+    manpage_name = MANPAGE_REDIRECTS.get(manpage_name, manpage_name)
 
     # c functions are named like Tk_GetColor, and the URLs only contain the
     # GetColor part for some reason
-    is_c_function = name_part.startswith(tcl_or_tk.capitalize() + '_')
-    if is_c_function:
-        name_part = name_part.split('_', 1)[1]
+    is_c_function = manpage_name.startswith(tcl_or_tk.capitalize() + '_')
+
+    # ik, this is weird
+    if manpage_name.startswith('ttk_'):
+        # ttk_separator --> ttk_separator
+        name_part = manpage_name
+    else:
+        # tk_chooseColor --> chooseColor
+        name_part = manpage_name.split('_')[-1]
 
     return URL_TEMPLATE % (tcl_or_tk.capitalize(),
                            'Lib' if is_c_function else 'Cmd',
