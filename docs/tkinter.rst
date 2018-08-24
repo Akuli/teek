@@ -3,6 +3,8 @@ Porting from Tkinter
 
 If you have some tkinter code and you would like to switch to pythotk, you came
 to the right place. This page lists differences between tkinter and pythotk.
+You might also find this page interesting if you are an experienced tkinter
+programmer.
 
 
 Before you begin
