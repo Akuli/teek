@@ -23,6 +23,7 @@ pythotk.
     tcl-calls
     platform-info
     concurrency
+    tkinter
 
 ..
     Indices and tables

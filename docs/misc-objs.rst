@@ -19,6 +19,8 @@ Callbacks
     :members:
 
 
+.. _font-objs:
+
 Fonts
 -----
 
