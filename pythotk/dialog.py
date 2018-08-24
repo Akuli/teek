@@ -21,8 +21,9 @@ def color(**kwargs):
     return tk.tcl_call(tk.Color, 'tk_chooseColor', *_options(kwargs))
 
 
-def _messagebox(type, message, detail=None, **kwargs):
+def _messagebox(type, title, message, detail=None, **kwargs):
     kwargs['type'] = type
+    kwargs['title'] = title
     kwargs['message'] = message
     if detail is not None:
         kwargs['detail'] = detail

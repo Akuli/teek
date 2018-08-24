@@ -38,37 +38,42 @@ def test_message_boxes():
     with fake_tcl_command('tk_messageBox', {
                 '-type': 'ok',
                 '-icon': 'info',
-                '-message': 'a',
-                '-detail': 'b'}, 'ok'):
-        assert tk.dialog.info('a', 'b') is None
+                '-title': 'a',
+                '-message': 'b',
+                '-detail': 'c'}, 'ok'):
+        assert tk.dialog.info('a', 'b', 'c') is None
 
     for icon in ['info', 'warning', 'error']:
         with fake_tcl_command('tk_messageBox', {
                 '-type': 'ok',
                 '-icon': icon,
-                '-message': 'a'}, 'ok'):
-            assert getattr(tk.dialog, icon)('a') is None
+                '-title': 'a',
+                '-message': 'b'}, 'ok'):
+            assert getattr(tk.dialog, icon)('a', 'b') is None
 
     for func, ok, icon in [(tk.dialog.ok_cancel, 'ok', 'question'),
                            (tk.dialog.retry_cancel, 'retry', 'warning')]:
         with fake_tcl_command('tk_messageBox', {
                 '-type': ok + 'cancel',
                 '-icon': icon,
-                '-message': 'a'}, ok):
-            assert func('a') is True
+                '-title': 'a',
+                '-message': 'b'}, ok):
+            assert func('a', 'b') is True
 
         with fake_tcl_command('tk_messageBox', {
                 '-type': ok + 'cancel',
                 '-icon': icon,
-                '-message': 'a'}, 'cancel'):
-            assert func('a') is False
+                '-title': 'a',
+                '-message': 'b'}, 'cancel'):
+            assert func('a', 'b') is False
 
     for string, boolean in [('yes', True), ('no', False)]:
         with fake_tcl_command('tk_messageBox', {
                 '-type': 'yesno',
                 '-icon': 'question',
-                '-message': 'a'}, string):
-            assert tk.dialog.yes_no('a') is boolean
+                '-title': 'a',
+                '-message': 'b'}, string):
+            assert tk.dialog.yes_no('a', 'b') is boolean
 
     for function_name, icon in [('yes_no_cancel', 'question'),
                                 ('abort_retry_ignore', 'error')]:
@@ -76,8 +81,9 @@ def test_message_boxes():
             with fake_tcl_command('tk_messageBox', {
                     '-type': function_name.replace('_', ''),
                     '-icon': icon,
-                    '-message': 'a'}, answer):
-                assert getattr(tk.dialog, function_name)('a') == answer
+                    '-title': 'a',
+                    '-message': 'b'}, answer):
+                assert getattr(tk.dialog, function_name)('a', 'b') == answer
 
 
 def test_color():

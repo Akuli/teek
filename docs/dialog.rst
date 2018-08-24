@@ -21,46 +21,46 @@ These functions call :man:`tk_messageBox(3tk)`. Options are passed to
 :man:`tk_messageBox(3tk)` so that this code...
 ::
 
-    tk.dialog.ok_cancel("Do you want to do this?", title="Asd")
+    tk.dialog.ok_cancel("Question", "Do you want that?")
 
 ...does a Tcl call like this:
 
 .. code-block:: tcl
 
-    tk_messageBox -type okcancel -message "Do you want to do this?" -title "Asd" -icon question
+    tk_messageBox -type okcancel -title "Question" -message "Do you want that?" -icon question
 
-.. function:: info(message, detail=None, **kwargs)
-.. function:: warning(message, detail=None, **kwargs)
-.. function:: error(message, detail=None, **kwargs)
+.. function:: info(title, message, detail=None, **kwargs)
+.. function:: warning(title, message, detail=None, **kwargs)
+.. function:: error(title, message, detail=None, **kwargs)
 
     Each of these functions shows a message box that has an "ok" button. The
     icon option is ``'info'``, ``'warning'`` or ``'error'`` respectively. These
     functions always return ``None``.
 
-.. function:: ok_cancel(message, detail=None, **kwargs)
+.. function:: ok_cancel(title, message, detail=None, **kwargs)
 
     Shows a message box with "ok" and "cancel" buttons. The icon is
     ``'question'`` by default, but you can change it by passing a keyword
     argument, e.g. ``icon='warning'``. Returns ``True`` if "ok" is clicked, and
     ``False`` if "cancel" is clicked.
 
-.. function:: retry_cancel(message, detail=None, **kwargs)
+.. function:: retry_cancel(title, message, detail=None, **kwargs)
 
     Like :func:`ok_cancel`, but with a "retry" button instead of an "ok" button
     and ``'warning'`` as the default icon.
 
-.. function:: yes_no(message, detail=None, **kwargs)
+.. function:: yes_no(title, message, detail=None, **kwargs)
 
     Shows a message box with "yes" and "no" buttons. The icon is ``'question'``
     by default. Returns ``True`` for "yes" and ``False`` for "no".
 
-.. function:: yes_no_cancel(message, detail=None, **kwargs)
+.. function:: yes_no_cancel(title, message, detail=None, **kwargs)
 
     Shows a message box with "yes", "no" and "cancel" buttons. The icon is
     ``'question'`` by default. Returns one of the strings ``'yes'``, ``'no'``
     or ``'cancel'``.
 
-.. function:: abort_retry_ignore(message, detail=None, **kwargs)
+.. function:: abort_retry_ignore(title, message, detail=None, **kwargs)
 
     Like :func:`yes_no_cancel`, but with different buttons and return value
     strings. The icon is ``'error'`` by default.
