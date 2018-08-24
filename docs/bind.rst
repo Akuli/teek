@@ -1,6 +1,37 @@
 Binding
 =======
 
+:class:`.Button` widgets have an :attr:`~.Button.on_click` callback that runs
+when the button is clicked. But what if you have some other widget instead of a
+button, and you want to do something when it's clicked? This can be useful; for
+example, my editor displays its logo in the about dialog, and if the logo is
+clicked, it shows the logo in full size.
+
+Bindings are not limited to just clicking. You can bind to some other things as
+well, such as mouse movement and key presses.
+
+
+Simple Example
+--------------
+
+This program displays a label that prints hello when it's clicked.
+::
+
+    import pythotk as tk
+
+    def on_click():
+        print("hello")
+
+    window = tk.Window()
+    label = tk.Label(window, "Click me")
+    label.pack()
+    label.bind('<Button-1>', on_click)
+    tk.run()
+
+If you change ``'<Button-1>'`` to ``'<Motion>'``, ``'hello'`` is printed every
+time you move the mouse over the label. See :man:`bind(3tk)` for all possible
+strings you can pass to :meth:`~.Widget.bind`.
+
 
 Event Objects
 -------------
@@ -27,12 +58,11 @@ Here ``on_click()`` gets an event object. It has attributes that describe what
 happened, like ``rootx`` and ``rooty``. If you don't pass ``event=True``, the
 callback will be called without the event object.
 
-Tk's documentation contains information about the information available to
-events in :man:`bind(3tk)`, but the useful stuff seems to be in
-:man:`event(3tk)`. Event object attributes are named similarly as in
-:man:`event(3tk)`; for example, there is a ``-rootx`` option in
-:man:`event(3tk)`, and that's why pythotk's event objects have a ``rootx``
-attribute.
+The ``%X`` and ``%Y`` stuff is documented in :man:`bind(3tk)`, but
+:man:`event(3tk)` seems to contain more useful things. Event object attributes
+are named similarly as in :man:`event(3tk)`; for example, there is a ``-rootx``
+option in :man:`event(3tk)`, and that's why pythotk's event objects have a
+``rootx`` attribute.
 
 Here is a long table of attributes that pythotk supports. It took me a long
 time to make. The list also demonstrates how limited tkinter is; only a few
@@ -125,9 +155,52 @@ porting Tcl code and tkinter code to pythotk. If you are writing a new program
 in pythotk, don't worry about them.
 
 
+The bindings attribute
+----------------------
+
+Pythotk uses :class:`.Callback` objects for most things that it runs for you.
+It also does that with bindings. All widgets have the following attribute:
+
+.. attribute:: pythotk.Widget.bindings
+
+    A dictionary-like object of the widget's bindings with string keys and
+    :class:`.Callback` values.
+
+    Some binding sequences are equivalent in Tk. For example,
+    ``<ButtonPress-1>``, ``<Button-1>`` and ``<1>`` all mean the same thing,
+    and looking up those strings from a widget's ``bindings`` is guaranteed
+    to give the same :class:`.Callback` object.
+
+.. automethod:: pythotk.Widget.bind
+
+
 .. _virtual-event:
 
 Virtual Events
 --------------
 
-Asd asd.
+Names of virtual events have ``<<`` and ``>>`` instead of ``<`` and ``>``. Here
+is an example:
+
+>>> window = tk.Window()
+>>> label = tk.Label(window)
+>>> label.bind('<<Asd>>', print, event=True)   # will run print(the_event)
+>>> label.event_generate('<<Asd>>')     # doctest: +ELLIPSIS
+<Event: data='', serial=..., type=35>
+
+You can also pass data to the virtual event:
+
+>>> label.event_generate('<<Asd>>', data='toot')     # doctest: +ELLIPSIS
+<Event: data='toot', serial=..., type=35>
+
+If you want to actually use the data, don't do just ``event.data``; that
+doesn't work right. Instead, use ``event.data(type_spec)`` where ``type_spec``
+is a :ref:`type specifacion <type-spec>`. For example, ``event.data([str])``
+retrieves the data as a list of strings.
+
+>>> def callback(event):
+...     print("got data string list:", event.data([str]))
+...
+>>> label.bind('<<ThingyThing>>', callback, event=True)
+>>> label.event_generate('<<ThingyThing>>', data=['a', 'b', 'c'])  # doctest: +ELLIPSIS
+got data string list: ['a', 'b', 'c']

@@ -238,6 +238,8 @@ def test_bind(handy_callback):
     assert widget.bindings['<Button-3>'] is widget.bindings['<Button-3>']
     assert widget.bindings['<3>'] is widget.bindings['<Button-3>']
 
+    assert repr(widget.bindings) == '<a bindings object, behaves like a dict>'
+
 
 def test_event_objects():
     events = []
@@ -281,7 +283,7 @@ def test_event_objects():
     assert event.x == 0
     assert event.y == 0
 
-    regex = r"<Event: data='asd asd', serial=\d+, type=35, x=0, y=0>"
+    regex = r"<Event: data='asd asd', serial=\d+, type=35>"
     assert re.fullmatch(regex, repr(event)) is not None
 
 

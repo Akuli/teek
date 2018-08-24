@@ -216,8 +216,15 @@ class Widget:
         ``widget.bindings[sequence].connect(func)``.
 
         If ``event=True`` is not given, ``widget.bindings[sequence]`` is
-        connected to a function that calls ``func`` with no arguments, ignoring
-        the event object.
+        connected to a new function that calls ``func`` with no arguments,
+        ignoring the event object.
+
+        .. note::
+            In tkinter, ``widget.bind(sequence, func)`` discards all old
+            bindings, and if you want to bind multiple functions to the same
+            sequence, you need to specifically tell it to not discard anything.
+            I have no idea why tkinter does that. Pythotk keeps the old
+            bindings because the :class:`.Callback` does that.
         """
         eventy_func = func if event else (lambda event: func())
         self.bindings[sequence].connect(eventy_func)
@@ -385,7 +392,7 @@ class Event:
         # try to avoid making the repr too verbose
         ignored_names = ['widget', 'sendevent', 'subwindow', 'time',
                          'i_window', 'root', 'state']
-        ignored_values = [None, '??', -1]
+        ignored_values = [None, '??', -1, 0]
 
         pairs = []
         for name, value in sorted(self.__dict__.items(),
@@ -408,6 +415,9 @@ class BindingDict(collections.abc.Mapping):
         self._call_bind = bind_caller
         self._command_list = command_list
         self._callback_objects = {}     # {sequence: callback}
+
+    def __repr__(self):
+        return '<a bindings object, behaves like a dict>'
 
     def __iter__(self):
         # loops over all existing bindings, not all possible bindings
