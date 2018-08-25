@@ -122,9 +122,6 @@ def test_window_closing():
         assert not window.winfo_exists()
 
 
-@pytest.mark.skipif(platform.system() == "Windows",
-                    reason=("actual windows window manager behavior"
-                            "is different than the test expects"))
 def test_geometry():
     window = tk.Window()
 
@@ -136,6 +133,18 @@ def test_geometry():
     assert repr(geometry) == repr(geometry2)
     assert repr(geometry).startswith('Geometry(')
 
+    for pair in [('width', 'height'), ('x', 'y')]:
+        with pytest.raises(TypeError) as error:
+            window.geometry(**{pair[0]: 123})
+        assert str(error.value) == 'specify both %s and %s, or neither' % pair
+
+
+@pytest.mark.skipif(platform.system() == "Windows",
+                    reason=("actual windows window manager behavior"
+                            "is different than the test expects"))
+def test_geometry_changes():
+    window = tk.Window()
+
     window.geometry(300, 400)
     tk.update()
     assert window.geometry()[:2] == (300, 400)
@@ -145,14 +154,9 @@ def test_geometry():
     assert window.geometry() == (300, 400, 123, 456)
 
     window.geometry(100, 200, 300, 400)
-    #lintplox
     tk.update()
     assert window.geometry() == (100, 200, 300, 400)
 
-    for pair in [('width', 'height'), ('x', 'y')]:
-        with pytest.raises(TypeError) as error:
-            window.geometry(**{pair[0]: 123})
-        assert str(error.value) == 'specify both %s and %s, or neither' % pair
 
 # this is commented out because ttk widgets don't have color options
 #
