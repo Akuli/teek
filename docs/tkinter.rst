@@ -234,4 +234,8 @@ Dialogs
 -------
 
 Dialog functions are named differently in pythotk. For example, instead of
-``tkinter.colorchooser.askcolor`` you use ``tk.dialog.color``.
+``filedialog.askopenfilename()`` you use
+:func:`tk.dialog.open_file() <.dialog.open_file>`. Unlike in tkinter, you don't
+need to import anything special in order to use the dialog functions;
+``import pythotk as tk`` is all you need, and after that, you can do
+``tk.dialog.open_file()``.
