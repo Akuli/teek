@@ -113,8 +113,8 @@ class Widget:
         >>> label.config['text']
         'Even newer text'
         >>> import pprint
-        >>> pprint.pprint(dict(label.config))       # prints everything nicely
-        ... # doctest: +ELLIPSIS
+        >>> pprint.pprint(dict(label.config))  # prints everything nicely  \
+        # doctest: +ELLIPSIS
         {...,
          'text': 'Even newer text',
          ...}
