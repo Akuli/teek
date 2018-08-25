@@ -39,11 +39,11 @@ def fake_tcl_command(name, options, return_value):
 
 def test_message_boxes():
     with fake_tcl_command('tk_messageBox', {
-                '-type': 'ok',
-                '-icon': 'info',
-                '-title': 'a',
-                '-message': 'b',
-                '-detail': 'c'}, 'ok'):
+            '-type': 'ok',
+            '-icon': 'info',
+            '-title': 'a',
+            '-message': 'b',
+            '-detail': 'c'}, 'ok'):
         assert tk.dialog.info('a', 'b', 'c') is None
 
     for icon in ['info', 'warning', 'error']:
