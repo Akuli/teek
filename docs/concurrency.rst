@@ -241,15 +241,7 @@ Here is a part of our example program above.
 
     def paste(self):
         self.url_label.config['text'] = "Pasting..."
-
-        # api docs: http://dpaste.com/api/v2/
-        print("Starting to paste")
-        response = requests.post('http://dpaste.com/api/v2/',
-                                 data={'content': 'Hello World'})
-        response.raise_for_status()
-        url = response.text.strip()
-        print("Pasted successfully:", url)
-
+        ...
         self.url_label.config['text'] = url
 
 Can you see the problem? The paste button can be clicked while ``paste()`` is
@@ -259,18 +251,20 @@ same time in different threads. That's not nice.
 A simple alternative is to make the button grayed out in the paste function::
 
     def paste(self):
-        self.url_label.config['text'] = "Pasting..."
         self.paste_button.config['state'] = 'disabled'
+        self.url_label.config['text'] = "Pasting..."
         ...
+        self.url_label.config['text'] = url
         self.paste_button.config['state'] = 'normal'
 
 If you don't want to disable widgets or you would need to disable a widget and
 all widgets in it, you can use :meth:`.Widget.busy` instead, like this::
 
     def paste(self):
-        self.url_label.config['text'] = "Pasting..."
         with self.busy():
+            self.url_label.config['text'] = "Pasting..."
             ...
+            self.url_label.config['text'] = url
 
 Here is the reference.
 
