@@ -376,6 +376,23 @@ def test_button_invoke():
     assert stuff == [1, 2]
 
 
+def test_entry():
+    entry = tk.Entry(tk.Window(), "some text")
+    assert "text='some text'" in repr(entry)
+
+    assert entry.text == 'some text'
+    entry.text = 'new text'
+    assert entry.text == 'new text'
+    assert "text='new text'" in repr(entry)
+
+    assert entry.cursor_pos == len(entry.text)
+    entry.cursor_pos = 0
+    assert entry.cursor_pos == 0
+
+    assert entry.config['exportselection'] is True
+    assert isinstance(entry.config['width'], int)
+
+
 def test_separator():
     assert tk.Separator(tk.Window()).config['orient'] == 'horizontal'
 

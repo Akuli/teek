@@ -27,7 +27,7 @@ class ConfigDict(collections.abc.MutableMapping):
 
     def __init__(self, caller):
         self._call = caller
-        self._types = {}      # {option: argument for run}  str is default
+        self._types = {}      # {option: argument for tcl_call}  str is default
         self._disabled = {}   # {option: instruction string}
 
     def __repr__(self):
@@ -612,7 +612,7 @@ class Toplevel(_WmMixin, Widget):
         See ``tkwait window`` in :man:`tkwait(3tk)` for more details.
 
     .. attribute:: on_delete_window
-    .. attribute:: on_take_focus
+                   on_take_focus
 
         :class:`Callback` objects that run with no arguments when a
         ``WM_DELETE_WINDOW`` or ``WM_TAKE_FOCUS`` event occurs. See
@@ -786,6 +786,59 @@ class Button(ChildMixin, Widget):
 
     def invoke(self):
         self._call(None, self, 'invoke')
+
+
+class Entry(ChildMixin, Widget):
+    """A widget for asking the user to enter a one-line string.
+
+    .. seealso::
+        Use :class:`.Label` if you want to display text without letting the
+        user edit it. Entries are not meant to be used for text with more than
+        one line; for that, use :class:`.Text` instead.
+
+    Manual page: :man:`ttk_entry(3tk)`
+    """
+
+    def __init__(self, parent, text='', **kwargs):
+        super().__init__('ttk::entry', parent, **kwargs)
+        self._call(None, self, 'insert', 0, text)
+
+        self.config._types['exportselection'] = bool
+        # TODO: textvariable should be a StringVar
+        self.config._types['width'] = int
+
+    def _repr_parts(self):
+        return ['text=' + repr(self.text)]
+
+    @property
+    def text(self):
+        """The string of text in the entry widget.
+
+        Setting and getting this attribute calls ``get``, ``insert`` and
+        ``delete`` documented in :man:`ttk_entry(3tk)`.
+        """
+        return self._call(str, self, 'get')
+
+    @text.setter
+    @needs_main_thread
+    def text(self, new_text):
+        self._call(None, self, 'delete', 0, 'end')
+        self._call(None, self, 'insert', 0, new_text)
+
+    @property
+    def cursor_pos(self):
+        """
+        The integer index of the cursor in the entry, so that
+        ``entry.text[:entry.cursor_pos]`` and ``entry.text[entry.cursor_pos:]``
+        are the text before and after the cursor, respectively.
+
+        You can set this attribute to move the cursor.
+        """
+        return self._call(int, self, 'index', 'insert')
+
+    @cursor_pos.setter
+    def cursor_pos(self, new_pos):
+        self._call(None, self, 'icursor', new_pos)
 
 
 '''

@@ -36,7 +36,7 @@ from pythotk._misc import update      # TODO: move this to _timeouts?
 # simplest widgets are in pythotk._widgets, but widgets that require many lines
 # of code to implement are in separate files
 from pythotk._widgets import (
-    Widget, Window, Toplevel, Label, Button, Frame, Separator)
+    Widget, Window, Toplevel, Label, Button, Frame, Separator, Entry)
 from pythotk._textwidget import Text
 from pythotk._font import Font, NamedFont
 from pythotk import dialog
