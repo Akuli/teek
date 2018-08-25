@@ -78,20 +78,27 @@ Widget Name Differences
 -----------------------
 
 All tkinter GUIs use a ``tkinter.Tk`` object. There is no ``Tk`` object in
-pythotk; usually you should instead create a :class:`.Window` object and use
-that. Also use :class:`.Window` instead of a ``tkinter.Toplevel``; you can
-create as many pythotk windows as you want, and they actually use toplevels
-under the hood.
+pythotk; instead, you should create a :class:`.Window` object and use that.
+Usually you should also use :class:`.Window` instead of a :class:`.Toplevel` as
+explained in :class:`.Window` documentation. You can create as many pythotk
+windows as you want, and they actually use toplevels under the hood.
 
-Other widgets should be named the same as in tkinter.
+If the tkinter code creates multiple ``tkinter.Tk`` instances, it is probably
+broken. Replace all of them with :class:`tk.Window <.Window>`.
 
 If you have code that uses ``tkinter.Message``, you should use a ``Label``
 instead. I believe message widgets were a thing before labels could handle
 multiline text, but nowadays the text of labels can contain ``\n`` characters.
 
 
-Different Options
------------------
+Run
+---
+
+Use :func:`tk.run() <.run>` instead of tkinter's ``root.mainloop()``.
+
+
+Options
+-------
 
 Options are used differently in tkinter and pythotk. For example,
 ``button['text']``, ``button.cget('text')``, ``button.config('text')[-1]`` and
@@ -112,21 +119,48 @@ TypeError: use widget.config['option'], not widget['option']
 >>> button.config['text']
 'some text'
 
-Some things are done differently in tkinter and pythotk. For example, tkinter
-buttons have a ``command`` option that is set to a function that runs when the
-button is clicked, but pythotk doesn't have that:
 
->>> button.config['command'] = print
-Traceback (most recent call last):
-    ...
-ValueError: the 'command' option is not supported, use the on_click attribute or an initialization argument instead
+Widget-specific Differences
+---------------------------
 
-The code looks like this with :attr:`~.Button.on_click`:
+Most widgets work more or less the same way in pythotk and tkinter, but not all
+widgets do. Some of the biggest differences are listed here, but not everything
+is; refer to :ref:`the documentation <widgets>` of the widget that is causing
+errors for more details.
 
->>> button.on_click.connect(print)
+Button
+    Tkinter buttons have a ``command`` option that is set to a function that runs
+    when the button is clicked, but pythotk doesn't have that:
 
-In general, refer to :ref:`the documentation <widgets>` of the widget that is
-causing errors.
+    >>> button.config['command'] = print
+    Traceback (most recent call last):
+        ...
+    ValueError: the 'command' option is not supported, use the on_click attribute or an initialization argument instead
+
+    Use :attr:`.Button.on_click` instead.
+
+    >>> button.on_click.connect(print)
+
+Text
+    Many things are very different (read: much better and more pythonic) in
+    pythotk. You probably need to read most of pythotk's
+    :ref:`text widget docs <textwidget>` anyway, so I won't even try to summarize
+    everything here.
+
+Entry
+    Instead of ``insert``, ``delete`` and ``get`` methods, there is a settable
+    :attr:`~.Entry.text` attribute.
+
+
+Dialogs
+-------
+
+Dialog functions are named differently in pythotk. For example, instead of
+``filedialog.askopenfilename()`` you use
+:func:`tk.dialog.open_file() <.dialog.open_file>`. Unlike in tkinter, you don't
+need to import anything special in order to use the dialog functions;
+``import pythotk as tk`` is all you need, and after that, you can do
+``tk.dialog.open_file()``.
 
 
 Binding
@@ -185,13 +219,46 @@ Pythotk does the cleanup automatically for you when the widget is destroyed
 (see :meth:`~.Widget.destroy`).
 
 
-Text Widgets
-------------
+Widget Methods
+--------------
 
-Many things are different (read: much better and more pythonic) in pythotk than
-in tkinter. You probably need to read most of pythotk's
-:ref:`text widget docs <textwidget>` anyway, so I won't even try to summarize
-everything here.
+Tkinter's widgets have some methods that are available in all widgets, and they
+don't actually do anything with the widget. For example,
+``any_widget.after(1000, func)`` runs ``func()`` in the
+:ref:`event loop <eventloop>` after waiting for 1 second. In pythotk, things
+that don't need a widget in order to work are functions, not widget methods.
+Here is a list of them:
+
++-------------------------------------------+-------------------------------+
+| Tkinter                                   | Pythotk                       |
++===========================================+===============================+
+| ``any_widget.after(milliseconds, cb)``    | :func:`pythotk.after`         |
++-------------------------------------------+-------------------------------+
+| ``any_widget.after_idle(cb)``             | :func:`pythotk.after_idle`    |
++-------------------------------------------+-------------------------------+
+| ``any_widget.update()``                   | :func:`pythotk.update`        |
++-------------------------------------------+-------------------------------+
+| ``any_widget.tk.call()``                  | :func:`pythotk.tcl_call`      |
++-------------------------------------------+-------------------------------+
+| ``any_widget.tk.eval()``                  | :func:`pythotk.tcl_eval`      |
++-------------------------------------------+-------------------------------+
+| ``any_widget.tk.createcommand()``         | :func:`pythotk.create_command`|
++-------------------------------------------+-------------------------------+
+| ``any_widget.tk.deletecommand()``         | :func:`pythotk.delete_command`|
++-------------------------------------------+-------------------------------+
+| ``any_widget.mainloop()``                 | :func:`pythotk.run`           |
++-------------------------------------------+-------------------------------+
+| ``root.destroy()``                        | :func:`pythotk.quit`          |
++-------------------------------------------+-------------------------------+
+
+There are also some things that must be done with ``any_widget.tk.call()`` in
+tkinter, but pythotk has nicer support for them:
+
++-----------------------------------------------+-----------------------------------+
+| Tkinter                                       | Pythotk                           |
++===============================================+===================================+
+| ``any_widget.call('tk', 'windowingsystem')``  | :func:`pythotk.windowingsystem`   |
++-----------------------------------------------+-----------------------------------+
 
 
 Font Objects
@@ -227,14 +294,3 @@ thing as ``'1.2'``. There is no good way to figure out what type tkinter's
 Pythotk gets rid of this problem by requiring explicit return types everywhere.
 If you want a Tcl call to return a string, you pass it ``str``. See
 :ref:`tcl-calls` for more documentation.
-
-
-Dialogs
--------
-
-Dialog functions are named differently in pythotk. For example, instead of
-``filedialog.askopenfilename()`` you use
-:func:`tk.dialog.open_file() <.dialog.open_file>`. Unlike in tkinter, you don't
-need to import anything special in order to use the dialog functions;
-``import pythotk as tk`` is all you need, and after that, you can do
-``tk.dialog.open_file()``.

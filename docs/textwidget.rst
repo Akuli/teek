@@ -138,9 +138,9 @@ Text indices have the following attributes and methods:
     Like :meth:`forward`, but goes back instead of forward.
 
 .. method:: some_text_index.linestart()
-.. method:: some_text_index.lineend()
-.. method:: some_text_index.wordstart()
-.. method:: some_text_index.wordend()
+            some_text_index.lineend()
+            some_text_index.wordstart()
+            some_text_index.wordend()
 
     These return new text indices. Search for e.g. ``linestart`` in
     :man:`text(3tk)` for details.
@@ -282,7 +282,7 @@ Tag objects have these attributes and methods. Search for ``pathName tag`` in
     :ref:`index objects <textwidget-index>`.
 
 .. method:: some_tag.prevrange(index1, index2=None)
-.. method:: some_tag.nextrange(index1, index2=None)
+            some_tag.nextrange(index1, index2=None)
 
     These return the previous or next ``(start_index, end_index)`` pair. See
     :meth:`ranges` and :man:`text(3tk)`.

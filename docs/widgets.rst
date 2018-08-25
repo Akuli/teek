@@ -49,9 +49,11 @@ Widget Reference
     :members: from_tcl, to_tcl, destroy, winfo_exists, winfo_children, winfo_toplevel
 .. autoclass:: pythotk.Window
     :members:
+.. autoclass:: pythotk.Button
+    :members:
 .. autoclass:: pythotk.Label
     :members:
-.. autoclass:: pythotk.Button
+.. autoclass:: pythotk.Entry
     :members:
 .. autoclass:: pythotk.Separator
     :members:

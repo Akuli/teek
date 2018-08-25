@@ -794,10 +794,12 @@ class Button(ChildMixin, Widget):
 class Entry(ChildMixin, Widget):
     """A widget for asking the user to enter a one-line string.
 
+    The ``text`` option works as with :class:`.Label`.
+
     .. seealso::
         Use :class:`.Label` if you want to display text without letting the
-        user edit it. Entries are not meant to be used for text with more than
-        one line; for that, use :class:`.Text` instead.
+        user edit it. Entries are also not suitable for text with more than
+        one line; use :class:`.Text` instead if you want multiple lines.
 
     Manual page: :man:`ttk_entry(3tk)`
     """
