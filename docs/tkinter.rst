@@ -22,7 +22,6 @@ Currently these tkinter widgets are missing in pythotk:
 
 * ``tkinter.Canvas``
 * ``tkinter.Checkbutton``, ``tkinter.ttk.Checkbutton``
-* ``tkinter.Entry``, ``tkinter.ttk.Entry``
 * ``tkinter.LabelFrame``, ``tkinter.ttk.Labelframe``
 * ``tkinter.Listbox``
 * ``tkinter.Menu``
