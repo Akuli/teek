@@ -261,6 +261,13 @@ tkinter, but pythotk has nicer support for them:
 +-----------------------------------------------+-----------------------------------+
 
 
+Variable Objects
+----------------
+
+There is no ``StringVar`` or ``IntVar`` in pythotk; instead, there is just one
+:class:`.TclVar` class that handles all types.
+
+
 Font Objects
 ------------
 

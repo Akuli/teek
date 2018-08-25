@@ -65,3 +65,10 @@ Of course, :class:`.Font` and :class:`.NamedFont` objects can also be set to
 
 .. autoclass:: pythotk.NamedFont
     :members:
+
+
+Tcl Variable Objects
+--------------------
+
+.. autoclass:: pythotk.TclVar
+    :members:
