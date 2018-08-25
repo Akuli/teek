@@ -1,9 +1,10 @@
 import collections.abc
 import functools
 
-import pythotk as tk
+from pythotk._font import Font
+from pythotk._structures import Color
 from pythotk._tcl_calls import needs_main_thread
-from pythotk._widgets import ConfigDict, ChildMixin, Widget
+from pythotk._widgets.base import Widget, ChildMixin, ConfigDict
 
 
 # a new subclass of this is created for each text widget, and inheriting
@@ -57,18 +58,18 @@ class _Tag(ConfigDict):
         # pixels options are usually integers, but they are strings because
         # they can also be e.g. 1i instead, see man page
         for prefix in ['', 'select']:
-            self._types[prefix + 'foreground'] = tk.Color
-            self._types[prefix + 'background'] = tk.Color
+            self._types[prefix + 'foreground'] = Color
+            self._types[prefix + 'background'] = Color
 
         self._types['elide'] = bool
-        #self._types['font'] = ???
+        self._types['font'] = Font
         #self._types['justify'] = ??? enum left,right,center
-        self._types['lmargoncolor'] = self._types['rmargoncolor'] = tk.Color
+        self._types['lmargoncolor'] = self._types['rmargoncolor'] = Color
         self._types['overstrike'] = bool
         #self._types['tabs'] = ???
         #self._types['tabstyle'] = ??? enum tabular,wordprocessor
         self._types['underline'] = bool
-        self._types['underlinefg'] = tk.Color
+        self._types['underlinefg'] = Color
         #self._types['wrap'] = ??? enum none,char,word
 
     def __repr__(self):
