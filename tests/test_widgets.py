@@ -410,6 +410,23 @@ def test_from_tcl():
     assert str(error.value).endswith(" is a Window, not a Label")
 
 
+@pytest.mark.skipif(tk.TK_VERSION < (8, 6), reason="busy is new in Tk 8.6")
+def test_busy():
+    for widget in [tk.Frame(tk.Window()), tk.Window()]:
+        assert widget.busy_status() is False
+        widget.busy_hold()
+        assert widget.busy_status() is True
+        widget.busy_forget()
+        assert widget.busy_status() is False
+
+        with pytest.raises(ZeroDivisionError):
+            with widget.busy():
+                assert widget.busy_status() is True
+                1 / 0
+
+        assert widget.busy_status() is False
+
+
 def test_packing():
     window = tk.Window()
     button = tk.Button(window)

@@ -290,14 +290,14 @@ class Widget:
 
         *New in Tk 8.6.*
         """
-        self._call(None, 'tk', 'busy', 'hold', self._get_wm_widget())
+        self._call(None, 'tk', 'busy', 'hold', self)
 
     def busy_forget(self):
         """See ``tk busy forget`` in :man:`busy(3tk)`.
 
         *New in Tk 8.6.*
         """
-        self._call(None, 'tk', 'busy', 'forget', self._get_wm_widget())
+        self._call(None, 'tk', 'busy', 'forget', self)
 
     def busy_status(self):
         """See ``tk busy status`` in :man:`busy(3tk)`.
@@ -306,7 +306,7 @@ class Widget:
 
         *New in Tk 8.6.*
         """
-        return self._call(bool, 'tk', 'busy', 'status', self._get_wm_widget())
+        return self._call(bool, 'tk', 'busy', 'status', self)
 
     @contextlib.contextmanager
     def busy(self):
