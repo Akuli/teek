@@ -132,7 +132,7 @@ class Widget:
 
         # use some_widget.to_tcl() to access the _widget_path
         self._widget_path = '%s.%s%d' % (
-            parentpath, safe_class_name, next(counts[widgetname]))
+            parentpath, safe_class_name, next(counts[safe_class_name]))
 
         # TODO: some config options can only be given when the widget is
         # created, add support for them

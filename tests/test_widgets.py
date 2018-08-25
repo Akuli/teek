@@ -427,6 +427,38 @@ def test_busy():
         assert widget.busy_status() is False
 
 
+def get_counter_value(widget):
+    match = re.search(r'\d+$', widget.to_tcl())
+    assert match
+    return int(match.group(0))
+
+
+def test_widget_name_bug():
+    # this bug occurs when we have 2 classes with the same name
+    class Asd(tk.Label):
+        pass
+
+    AsdLabel = Asd
+
+    class Asd(tk.Button):
+        pass
+
+    AsdButton = Asd
+
+    # it must not be possible to have two Asds with same to_tcl() widget path,
+    window = tk.Window()
+    label = AsdLabel(window)
+    button = AsdButton(window)
+
+    while get_counter_value(label) < get_counter_value(button):
+        label = AsdLabel(window)
+        assert label.to_tcl() != button.to_tcl()
+
+    while get_counter_value(button) < get_counter_value(label):
+        button = AsdButton(window)
+        assert label.to_tcl() != button.to_tcl()
+
+
 def test_packing():
     window = tk.Window()
     button = tk.Button(window)
