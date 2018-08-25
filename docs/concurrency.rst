@@ -197,7 +197,7 @@ you would need to do quite a few things yourself:
       to call it is from tkinter's event loop.
     * Because the method is called from tkinter's event loop, it must not
       block; that is, it can't wait until a message arrives to the queue from
-      the thread. If there are no messages in the thread, it must do nothing.
+      the thread. If there are no messages in the queue, it must do nothing.
     * Because the method can't wait for messages in the thread, and it can only
       check if there are messages, it must be ran repeatedly e.g. 20 times per
       second. The thread will then add a message to the queue, and the queue
