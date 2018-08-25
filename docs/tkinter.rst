@@ -95,7 +95,7 @@ Different Options
 
 Options are used differently in tkinter and pythotk. For example,
 ``button['text']``, ``button.cget('text')``, ``button.config('text')[-1]`` and
-``button.configure('text')[-1]`` are all valid ways to get the text of a label.
+``button.configure('text')[-1]`` are all valid ways to get the text of a button.
 In pythotk, none of these works, and you instead do ``button.config['text']``.
 However, pythotk raises good error messages when you try to do something that
 is not compatible with tkinter:
