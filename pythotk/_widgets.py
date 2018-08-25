@@ -127,9 +127,12 @@ class Widget:
             parentpath = parent.to_tcl()
         self.parent = parent
 
-        # use some_widget.to_tcl() to access some_widget._widget_path
-        counter = counts[widgetname]
-        self._widget_path = '%s.%s%d' % (parentpath, widgetname, next(counter))
+        # yes, it must be lowercase
+        safe_class_name = re.sub(r'\W', '_', type(self).__name__).lower()
+
+        # use some_widget.to_tcl() to access the _widget_path
+        self._widget_path = '%s.%s%d' % (
+            parentpath, safe_class_name, next(counts[widgetname]))
 
         # TODO: some config options can only be given when the widget is
         # created, add support for them
