@@ -320,9 +320,6 @@ et`.
                 ...
 
             # now window.busy_forget() has been called
-
-        .. seealso::
-            :ref:`something-is-happening` on the concurrency page.
         """
         self.busy_hold()
         try:
