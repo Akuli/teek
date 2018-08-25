@@ -587,11 +587,11 @@ class Toplevel(_WmMixin, Widget):
         See also ``wm geometry`` in :man:`wm(3tk)`.
 
     .. attribute:: title
-    .. attribute:: wm_state
+                   wm_state
     .. method:: geometry(width=None, height=None, x=None, y=None)
-    .. method:: withdraw()
-    .. method:: iconify()
-    .. method:: deiconify()
+                withdraw()
+                iconify()
+                deiconify()
 
         These attributes and methods correspond to similarly named things in
         :man:`wm(3tk)`. Note that ``wm_state`` is ``state`` in the manual page;

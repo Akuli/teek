@@ -30,8 +30,8 @@ These functions call :man:`tk_messageBox(3tk)`. Options are passed to
     tk_messageBox -type okcancel -title "Question" -message "Do you want that?" -icon question
 
 .. function:: info(title, message, detail=None, **kwargs)
-.. function:: warning(title, message, detail=None, **kwargs)
-.. function:: error(title, message, detail=None, **kwargs)
+              warning(title, message, detail=None, **kwargs)
+              error(title, message, detail=None, **kwargs)
 
     Each of these functions shows a message box that has an "ok" button. The
     icon option is ``'info'``, ``'warning'`` or ``'error'`` respectively. These

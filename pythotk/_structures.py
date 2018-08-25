@@ -132,8 +132,8 @@ class Color:
     Color object.
 
     .. attribute:: red
-    .. attribute:: green
-    .. attribute:: blue
+                   green
+                   blue
 
         These are the values passed to ``Color()``.
 

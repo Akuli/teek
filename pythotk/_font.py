@@ -48,11 +48,11 @@ class Font:
     NamedFont('TkFixedFont')
 
     .. attribute:: family
-    .. attribute:: size
-    .. attribute:: weight
-    .. attribute:: slant
-    .. attribute:: underline
-    .. attribute:: overstrike
+                   size
+                   weight
+                   slant
+                   underline
+                   overstrike
 
         See :man:`font(3tk)` for a description of each attribute. ``size`` is
         an integer, ``underline`` and ``overstrike`` are bools, and other

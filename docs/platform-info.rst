@@ -5,7 +5,7 @@ This page documents things that can tell you which platform your program is
 running on.
 
 .. data:: pythotk.TCL_VERSION
-.. data:: pythotk.TK_VERSION
+          pythotk.TK_VERSION
 
     These can be used for checking the versions of the Tcl interpreter and its
     Tk library that pythotk is using. These are two-tuples of integers, and you
