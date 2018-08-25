@@ -175,7 +175,7 @@ class Text(ChildMixin, Widget):
     r"""This is the text widget.
 
     .. attribute:: start
-    .. attribute:: end
+                   end
 
         :ref:`Index objects <textwidget-index>` that represents the start and
         end of the text.
