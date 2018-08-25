@@ -66,6 +66,18 @@ These functions call :man:`tk_messageBox(3tk)`. Options are passed to
     strings. The icon is ``'error'`` by default.
 
 
+File and Directory Dialogs
+--------------------------
+
+Keyword arguments work as usual. Note that paths are returned as strings of
+absolute paths, not e.g. :class:`pathlib.Path` objects.
+
+.. autofunction:: open_file
+.. autofunction:: open_multiple_files
+.. autofunction:: save_file
+.. autofunction:: directory
+
+
 Other Dialogs
 -------------
 

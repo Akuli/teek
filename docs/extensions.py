@@ -33,6 +33,7 @@ URL_TEMPLATE = 'https://www.tcl.tk/man/tcl/%s%s/%s.htm'
 # page on my system
 MANPAGE_REDIRECTS = {
     'Tcl_GetBoolean': 'Tcl_GetInt',
+    'tk_getSaveFile': 'tk_getOpenFile',
 }
 
 

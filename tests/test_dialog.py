@@ -1,7 +1,10 @@
 import contextlib
+import os
 import random
 import re
 import time
+
+import pytest
 
 import pythotk as tk
 
@@ -91,12 +94,10 @@ def test_color():
         assert tk.dialog.color() == tk.Color('white')
 
     window = tk.Window()
-    expected_kwargs = {
-        '-title': 'toot',
-        '-initialcolor': tk.Color('maroon').to_tcl(),
-        '-parent': window.toplevel.to_tcl(),
-    }
-    with fake_tcl_command('tk_chooseColor', expected_kwargs, '#ffffff'):
+    with fake_tcl_command('tk_chooseColor', {
+            '-title': 'toot',
+            '-initialcolor': tk.Color('maroon').to_tcl(),
+            '-parent': window.toplevel.to_tcl()}, '#ffffff'):
         assert tk.dialog.color(
             initialcolor=tk.Color('maroon'),
             parent=window,
@@ -105,3 +106,36 @@ def test_color():
 
     with fake_tcl_command('tk_chooseColor', {}, ''):
         assert tk.dialog.color() is None
+
+
+def test_open_file():
+    window = tk.Window()
+
+    def check(func, python_return, tcl_command, tcl_return, tcl_options=None):
+        tcl_options = {} if tcl_options is None else tcl_options.copy()
+
+        with fake_tcl_command(tcl_command, tcl_options, tcl_return):
+            assert func() == python_return
+
+        tcl_options['-parent'] = window.toplevel.to_tcl()
+        with fake_tcl_command(tcl_command, tcl_options, tcl_return):
+            assert func(parent=window) == python_return
+
+    # aa = absolute a
+    aa = os.path.abspath('a')
+    ab = os.path.abspath('b')
+
+    check(tk.dialog.open_file, None, 'tk_getOpenFile', '')
+    check(tk.dialog.open_file, aa, 'tk_getOpenFile', 'a')
+    check(tk.dialog.open_multiple_files, [], 'tk_getOpenFile', '',
+          {'-multiple': '1'})
+    check(tk.dialog.open_multiple_files, [aa, ab], 'tk_getOpenFile',
+          ['a', 'b'], {'-multiple': '1'})
+    check(tk.dialog.save_file, None, 'tk_getSaveFile', '')
+    check(tk.dialog.save_file, aa, 'tk_getSaveFile', 'a')
+    check(tk.dialog.directory, None, 'tk_chooseDirectory', '')
+    check(tk.dialog.directory, aa, 'tk_chooseDirectory', 'a')
+
+    with pytest.raises(TypeError) as error:
+        tk.dialog.open_file(multiple=True)
+    assert 'open_multiple_files()' in str(error.value)
