@@ -87,3 +87,41 @@ def test_colors():
     assert the_dict[blue2] == 'hi'   # __hash__ works correctly
     with pytest.raises(KeyError):
         the_dict[white]
+
+
+def test_screen_distances():
+    assert tk.ScreenDistance(123).pixels == 123
+    assert tk.ScreenDistance('123').pixels == 123
+    assert round(tk.ScreenDistance(123).fpixels, 3) == 123.0
+    assert round(tk.ScreenDistance('123').fpixels, 3) == 123.0
+
+    assert tk.ScreenDistance(123) == tk.ScreenDistance('123')
+    assert hash(tk.ScreenDistance(123)) == hash(tk.ScreenDistance('123'))
+
+    inch = tk.ScreenDistance('1i')
+    centimeter = tk.ScreenDistance('1c')
+    pixel = tk.ScreenDistance(1)
+    assert round(inch.fpixels / centimeter.fpixels, 2) == 2.54
+
+    assert inch.to_tcl() == '1i'
+    assert centimeter.to_tcl() == '1c'
+    assert pixel.to_tcl() == '1'
+
+    assert inch != centimeter
+    assert inch > centimeter
+
+    assert inch != 'asd'
+    assert inch != '1i'
+    with pytest.raises(TypeError):
+        inch < '1i'
+
+    tk.tcl_eval(None, 'proc returnArg {arg} {return $arg}')
+    try:
+        assert tk.tcl_eval(tk.ScreenDistance, 'returnArg 1i') == inch
+        assert tk.tcl_eval(tk.ScreenDistance, 'returnArg 1c') == centimeter
+        assert tk.tcl_eval(tk.ScreenDistance, 'returnArg 1') == pixel
+    finally:
+        tk.delete_command('returnArg')
+
+    with pytest.raises(tk.TclError):
+        tk.ScreenDistance('asdf asdf')

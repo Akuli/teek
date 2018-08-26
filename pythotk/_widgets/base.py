@@ -148,18 +148,18 @@ class Widget:
             'class': str,
             'cursor': str,
             'style': str,
-            'width': str,   # screen distance
+            'width': _structures.ScreenDistance,
 
             # options(3tk)
             'activebackground': _structures.Color,
-            'activeborderwidth': str,       # screen distance
+            'activeborderwidth': _structures.ScreenDistance,
             'activeforeground': _structures.Color,
             'anchor': str,
             'background': _structures.Color,
             'bg': _structures.Color,
             #'bitmap': ???,
-            'borderwidth': str,     # screen distance
-            'bd': str,              # screen distance
+            'borderwidth': _structures.ScreenDistance,
+            'bd': _structures.ScreenDistance,
             'cursor': str,
             'compound': str,
             'disabledforeground': _structures.Color,
@@ -171,25 +171,25 @@ class Widget:
             'highlightcolor': _structures.Color,
             'highlightthickness': str,
             'insertbackground': _structures.Color,
-            'insertborderwidth': str,   # screen distance
+            'insertborderwidth': _structures.ScreenDistance,
             'insertofftime': int,
             'insertontime': int,
-            'insertwidth': str,         # screen distance
+            'insertwidth': _structures.ScreenDistance,
             'jump': bool,
             'justify': str,
             'orient': str,
-            'padx': str,    # screen distance
-            'pady': str,    # screen distance
+            'padx': _structures.ScreenDistance,
+            'pady': _structures.ScreenDistance,
             'relief': str,
             'repeatdelay': int,
             'repeatinterval': int,
             'selectbackground': _structures.Color,
-            'selectborderwidth': str,   # screen distance
+            'selectborderwidth': _structures.ScreenDistance,
             'selectforeground': _structures.Color,
             'setgrid': bool,
             'text': str,
             'troughcolor': _structures.Color,
-            'wraplength': str,      # screen distance
+            'wraplength': _structures.ScreenDistance,
 
             # these options are in both man pages
             'textvariable': _structures.TclVar,
@@ -200,8 +200,8 @@ class Widget:
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
-            'height': str,      # screen distance
-            'padding': str,     # screen distance
+            'height': _structures.ScreenDistance,
+            'padding': _structures.ScreenDistance,
             'state': str,
         })
         self.config.update(options)
@@ -543,8 +543,13 @@ class ChildMixin:
 
     def pack_info(self):
         types = {
-            # {i,}pad{x,y} are "screen distance, such as 2 or .5c"
-            # so better not force them to integers...
+            # padx and pady can be lists of 2 screen distances or just 1 screen
+            # distance, which is fine because a Tcl screen distance string
+            # behaves like a list of 1 item, that screen distance string
+            'padx': [_structures.ScreenDistance],
+            'pady': [_structures.ScreenDistance],
+            'ipadx': _structures.ScreenDistance,
+            'ipady': _structures.ScreenDistance,
             '-in': Widget,
             '-expand': bool,
         }

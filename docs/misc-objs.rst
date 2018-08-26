@@ -72,3 +72,10 @@ Tcl Variable Objects
 
 .. autoclass:: pythotk.TclVar
     :members:
+
+
+Screen Distance Objects
+-----------------------
+
+.. autoclass:: pythotk.ScreenDistance
+    :members:

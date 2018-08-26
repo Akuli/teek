@@ -2,7 +2,7 @@ import collections.abc
 import re
 
 import pythotk
-from pythotk._structures import Callback
+from pythotk._structures import Callback, ScreenDistance
 from pythotk._tcl_calls import create_command
 from pythotk._widgets.base import ChildMixin, Widget
 
@@ -225,7 +225,7 @@ class Window(WmMixin, Widget):
         self.toplevel = Toplevel(*args, **kwargs)
         super().__init__('ttk::frame', self.toplevel)
         self.config._types.update({
-            'padding': str,   # screen distance
+            'padding': ScreenDistance,
         })
         ChildMixin.pack(self, fill='both', expand=True)
 

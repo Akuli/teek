@@ -2,7 +2,7 @@ import collections.abc
 import functools
 
 from pythotk._font import Font
-from pythotk._structures import Color
+from pythotk._structures import Color, ScreenDistance
 from pythotk._tcl_calls import needs_main_thread
 from pythotk._widgets.base import Widget, ChildMixin, ConfigDict
 
@@ -57,21 +57,21 @@ class Tag(ConfigDict):
         self._types.update({
             # TODO: fgstipple, bgstipple
             'background': Color,
-            'borderwidth': str,     # screen distance
+            'borderwidth': ScreenDistance,
             'elide': bool,
             'font': Font,
             'foreground': Color,
             'justify': str,
-            'lmargin1': str,    # screen distance
-            'lmargin2': str,    # screen distance
-            'lmargin3': str,    # screen distance
-            'offset': str,      # screen distance
+            'lmargin1': ScreenDistance,
+            'lmargin2': ScreenDistance,
+            'lmargin3': ScreenDistance,
+            'offset': ScreenDistance,
             'overstrike': bool,
             'relief': str,
-            'rmargin': str,     # screen distance
-            'spacing1': str,    # screen distance
-            'spacing2': str,    # screen distance
-            'spacing3': str,    # screen distance
+            'rmargin': ScreenDistance,
+            'spacing1': ScreenDistance,
+            'spacing2': ScreenDistance,
+            'spacing3': ScreenDistance,
             'tabs': [str],
             'tabstyle': str,
             'underline': bool,
@@ -232,9 +232,9 @@ class Text(ChildMixin, Widget):
             'inactiveselectbackground': Color,
             'insertunfocussed': str,
             'maxundo': int,
-            'spacing1': str,    # screen distance
-            'spacing2': str,    # screen distance
-            'spacing3': str,    # screen distance
+            'spacing1': ScreenDistance,
+            'spacing2': ScreenDistance,
+            'spacing3': ScreenDistance,
             'startline': int,
             'state': str,
             'tabs': [str],

@@ -26,7 +26,7 @@ class TclError(Exception):
 
 # _platform_info does a version check, it must be first
 from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
-from pythotk._structures import Callback, Color, TclVar
+from pythotk._structures import Callback, Color, TclVar, ScreenDistance
 from pythotk._tcl_calls import (
     tcl_call, tcl_eval, init_threads, create_command, delete_command,
     run, quit, on_quit)

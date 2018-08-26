@@ -485,6 +485,10 @@ def test_packing():
     with pytest.raises(tk.TclError):
         button.pack_info()
 
+    button.pack(**pack_info)
+    assert button.pack_info() == pack_info
+    button.pack_forget()
+
     assert window.pack_slaves() == []
     label1 = tk.Label(window, 'label one')
     label1.pack()

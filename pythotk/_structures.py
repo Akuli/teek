@@ -1,3 +1,4 @@
+import functools
 import itertools
 import sys
 import traceback
@@ -269,7 +270,7 @@ class TclVar:
         See :ref:`type-spec` for details. Note that the :attr:`type` of the
         resulting variable object is ``str``, and you may need to change it.
         """
-        return TclVar(name=varname)
+        return cls(name=varname)
 
     def to_tcl(self):
         """Returns the variable name as a string."""
@@ -317,3 +318,76 @@ class TclVar:
                         self, 'write', command)
 
         return self._write_trace
+
+
+@functools.total_ordering
+class ScreenDistance:
+    """Represents a Tk screen distance.
+
+    If you don't know or care what screen distances are, use the :attr:`pixels`
+    attribute. The ``value`` can be an integer or float of pixels or a string
+    that :man:`Tk_GetPixels(3tk)` accepts; for example, ``123`` or ``'2i'``.
+
+    ``ScreenDistance`` objects are hashable, and they can be compared with
+    each other:
+
+    >>> funny_dict = {ScreenDistance(1): 'lol'}
+    >>> funny_dict[ScreenDistance(1)]
+    'lol'
+    >>> ScreenDistance('1c') == ScreenDistance('1i')
+    False
+    >>> ScreenDistance('1c') < ScreenDistance('1i')
+    True
+
+    .. attribute:: pixels
+
+        The number of pixels that this screen distance represents as an int.
+
+        This is implemented with ``winfo pixels``, documented in
+        :man:`winfo(3tk)`.
+
+    .. attribute:: fpixels
+
+        The number of pixels that this screen distance represents as a float.
+
+        This is implemented with ``winfo fpixels``, documented in
+        :man:`winfo(3tk)`.
+    """
+
+    def __init__(self, value):
+        self._value = str(value)
+
+        # creating a ScreenDistance object must fail if the screen distance
+        # is invalid, that's why this is here
+        self.pixels = tk.tcl_call(int, 'winfo', 'pixels', '.', self._value)
+        self.fpixels = tk.tcl_call(float, 'winfo', 'fpixels', '.', self._value)
+
+    def __repr__(self):
+        return '%s(%r)' % (type(self).__name__, self._value)
+
+    # comparing works with integer pixels because floating point errors are
+    # not fun
+    def __eq__(self, other):
+        if not isinstance(other, ScreenDistance):
+            return NotImplemented
+        return self.pixels == other.pixels
+
+    def __gt__(self, other):
+        if not isinstance(other, ScreenDistance):
+            return NotImplemented
+        return self.pixels > other.pixels
+
+    def __hash__(self):
+        return hash(self.fpixels)
+
+    @classmethod
+    def from_tcl(cls, value_string):
+        """Creates a screen distance object from a Tk screen distance string.
+
+        See :ref:`type-spec` for details.
+        """
+        return cls(value_string)
+
+    def to_tcl(self):
+        """Return the ``value`` as a string."""
+        return self._value

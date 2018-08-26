@@ -1,5 +1,5 @@
 from pythotk._font import Font
-from pythotk._structures import Callback
+from pythotk._structures import Callback, ScreenDistance
 from pythotk._tcl_calls import create_command, needs_main_thread
 from pythotk._widgets.base import Widget, ChildMixin
 
@@ -13,7 +13,7 @@ class Frame(ChildMixin, Widget):
     def __init__(self, parent, **options):
         super().__init__('ttk::frame', parent, **options)
         self.config._types.update({
-            'padding': str,     # screen distance
+            'padding': ScreenDistance,
         })
 
 
