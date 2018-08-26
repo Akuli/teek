@@ -9,7 +9,7 @@ from pythotk._widgets.base import Widget, ChildMixin, ConfigDict
 
 # a new subclass of this is created for each text widget, and inheriting
 # from namedtuple makes comparing the text indexes work nicely
-class _IndexBase(collections.namedtuple('TextIndex', 'line column')):
+class IndexBase(collections.namedtuple('TextIndex', 'line column')):
     _widget = None
 
     def to_tcl(self):
@@ -46,7 +46,7 @@ class _IndexBase(collections.namedtuple('TextIndex', 'line column')):
     wordend = functools.partialmethod(_apply_suffix, 'wordend')
 
 
-class _Tag(ConfigDict):
+class Tag(ConfigDict):
 
     def __init__(self, widget, name):
         self._widget = widget
@@ -84,7 +84,7 @@ class _Tag(ConfigDict):
             returntype, self._widget, 'tag', subcommand, self, *args)
 
     def __eq__(self, other):
-        if not isinstance(other, _Tag):
+        if not isinstance(other, Tag):
             return NotImplemented
         return self._widget is other._widget and self.name == other.name
 
@@ -141,7 +141,7 @@ class _Tag(ConfigDict):
         self._call_tag_subcommand(None, 'remove', index1, index2)
 
 
-class _Marks(collections.abc.MutableMapping):
+class MarksDict(collections.abc.MutableMapping):
 
     def __init__(self, widget):
         self._widget = widget
@@ -219,9 +219,9 @@ class Text(ChildMixin, Widget):
     def __init__(self, parent, **kwargs):
         super().__init__('text', parent, **kwargs)
         self._TextIndex = type(
-            'TextIndex', (_IndexBase,), {'_widget': self})
+            'TextIndex', (IndexBase,), {'_widget': self})
         self._tag_objects = {}
-        self.marks = _Marks(self)
+        self.marks = MarksDict(self)
 
     def _repr_parts(self):
         return ['contains %d lines of text' % self.end.line]
@@ -231,7 +231,7 @@ class Text(ChildMixin, Widget):
         try:
             return self._tag_objects[name]
         except KeyError:
-            tag = _Tag(self, name)
+            tag = Tag(self, name)
             self._tag_objects[name] = tag
             return tag
 
