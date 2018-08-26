@@ -141,7 +141,69 @@ class Widget:
 
         self.config = ConfigDict(
             lambda returntype, *args: self._call(returntype, self, *args))
-        self._init_config()
+        self.config._types.update({
+            # TODO: test all of these
+
+            # ttk_widget(3tk)
+            'class': str,
+            'cursor': str,
+            'style': str,
+            'width': str,   # screen distance
+
+            # options(3tk)
+            'activebackground': _structures.Color,
+            'activeborderwidth': str,       # screen distance
+            'activeforeground': _structures.Color,
+            'anchor': str,
+            'background': _structures.Color,
+            'bg': _structures.Color,
+            #'bitmap': ???,
+            'borderwidth': str,     # screen distance
+            'bd': str,              # screen distance
+            'cursor': str,
+            'compound': str,
+            'disabledforeground': _structures.Color,
+            'exportselection': bool,
+            'font': Font,
+            'foreground': _structures.Color,
+            'fg': _structures.Color,
+            'highlightbackground': _structures.Color,
+            'highlightcolor': _structures.Color,
+            'highlightthickness': str,
+            'insertbackground': _structures.Color,
+            'insertborderwidth': str,   # screen distance
+            'insertofftime': int,
+            'insertontime': int,
+            'insertwidth': str,         # screen distance
+            'jump': bool,
+            'justify': str,
+            'orient': str,
+            'padx': str,    # screen distance
+            'pady': str,    # screen distance
+            'relief': str,
+            'repeatdelay': int,
+            'repeatinterval': int,
+            'selectbackground': _structures.Color,
+            'selectborderwidth': str,   # screen distance
+            'selectforeground': _structures.Color,
+            'setgrid': bool,
+            'text': str,
+            'troughcolor': _structures.Color,
+            'wraplength': str,      # screen distance
+
+            # these options are in both man pages
+            'textvariable': _structures.TclVar,
+            'underline': int,
+            #'image': ???,
+            #'xscrollcommand': ???,
+            #'yscrollcommand': ???,
+            'takefocus': str,   # this one is harder to do right than you think
+
+            # other stuff that many things seem to have
+            'height': str,      # screen distance
+            'padding': str,     # screen distance
+            'state': str,
+        })
         self.config.update(options)
 
         # command strings that are deleted when the widget is destroyed
@@ -182,10 +244,6 @@ class Widget:
     def to_tcl(self):
         """Returns the widget's Tcl command name. See :meth:`from_tcl`."""
         return self._widget_path
-
-    # TODO: is this used anywhere??
-    def _init_config(self):
-        pass
 
     def __repr__(self):
         class_name = type(self).__name__

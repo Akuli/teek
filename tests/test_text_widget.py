@@ -51,6 +51,13 @@ def test_basic_stuff():
             text.start.forward(chars=1, lines=1))
 
 
+# see text(3tk) with different tk versions
+def test_config_types(check_config_types):
+    text = tk.Text(tk.Window())
+    check_config_types(text.config, 'Text')
+    check_config_types(text.get_tag('asdfasdf'), 'Text tag')
+
+
 def test_tags():
     text = tk.Text(tk.Window())
     text.insert(text.start, "asd toot boo")

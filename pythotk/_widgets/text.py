@@ -54,23 +54,29 @@ class Tag(ConfigDict):
         super().__init__(self._call_tag_subcommand)
         dict(self)      # TODO: why do tests fail without this?
 
-        # these are from text(3tk)
-        # pixels options are usually integers, but they are strings because
-        # they can also be e.g. 1i instead, see man page
-        for prefix in ['', 'select']:
-            self._types[prefix + 'foreground'] = Color
-            self._types[prefix + 'background'] = Color
-
-        self._types['elide'] = bool
-        self._types['font'] = Font
-        #self._types['justify'] = ??? enum left,right,center
-        self._types['lmargoncolor'] = self._types['rmargoncolor'] = Color
-        self._types['overstrike'] = bool
-        #self._types['tabs'] = ???
-        #self._types['tabstyle'] = ??? enum tabular,wordprocessor
-        self._types['underline'] = bool
-        self._types['underlinefg'] = Color
-        #self._types['wrap'] = ??? enum none,char,word
+        self._types.update({
+            # TODO: fgstipple, bgstipple
+            'background': Color,
+            'borderwidth': str,     # screen distance
+            'elide': bool,
+            'font': Font,
+            'foreground': Color,
+            'justify': str,
+            'lmargin1': str,    # screen distance
+            'lmargin2': str,    # screen distance
+            'lmargin3': str,    # screen distance
+            'offset': str,      # screen distance
+            'overstrike': bool,
+            'relief': str,
+            'rmargin': str,     # screen distance
+            'spacing1': str,    # screen distance
+            'spacing2': str,    # screen distance
+            'spacing3': str,    # screen distance
+            'tabs': [str],
+            'tabstyle': str,
+            'underline': bool,
+            'wrap': str,
+        })
 
     def __repr__(self):
         return '<Text widget tag %r>' % self.name
@@ -218,6 +224,24 @@ class Text(ChildMixin, Widget):
 
     def __init__(self, parent, **kwargs):
         super().__init__('text', parent, **kwargs)
+        self.config._types.update({
+            'autoseparators': bool,
+            'blockcursor': bool,
+            'endline': int,
+            'height': int,
+            'inactiveselectbackground': Color,
+            'insertunfocussed': str,
+            'maxundo': int,
+            'spacing1': str,    # screen distance
+            'spacing2': str,    # screen distance
+            'spacing3': str,    # screen distance
+            'startline': int,
+            'state': str,
+            'tabs': [str],
+            'tabstyle': str,
+            'undo': bool,
+            'wrap': str,
+        })
         self._TextIndex = type(
             'TextIndex', (IndexBase,), {'_widget': self})
         self._tag_objects = {}

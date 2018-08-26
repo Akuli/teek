@@ -12,6 +12,9 @@ class Frame(ChildMixin, Widget):
 
     def __init__(self, parent, **options):
         super().__init__('ttk::frame', parent, **options)
+        self.config._types.update({
+            'padding': str,     # screen distance
+        })
 
 
 class Separator(ChildMixin, Widget):
@@ -50,7 +53,9 @@ class Label(ChildMixin, Widget):
         super().__init__('ttk::label', parent, text=text, **kwargs)
 
         # TODO: fill in other types
-        self.config._types['font'] = Font
+        self.config._types.update({
+            'font': Font,
+        })
 
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
@@ -80,6 +85,9 @@ class Button(ChildMixin, Widget):
 
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__('ttk::button', parent, text=text, **kwargs)
+        self.config._types.update({
+            'default': str,
+        })
 
         self.on_click = Callback()
         command_string = create_command(self.on_click.run)
@@ -112,11 +120,17 @@ class Entry(ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__('ttk::entry', parent, **kwargs)
+        self.config._types.update({
+            #invalidcommand: ???,
+            'show': str,
+            'validate': str,
+            #'validatecommand': ???,
+            'width': int,       # NOT a screen distance
+        })
         self._call(None, self, 'insert', 0, text)
 
         self.config._types['exportselection'] = bool
         # TODO: textvariable should be a StringVar
-        self.config._types['width'] = int
 
     def _repr_parts(self):
         return ['text=' + repr(self.text)]

@@ -369,9 +369,12 @@ def from_tcl(type_spec, value):
         except pythotk.TclError as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
-    # special case to allow bases other than 10
+    # special case to allow bases other than 10 and empty strings
     if type_spec is int:
-        return int(from_tcl(str, value), 0)
+        stringed_value = from_tcl(str, value)
+        if not stringed_value:
+            return None
+        return int(stringed_value, 0)
 
     if isinstance(type_spec, type):     # it's a class
         if issubclass(type_spec, numbers.Real):     # must be after bool check

@@ -165,7 +165,23 @@ class Toplevel(WmMixin, Widget):
 
     # allow passing title as a positional argument
     def __init__(self, title=None, **options):
+        # toplevel(3tk): "[...] it must be the window identifier of a container
+        # window, specified as a hexadecimal string [...]"
+        if 'use' in options and isinstance(options['use'], int):
+            options['use'] = hex(options['use'])
+
         super().__init__('toplevel', None, **options)
+
+        # "didn't bother" ones are more work than they are worth because nobody
+        # will use them anyway
+        self.config._types.update({
+            'colormap': str,    # 'new' or a widget name, didn't bother
+            'container': bool,
+            'menu': Widget,  # TODO: should be Menu, but Menu doesn't exist yet
+            'screen': str,
+            'use': int,
+            'visual': str,      # didn't bother
+        })
         if title is not None:
             self.title = title
 
@@ -208,6 +224,9 @@ class Window(WmMixin, Widget):
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
         super().__init__('ttk::frame', self.toplevel)
+        self.config._types.update({
+            'padding': str,   # screen distance
+        })
         ChildMixin.pack(self, fill='both', expand=True)
 
     def _get_wm_widget(self):

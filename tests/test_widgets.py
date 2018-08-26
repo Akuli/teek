@@ -397,6 +397,14 @@ def test_separator():
     assert tk.Separator(tk.Window()).config['orient'] == 'horizontal'
 
 
+def test_config_types(check_config_types):
+    window = tk.Window()
+    widgets = [window, window.toplevel, tk.Frame(window), tk.Separator(window),
+               tk.Label(window), tk.Button(window), tk.Entry(window)]
+    for widget in widgets:
+        check_config_types(widget.config, type(widget).__name__)
+
+
 def test_from_tcl():
     window = tk.Window()
     widget_path = window.to_tcl()

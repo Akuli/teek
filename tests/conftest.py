@@ -27,17 +27,32 @@ def deinit_threads():
     tk.run()
 
 
-def handy_callback_decorator(function):
-    def result(*args, **kwargs):
-        return_value = function(*args, **kwargs)
-        result.ran += 1
-        return return_value
+@pytest.fixture
+def handy_callback():
+    def handy_callback_decorator(function):
+        def result(*args, **kwargs):
+            return_value = function(*args, **kwargs)
+            result.ran += 1
+            return return_value
 
-    result.ran = 0
-    result.ran_once = (lambda: result.ran == 1)
-    return result
+        result.ran = 0
+        result.ran_once = (lambda: result.ran == 1)
+        return result
+
+    return handy_callback_decorator
 
 
 @pytest.fixture
-def handy_callback():
-    return handy_callback_decorator
+def check_config_types():
+    def checker(config, debug_info):
+        # this converts all values to their types, and this probably fails if
+        # the types are wrong
+        dict(config)
+
+        # were there keys that defaulted to str?
+        for key in config:
+            if key not in config._types:
+                print('\ncheck_config_types', debug_info, 'warning: type of',
+                      key, 'was guessed to be str')
+
+    return checker
