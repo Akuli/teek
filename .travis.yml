@@ -5,7 +5,7 @@ python:
   - "3.6"
   - "3.7-dev"
   - nightly
-  - pypy
+  - "pypy3.5"
 install:
   - pip install pytest flake8 sphinx
 script:
