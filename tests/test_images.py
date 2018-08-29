@@ -1,4 +1,3 @@
-import contextlib
 import os
 import random
 import tempfile
@@ -52,7 +51,7 @@ def test_data_base64():
         binary_data = file.read()
 
     assert slow_content_eq_check(tk.Image(file=SMILEY_PATH),
-                                    tk.Image(data=binary_data))
+                                 tk.Image(data=binary_data))
 
 
 @pytest.mark.slow
