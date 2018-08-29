@@ -82,8 +82,8 @@ many star imports...
     from sys import *
 
 ...you have no idea where the ``Label`` comes from (unless you happen to know
-that ``pythotk`` has a class named ``Label`` **AND** ``os`` and ``sys`` don't
-have anything named ``Label``.
+that ``pythotk`` has a class named ``Label`` **and** neither ``os`` nor ``sys``
+has anything named ``Label``).
 
 You can also import ``pythotk`` and use ``pythotk.Label`` instead of
 ``tk.Label``, but most pythotk programs use pythotk things a lot, and it's much
