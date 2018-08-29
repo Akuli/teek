@@ -6,6 +6,7 @@ import pytest
 import pythotk as tk
 
 
+@pytest.mark.slow
 @pytest.mark.skipif('CI' in os.environ,
                     reason="this fails randomly in travis, no idea why")
 def test_after():

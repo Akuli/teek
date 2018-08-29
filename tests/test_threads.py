@@ -8,6 +8,7 @@ import pytest
 import pythotk as tk
 
 
+@pytest.mark.slow
 def test_basic_stuff(deinit_threads, handy_callback):
     tk.init_threads()
     text = tk.Text(tk.Window())

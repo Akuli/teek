@@ -1,6 +1,8 @@
 import functools
 import time
 
+import pytest
+
 import pythotk as tk
 
 
@@ -43,6 +45,7 @@ def test_repr():
     assert repr(var) == "<TclVar 'testie_var': 'asd'>"
 
 
+@pytest.mark.slow
 def test_wait():
     var = tk.TclVar()
     start = time.time()

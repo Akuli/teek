@@ -74,6 +74,13 @@ Tcl Variable Objects
     :members:
 
 
+Images
+------
+
+.. autoclass:: pythotk.Image
+    :members:
+
+
 Screen Distance Objects
 -----------------------
 

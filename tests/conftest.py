@@ -9,6 +9,24 @@ def add_tk(doctest_namespace):
     doctest_namespace['tk'] = tk
 
 
+# the following url is on 2 lines because pep8 line length
+#
+# https://docs.pytest.org/en/latest/example/simple.html#control-skipping-of-tes
+# ts-according-to-command-line-option
+def pytest_addoption(parser):
+    parser.addoption(
+        "--skipslow", action="store_true", default=False, help="run slow tests"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--skipslow"):
+        skip_slow = pytest.mark.skip(reason="--skipslow was used")
+        for item in items:
+            if "slow" in item.keywords:
+                item.add_marker(skip_slow)
+
+
 @pytest.fixture
 def deinit_threads():
     """Make sure that init_threads() has not been called when test completes.

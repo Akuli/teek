@@ -1,3 +1,4 @@
+import base64
 import functools
 import itertools
 import sys
@@ -391,3 +392,197 @@ class ScreenDistance:
     def to_tcl(self):
         """Return the ``value`` as a string."""
         return self._value
+
+
+def _options(kwargs):
+    for name, value in kwargs.items():
+        yield ('-from' if name == 'from_' else '-' + name)
+        yield value
+
+
+class Image:
+    """Represents a Tk photo image.
+
+    Image objects are wrappers for things documented in :man:`image(3tk)` and
+    :man:`photo(3tk)`. They are mutable, so you can e.g. set a label's image to
+    an image object and then later change that image object; the label will
+    update automatically.
+
+    .. note::
+        PNG support was added in Tk 8.6. Use GIF images if you want backwards
+        compatibility with Tk 8.5.
+
+    Creating a new ``Image`` object with ``Image(...)`` calls
+    ``image create photo`` followed by the options in Tcl. See
+    :man:`image(3tk)` for details.
+
+    Keyword arguments are passed as options to :man:`photo(3tk)` as usual,
+    except that if a ``data`` keyword argument is given, it should be a
+    :class:`bytes` object of data that came from e.g. an image file opened with
+    ``'rb'``; it will be automatically converted to base64.
+
+    Image objects can be compared with ``==``, and they compare equal if they
+    represent the same Tk image; that is, ``image1 == image2`` returns
+    ``image1.to_tcl() == image2.to_tcl()``. Image objects are also hashable.
+
+    .. attribute:: config
+
+        Similar to :ref:`the widget config attribute <options>`.
+    """
+
+    def __init__(self, **kwargs):
+        if 'data' in kwargs:
+            kwargs['data'] = base64.b64encode(kwargs['data']).decode('ascii')
+        name = tk.tcl_call(str, 'image', 'create', 'photo', *_options(kwargs))
+        self._init_from_name(name)
+
+    def _init_from_name(self, name):
+        # FIXME: things should be restructured to avoid this local import
+        from pythotk._widgets.base import ConfigDict
+
+        self._name = name
+        self.config = ConfigDict(
+            lambda returntype, *args: tk.tcl_call(returntype, self, *args))
+        self.config._types.update({
+            'data': str,
+            'format': str,
+            'file': str,
+            'gamma': float,
+            'width': int,
+            'height': int,
+            'palette': str,
+        })
+
+    @classmethod
+    def from_tcl(cls, name):
+        """Create a new image object from the name of a Tk image.
+
+        See :ref:`type-spec` for details.
+        """
+        image = cls.__new__(cls)  # create an instance without calling __init__
+        image._init_from_name(name)
+        return image
+
+    def to_tcl(self):
+        """Returns the Tk name of the image as a string."""
+        return self._name
+
+    def __eq__(self, other):
+        if not isinstance(other, Image):
+            return NotImplemented
+        return self._name == other._name
+
+    def __hash__(self):
+        return hash(self._name)
+
+    def delete(self):
+        """Calls ``image delete`` documented in :man:`image(3tk)`.
+
+        The image object is useless after this, and most things will raise
+        :exc:`.TclError`.
+        """
+        tk.tcl_call(None, 'image', 'delete', self)
+
+    def in_use(self):
+        """True if any widget uses this image, or False if not.
+
+        This calls ``image inuse`` documented in :man:`image(3tk)`.
+        """
+        return tk.tcl_call(bool, 'image', 'inuse', self)
+
+    @classmethod
+    def get_all_images(cls):
+        """Return all existing images as a list of :class:`.Image` objects."""
+        return tk.tcl_call([cls], 'image', 'names')
+
+    def blank(self):
+        """See ``imageName blank`` in :man:`photo(3tk)`."""
+        tk.tcl_call(None, self, 'blank')
+
+    def copy_from(self, source_image, **kwargs):
+        """See ``imageName copy sourceImage`` documented in :man:`photo(3tk)`.
+
+        Options are passed as usual, except that ``from=something`` is invalid
+        syntax in Python, so this method supports ``from_=something`` instead.
+        If you do ``image1.copy_from(image2)``, the ``imageName`` in
+        :man:`photo(3tk)` means ``image1``, and ``sourceImage`` means
+        ``image2``.
+        """
+        tk.tcl_call(None, self, 'copy', source_image, *_options(kwargs))
+
+    def copy(self, **kwargs):
+        """
+        Create a new image with the same content as this image so that changing
+        the new image doesn't change this image.
+
+        This creates a new image and then calls :meth:`copy_from`, so that
+        this...
+        ::
+
+            image2 = image1.copy()
+
+        ...does the same thing as this::
+
+            image2 = tk.Image()
+            image2.copy_from(image1)
+
+        Keyword arguments passed to ``image1.copy()`` are passed to
+        ``image2.copy_from()``. This means that it is possible to do some
+        things with both :meth:`copy` and :meth:`copy_from`, but :meth:`copy`
+        is consistent with e.g. :meth:`list.copy` and :meth:`dict.copy`.
+        """
+        result = Image()
+        result.copy_from(self, **kwargs)
+        return result
+
+    @property
+    def width(self):
+        """The current width of the image as pixels.
+
+        Note that ``image.width`` is different from ``image.config['width']``;
+        ``image.width`` changes if the image's size changes, but
+        ``image.config['width']`` often represents the width that the image had
+        when it was first created. **tl;dr:** Usually it's best to use
+        ``image.width`` instead of ``image.config['width']``.
+        """
+        return tk.tcl_call(int, 'image', 'width', self)
+
+    @property
+    def height(self):
+        """See :attr:`width`."""
+        return tk.tcl_call(int, 'image', 'height', self)
+
+    # TODO: data and put methods, will be hard because passing around binary
+
+    def get(self, x, y):
+        """Returns the :class:`.Color` of the pixel at (x,y)."""
+        r, g, b = tk.tcl_call([int], self, 'get', x, y)
+        return Color(r, g, b)
+
+    def read(self, filename, **kwargs):
+        """See ``imageName read filename`` in :man:`photo(3tk)`."""
+        tk.tcl_call(None, self, 'read', filename, *_options(kwargs))
+
+    def redither(self):
+        """See ``imageName redither`` in :man:`photo(3tk)`."""
+        tk.tcl_call(None, self, 'redither')
+
+    def transparency_get(self, x, y):
+        """Check if the pixel at (x,y) is transparent, and return a bool.
+
+        The *x* and *y* are pixels, as integers. See
+        ``imageName transparency get`` in :man:`photo(3tk)`.
+        """
+        return tk.tcl_call(bool, self, 'transparency', 'get', x, y)
+
+    def transparency_set(self, x, y, is_transparent):
+        """Make the pixel at (x,y) transparent or not transparent.
+
+        See ``imageName transparency set`` in :man:`photo(3tk)` and
+        :meth:`transparency_get`.
+        """
+        tk.tcl_call(None, self, 'transparency', 'set', x, y, is_transparent)
+
+    def write(self, filename, **kwargs):
+        """See ``imageName write`` in :man:`photo(3tk)`."""
+        tk.tcl_call(None, self, 'write', filename, *_options(kwargs))
