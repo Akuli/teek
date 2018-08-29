@@ -3,9 +3,6 @@
 [![Build Status](https://travis-ci.org/Akuli/pythotk.svg?branch=master)](https://travis-ci.org/Akuli/pythotk)
 [![Documentation Status](https://readthedocs.org/projects/pythotk/badge/?version=latest)](https://pythotk.readthedocs.io/en/latest/?badge=latest)
 
-[comment]: # (the rtfd status link seems to always show "docs unknown", i have 0 idea why)
-[comment]: # (that's why it's not shown here)
-
 Pythotk, short for "pythonic Tk", is a pythonic and user-friendly alternative
 to tkinter. It doesn't come with Python so you need to install it yourself, but
 it's nice and light-weight.
@@ -275,3 +272,37 @@ if we_actually_dont_want_to_timeout():
     timeout.cancel()
     print(timeout)      # prints <cancelled 'my_function' timeout 'after#0'>
 ```
+
+
+## Developing pythotk
+
+This section contains the commands I use when working on pythotk. If you
+use windows, replace `python3` with `py`.
+
+- `python3 -m pip install --user sphinx pytest` installs everything you
+  need for developing pythotk.
+- `py -m pytest` runs tests (they are in the `tests` subdirectory). It is
+  normal to get lots of tiny windows on the screen while running the tests.
+- Some of the tests take more than 0.5 seconds to run. They are decorated with
+  `@pytest.mark.slow`, and you can run all non-slow tests with
+  `py -m pytest --skipslow`. The `--skipslow` argument is implemented in
+  `tests/conftest.py`.
+- `coverage run --include='pythotk/*' -m pytest && coverage html` runs tests
+  under coverage and generates a coverage report to `htmlcov/index.html`. Open
+  it in a browser to view it. The tests run slower under coverage, so I like
+  to first run them without coverage and run again with coverage when they all
+  pass.
+- `cd docs` followed by `py -m sphinx . _build` builds documentation locally.
+  You can view it by opening `docs/_build/index.html` in your browser.
+  [readthedocs builds the docs] when you push to master, but it's best to make
+  sure that everything's fine first.
+- Sphinx seems to only build parts of the documentation if you change some of
+  it, but sometimes it doesn't detect your changes. Run `cd docs` followed by
+  `rm -r _build` to make it build everything next time.
+- I don't usually lint the files on my system. I push to GitHub (to any
+  branch), and if [the travis build] fails, I know I did something badly. If
+  you want to lint things yourself, find the correct command from
+  `.travis.yml`.
+
+[readthedocs builds the docs]: https://readthedocs.org/projects/pythotk/builds/
+[the travis build]: https://travis-ci.org/Akuli/pythotk
