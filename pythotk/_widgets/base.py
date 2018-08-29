@@ -194,7 +194,7 @@ class Widget:
             # these options are in both man pages
             'textvariable': _structures.TclVar,
             'underline': int,
-            #'image': ???,
+            'image': _structures.Image,
             #'xscrollcommand': ???,
             #'yscrollcommand': ???,
             'takefocus': str,   # this one is harder to do right than you think
