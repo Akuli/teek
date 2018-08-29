@@ -12,7 +12,9 @@ SMILEY_PATH = os.path.join(
 
 
 def test_width_and_height():
-    assert tk.Image(file=SMILEY_PATH).width == 32
+    image = tk.Image(file=SMILEY_PATH)
+    assert image.width == 32
+    assert image.height == 32
 
 
 # tests that use this so that it returns True (for loops run) are marked slow
