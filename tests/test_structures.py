@@ -1,3 +1,5 @@
+import platform
+
 import pythotk as tk
 
 import pytest
@@ -30,7 +32,14 @@ def test_callbacks(capsys):
     result1.clear()
     result2.clear()
 
-    cb.disconnect(result1.append)
+    if platform.python_implementation() == 'PyPy':
+        # in pypy, [].append == [].append
+        result1.append('woot')
+        cb.disconnect(result1.append)
+        result1.clear()
+    else:
+        cb.disconnect(result1.append)
+
     cb.run('wut')
     assert result1 == result2 == ['wut']
     result1.clear()
