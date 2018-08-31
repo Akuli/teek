@@ -470,8 +470,18 @@ def update(*, idletasks=False):
 # TODO: maybe some magic that uses type hints for this?
 @needs_main_thread
 def create_command(func, arg_type_specs=(), *,
-                   extra_args_type=None, stack_info=''):
-    """Create a Tcl command that runs ``func(*args, **kwargs)``.
+                   extra_args_type=None):
+    """Create a Tcl command that calls ``func``.
+
+    Here is a simple example:
+
+    >>> tcl_print = tk.create_command(print, [str])  # calls print(some_string)
+    >>> tcl_print       # doctest: +SKIP
+    'pythotk_command_1'
+    >>> tk.tcl_call(None, tcl_print, 'hello world')
+    hello world
+    >>> tk.tcl_eval('%s "hello world"' % tcl_print)
+    hello world
 
     Created commands should be deleted with :func:`.delete_command` when they
     are no longer needed.
@@ -490,25 +500,20 @@ def create_command(func, arg_type_specs=(), *,
     ...     for arg in args:
     ...         print(arg)
     ...
-    >>> command = create_command(func, [int, int], extra_args_type=str)
+    >>> command = tk.create_command(func, [int, int], extra_args_type=str)
     >>> tk.tcl_call(None, command, 123, 23, 'asd', 'toot', 'boom boom')
     100
     asd
     toot
     boom boom
 
-    The Tcl command's name is returned as a string. The return value from the
-    Python function is converted to string for Tcl similarly as with
-    :func:`tcl_call`.
+    The return value from the Python function is
+    :ref:`converted to a string for Tcl <to-tcl>`.
 
-    If the function raises an exception, a traceback will be printed
-    with *stack_info* right after the "Traceback (bla bla bla)" line.
-    However, the Tcl command returns an empty string on errors and does
-    *not* raise a Tcl error. Be sure to return a non-empty value on
-    success if you want to do error handling in Tcl code.
-
-    .. seealso::
-        Use :func:`traceback.format_stack` to get a *stack_info* string.
+    If the function raises an exception, a traceback will be printed. However,
+    the Tcl command returns an empty string on errors and does *not* raise an
+    error in Tcl. Be sure to return a non-empty value on success if you want to
+    do error handling in Tcl code.
     """
     def real_func(*args):
         try:

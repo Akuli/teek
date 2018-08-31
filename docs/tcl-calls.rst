@@ -104,9 +104,7 @@ work as well. The return types can be nested arbitrarily; for example,
   that ``{}`` is a dictionary with all keys as strings and values as integers.
   There is no way to work with dictionaries that have non-string keys.
 
-
-Examples
-~~~~~~~~
+Examples:
 
 >>> tk.tcl_call([str], 'list', 'a', 'b', 'c')
 ['a', 'b', 'c']
@@ -118,3 +116,14 @@ Examples
 {'a': '1', 'b': '2'}
 >>> tk.tcl_call([str], 'list', 123, 3.14, None, 'hello')
 ['123', '3.14', '', 'hello']
+
+
+Creating Tcl Commands
+~~~~~~~~~~~~~~~~~~~~~
+
+It's possible to create Tcl commands that Tcl code can call. For example, when
+a button is clicked, Tcl invokes a command that the :class:`.Button` class
+created with :func:`.create_command`.
+
+.. autofunction:: pythotk.create_command
+.. autofunction:: pythotk.delete_command
