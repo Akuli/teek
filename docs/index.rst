@@ -11,21 +11,47 @@ Pythotk is a pythonic way to write Tk GUIs in Python. See
 to pythotk, and :ref:`getting-started` for important things about using
 pythotk.
 
+
+Tutorials and Guides
+--------------------
+
 .. toctree::
     :maxdepth: 1
-    :caption: Contents:
 
-    tutorial
-    eventloop
+    Beginner-friendly tutorial (start here) <tutorial>
+    tkinter
+
+
+Reference
+---------
+
+Use this section when you want to know something about things that were not
+covered in the tutorial.
+
+.. toctree::
+    :maxdepth: 1
+
     geometry-managers
     widgets
     bind
     dialog
     misc-objs
-    tcl-calls
     platform-info
     concurrency
-    tkinter
+
+
+Understanding pythotk
+---------------------
+
+Things documented here are useful if you want to know how stuff works or you
+want to do some advanced tricks with pythotk. I recommend reading these things
+if you want to help me with developing pythotk.
+
+.. toctree::
+    :maxdepth: 1
+
+    eventloop
+    tcl-calls
 
 ..
     Indices and tables
