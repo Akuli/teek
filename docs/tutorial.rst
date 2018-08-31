@@ -138,16 +138,16 @@ If you create a label into the window, it isn't displayed automatically. This
 line of code displays it.
 
 Creating a child widget and displaying it in the parent are two separate things
-because this way you can choose how the widget shows up. See
-:ref:`geometry manager documentation <geometry-managers>` for more.
+because this way you can choose how the widget shows up. There's more
+information about this :ref:`below <pack-with-frames>`.
 
 ::
 
     tk.run()
 
 The code before this runs for just a fraction of a second, but this line of
-code stays running until we close the window and make python exit. That's
-usually something between a few seconds and a few hours.
+code stays running until we close the window. That's usually something between
+a few seconds and a few hours.
 
 Note that instead of this...
 ::
@@ -163,7 +163,7 @@ Note that instead of this...
 ...because we create the variable once, and only use it once. However, this
 doesn't work::
 
-    label = tk.Label(window, "Hello World").pack()    # WRONG!
+    label = tk.Label(window, "Hello World").pack()    # WRONG! common mistake
 
 Look carefully: this does *not* set the ``label`` variable to a label; it sets
 that variable to what ever ``the_actual_label_widget.pack()`` returns, which is
@@ -351,6 +351,8 @@ callbacks must not do anything that takes longer than a tiny fraction of a
 second. See :ref:`concurrency documentation <concurrency>` if you need a button
 callback that runs for a long time.
 
+
+.. _pack-with-frames:
 
 Multiple child widgets in same parent
 -------------------------------------
