@@ -3,6 +3,15 @@
 Widget Reference
 ================
 
+This is a big list of widgets and explanations of what they do. As usual, don't
+try to read all of it, unless you're very bored; it's best to find what you're
+looking for, and ignore rest of this.
+
+.. toctree::
+    :hidden:
+
+    textwidget
+
 .. autoclass:: pythotk.Widget
     :members: from_tcl, to_tcl, destroy, winfo_exists, winfo_children, winfo_toplevel
 

@@ -489,7 +489,7 @@ def create_command(func, arg_type_specs=(), *,
     The function will take ``len(arg_type_specs)`` arguments, and the arguments
     are converted to Python objects using ``arg_type_specs``. The
     ``arg_type_specs`` must be a sequence of
-    :ref:`type specifications <type-specs>`.
+    :ref:`type specifications <type-spec>`.
 
     If ``extra_args_type`` is given, the function can also take more than
     ``len(arg_type_specs)`` arguments, and the type of each extra argument will
