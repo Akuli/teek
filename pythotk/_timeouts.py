@@ -1,5 +1,3 @@
-import traceback
-
 from pythotk._tcl_calls import (
     tcl_call, on_quit, create_command, delete_command, needs_main_thread)
 
