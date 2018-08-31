@@ -29,9 +29,8 @@ from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
 from pythotk._structures import Callback, Color, Image, TclVar, ScreenDistance
 from pythotk._tcl_calls import (
     tcl_call, tcl_eval, init_threads, create_command, delete_command,
-    run, quit, on_quit)
+    run, quit, on_quit, update)
 from pythotk._timeouts import after, after_idle
-from pythotk._misc import update    # TODO: move this somewhere, no idea where
 from pythotk._font import Font, NamedFont
 from pythotk import dialog
 

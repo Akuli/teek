@@ -453,7 +453,20 @@ def tcl_eval(returntype, code):
     return from_tcl(returntype, result)
 
 
-# TODO: add support for functions that take *args or something
+# because there's no better place for this
+def update(*, idletasks=False):
+    """Handles all pending events, and returns when they are all handled.
+
+    See :man:`update(3tk)` for details. If ``idletasks=True`` is given, this
+    calls ``update idletasks``; otherwise, this calls ``update`` with no
+    arguments.
+    """
+    if idletasks:
+        tcl_call(None, 'update', 'idletasks')
+    else:
+        tcl_call(None, 'update')
+
+
 # TODO: maybe some magic that uses type hints for this?
 @needs_main_thread
 def create_command(func, arg_type_specs=(), *,

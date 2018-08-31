@@ -11,14 +11,12 @@ Pythotk is a pythonic way to write Tk GUIs in Python. See
 to pythotk, and :ref:`getting-started` for important things about using
 pythotk.
 
-.. TODO: rename getting-started to event-loop or something
-
 .. toctree::
     :maxdepth: 1
     :caption: Contents:
 
     tutorial
-    getting-started
+    eventloop
     geometry-managers
     widgets
     bind
