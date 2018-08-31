@@ -117,14 +117,14 @@ which is bad.
 
     window = tk.Window("Hello World")
 
-This creates a :class:`Window` widget with title ``"Hello World"``. A widget is
+This creates a :class:`.Window` widget with title ``"Hello World"``. A widget is
 an element of the GUI.
 
 ::
 
     label = tk.Label(window, "Hello World!")
 
-Many widgets need to go into another widget. :class:`Label` is a widget that
+Many widgets need to go into another widget. :class:`.Label` is a widget that
 displays text, and this line of code puts it in our ``window``. The widget that
 the label goes in is called the **parent** or the **master** widget of the
 label. Similarly, the label is said to be a **child** or **slave** of the
@@ -195,7 +195,7 @@ you can set values of options in several ways:
   without passing the option name explicitly with ``text=``, e.g.
   ``tk.Label(window, "blah blah")``. This is widget-specific, and it's
   documented in pythotk's documentation; for example, this label thing is
-  documented in :ref:`.Label` docs.
+  documented in :class:`.Label` docs.
 
 Sometimes the name of a widget option happens to be a reserved keyword in
 Python. For example, ``from`` is not a valid Python variable name because it's
@@ -251,10 +251,10 @@ syntax, so you will probably be somewhat confused at first. For example, let's
 say that you don't know how to change the text of a label after creating it.
 Figure it out like this:
 
-1. Go to pythotk's label documentation by clicking this :class:`Label` link.
+1. Go to pythotk's label documentation by clicking this :class:`.Label` link.
    This tutorial and rest of pythotk's documentation are full of these links.
    Click them.
-2. The :class:`Label` link doesn't say anything about changing the text
+2. The :class:`.Label` link doesn't say anything about changing the text
    afterwards, but it has a link to a manual page. Click it.
 3. In the manual page, press Ctrl+F and search for "text". You'll find a widget
    option whose "Command-Line Name" is ``-text``. The leading ``-`` is common
@@ -322,9 +322,10 @@ everything a lot easier. I have written more about defining functions here_.
 
     button = tk.Button(window, "Click me", command=on_click)
 
-Buttons take a parent widget and a text, just like :class:`.Label`s, but they
-also take a function that they call when they are clicked. Read that sentence
-carefully: they take a **function**. This is a common mistake::
+:class:`.Button` takes a parent widget and a text, just like :class:`.Label`,
+but :class:`.Button` also takes a function that is called when the button is
+clicked. Read that sentence carefully: :class:`.Button` takes a **function**.
+This is a common mistake::
 
     button = tk.Button(..., command=on_click())     # ummm... it doesn't work like this!!
 
