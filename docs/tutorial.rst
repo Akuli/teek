@@ -202,6 +202,7 @@ Python. For example, ``from`` is not a valid Python variable name because it's
 used in things like ``from my_module import some_function``:
 
 >>> from = 'lol'
+Traceback (most recent call last):
   File "<stdin>", line 1
     from = 'lol'
          ^
