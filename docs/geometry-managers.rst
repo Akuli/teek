@@ -1,3 +1,5 @@
+.. _geometry-managers:
+
 Geometry Managers: pack, grid, place
 ====================================
 

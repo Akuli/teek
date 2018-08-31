@@ -76,6 +76,9 @@ class Button(ChildMixin, Widget):
         button = tk.Button(some_widget, "Click me")
         button.on_click.connect(do_something)
 
+    See :meth:`.Callback.connect` if you need to pass arguments to the
+    ``do_something`` function.
+
     Manual page: :man:`ttk_button(3tk)`
 
     .. attribute:: on_click

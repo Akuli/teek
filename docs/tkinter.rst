@@ -1,3 +1,5 @@
+.. _tkinter:
+
 Porting from Tkinter
 ====================
 
