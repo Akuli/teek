@@ -35,7 +35,6 @@ Currently these tkinter widgets are missing in pythotk:
 * ``tkinter.Radiobutton``, ``tkinter.ttk.Radiobutton``
 * ``tkinter.Scale``, ``tkinter.ttk.Scale``
 * ``tkinter.Scrollbar``, ``tkinter.ttk.Scrollbar``
-* ``tkinter.ttk.Separator``
 * ``tkinter.ttk.Sizegrip``
 * ``tkinter.Spinbox``
 * ``tkinter.ttk.Treeview``
@@ -105,7 +104,7 @@ Options
 Options are used differently in tkinter and pythotk. For example,
 ``button['text']``, ``button.cget('text')``, ``button.config('text')[-1]`` and
 ``button.configure('text')[-1]`` are all valid ways to get the text of a button.
-In pythotk, none of these works, and you instead do ``button.config['text']``.
+In pythotk, none of these work, and you instead do ``button.config['text']``.
 However, pythotk raises good error messages when you try to do something that
 is not compatible with tkinter:
 
