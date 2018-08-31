@@ -9,7 +9,7 @@ from pythotk._tcl_calls import (
 
 class _Timeout:
 
-    def __init__(self, after_what, callback, args, kwargs, stack_info):
+    def __init__(self, after_what, callback, args, kwargs):
         if kwargs is None:
             kwargs = {}
 
@@ -18,7 +18,7 @@ class _Timeout:
         self._kwargs = kwargs
 
         self._state = 'pending'   # just for __repr__ and error messages
-        self._tcl_command = create_command(self._run, stack_info=stack_info)
+        self._tcl_command = create_command(self._run)
         self._id = tcl_call(str, 'after', after_what, self._tcl_command)
 
     def __repr__(self):
@@ -70,12 +70,10 @@ def after(ms, callback, args=(), kwargs=None):
     ``cancel()`` method that takes no arguments; you can use that to
     cancel the timeout before it runs.
     """
-    stack_info = ''.join(traceback.format_stack())
-    return _Timeout(ms, callback, args, kwargs, stack_info)
+    return _Timeout(ms, callback, args, kwargs)
 
 
 @needs_main_thread
 def after_idle(callback, args=(), kwargs=None):
     """Like :func:`after`, but runs the timeout as soon as possible."""
-    stack_info = ''.join(traceback.format_stack())
-    return _Timeout('idle', callback, args, kwargs, stack_info)
+    return _Timeout('idle', callback, args, kwargs)

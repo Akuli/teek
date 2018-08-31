@@ -144,8 +144,7 @@ def test_create_command(capsys):
     assert 'raise RuntimeError("oh noes")' in errors
 
     def create_the_command():
-        stack_info = traceback.format_stack()[-2]
-        return tk.create_command(broken_func, [str], stack_info=stack_info)
+        return tk.create_command(broken_func, [str])
 
     command = create_the_command()
     assert tk.tcl_call(str, command, 'lol') == ''
@@ -155,6 +154,7 @@ def test_create_command(capsys):
     assert output == 'it works\n'
     assert 'raise RuntimeError("oh noes")' in errors
     assert 'command = create_the_command()' in errors
+    assert 'return tk.create_command(broken_func, [str])' in errors
 
     # test return values
     def lel():

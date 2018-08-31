@@ -469,8 +469,7 @@ def update(*, idletasks=False):
 
 # TODO: maybe some magic that uses type hints for this?
 @needs_main_thread
-def create_command(func, arg_type_specs=(), *,
-                   extra_args_type=None):
+def create_command(func, arg_type_specs=(), *, extra_args_type=None):
     """Create a Tcl command that calls ``func``.
 
     Here is a simple example:
@@ -480,7 +479,7 @@ def create_command(func, arg_type_specs=(), *,
     'pythotk_command_1'
     >>> tk.tcl_call(None, tcl_print, 'hello world')
     hello world
-    >>> tk.tcl_eval('%s "hello world"' % tcl_print)
+    >>> tk.tcl_eval(None, '%s "hello world"' % tcl_print)
     hello world
 
     Created commands should be deleted with :func:`.delete_command` when they
@@ -515,6 +514,9 @@ def create_command(func, arg_type_specs=(), *,
     error in Tcl. Be sure to return a non-empty value on success if you want to
     do error handling in Tcl code.
     """
+    # verbose is better than implicit
+    stack_info = ''.join(traceback.format_stack())
+
     def real_func(*args):
         try:
             # python raises TypeError for wrong number of args
@@ -534,7 +536,7 @@ def create_command(func, arg_type_specs=(), *,
             extra_args = (from_tcl(extra_args_type, arg)
                           for arg in args[len(arg_type_specs):])
 
-            # to_tcl(*basic_args, *extra_args) doesn't work in 3.4
+            # func(*basic_args, *extra_args) doesn't work in 3.4
             # basic_args + extra_args doesn't work because they are iterators
             return to_tcl(func(*itertools.chain(basic_args, extra_args)))
 
