@@ -74,14 +74,14 @@ class Button(ChildMixin, Widget):
         button = tk.Button(some_widget, "Click me")
         button.on_click.connect(do_something)
 
-    See :meth:`.tk.Callback.connect` if you need to pass arguments to the
+    See :meth:`.Callback.connect` if you need to pass arguments to the
     ``do_something`` function.
 
     Manual page: :man:`ttk_button(3tk)`
 
     .. attribute:: on_click
 
-        A :class:`tk.Callback` that runs when the button is clicked.
+        A :class:`.Callback` that runs when the button is clicked.
     """
 
     def __init__(self, parent, text='', command=None, **kwargs):
