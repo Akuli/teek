@@ -457,7 +457,7 @@ def tcl_eval(returntype, code):
 def update(*, idletasks=False):
     """Handles all pending events, and returns when they are all handled.
 
-    See :man:`update(3tk)` for details. If ``idletasks=True`` is given, this
+    See :man:`update(3tcl)` for details. If ``idletasks=True`` is given, this
     calls ``update idletasks``; otherwise, this calls ``update`` with no
     arguments.
     """

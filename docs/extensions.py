@@ -20,7 +20,7 @@ def check_url(url):
     response = urllib.request.urlopen(request)
     assert response.status == 200
     assert (b'The page you are looking for cannot be found.'
-            not in response.read())
+            not in response.read()), url
 
 
 # there are urls like .../man/tcl8.6/... and .../man/tcl/...

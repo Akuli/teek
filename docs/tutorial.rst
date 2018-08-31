@@ -265,7 +265,7 @@ Figure it out like this:
 
 .. admonition:: BTW
 
-    The manual page names are like :man:`ttk_label(3tk)` or :man:`after(3tk)`.
+    The manual page names are like :man:`ttk_label(3tk)` or :man:`after(3tcl)`.
     GUI things have ``3tk`` manual pages, and things documented in ``3tcl``
     manual pages can be also used in Tcl programs that don't have a GUI.
 
