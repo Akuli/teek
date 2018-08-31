@@ -1,6 +1,6 @@
 import _tkinter
 
-import pythotk
+import pythotk as tk
 
 
 # i'm not sure if these can be different, but why not allow that i guess... lol
@@ -21,4 +21,4 @@ _version_check()
 
 
 def windowingsystem():
-    return pythotk.tcl_call(str, 'tk', 'windowingsystem')
+    return tk.tcl_call(str, 'tk', 'windowingsystem')

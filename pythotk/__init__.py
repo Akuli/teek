@@ -26,15 +26,15 @@ class TclError(Exception):
 
 # _platform_info does a version check, it must be first
 from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
-from pythotk._structures import Callback, Color, Image, TclVar, ScreenDistance
+from pythotk._font import Font, NamedFont
+from pythotk._structures import (
+    Callback, on_quit, Color, Image, TclVar, ScreenDistance)
 from pythotk._tcl_calls import (
     tcl_call, tcl_eval, init_threads, create_command, delete_command,
-    run, quit, on_quit, update)
+    run, quit, update)
 from pythotk._timeouts import after, after_idle
-from pythotk._font import Font, NamedFont
-from pythotk import dialog
-
 from pythotk._widgets.base import Widget
 from pythotk._widgets.misc import Label, Button, Frame, Separator, Entry
 from pythotk._widgets.text import Text
 from pythotk._widgets.windows import Window, Toplevel
+from pythotk import dialog

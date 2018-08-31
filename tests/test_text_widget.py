@@ -64,6 +64,10 @@ def test_tags():
 
     assert {tag.name for tag in text.get_all_tags()} == {'sel'}
     assert text.get_tag('asd').name == 'asd'
+
+    # do any tag Tcl call that ensures the asd tag exists
+    text.get_tag('asd')['foreground']
+
     assert {tag.name for tag in text.get_all_tags()} == {'sel', 'asd'}
 
     for tag in [text.get_tag('asd'), text.get_tag('sel')]:

@@ -1,10 +1,12 @@
 import base64
+import collections.abc
 import functools
 import itertools
 import sys
 import traceback
 
 import pythotk as tk
+from pythotk._tcl_calls import needs_main_thread
 
 
 class Callback:
@@ -96,6 +98,74 @@ class Callback:
                 print(traceback_blabla, file=sys.stderr)
                 print(stack_info + rest, end='', file=sys.stderr)
                 break
+
+
+# this is here because it's used in many places, like most other things
+# in this file
+on_quit = Callback()
+
+
+class ConfigDict(collections.abc.MutableMapping):
+
+    def __init__(self, caller):
+        self._call = caller
+        self._types = {}      # {option: argument for tcl_call}  str is default
+        self._disabled = {}   # {option: instruction string}
+
+    def __repr__(self):
+        return '<a config object, behaves like a dict>'
+
+    def __call__(self, *args, **kwargs):
+        raise TypeError("use widget.config['option'] = value, "
+                        "not widget.config(option=value)")
+
+    def _check_option(self, option):
+        # by default, e.g. -tex would be equivalent to -text, but that's
+        # disabled to make lookups in self._types and self._disabled
+        # easier
+        if option in self._disabled:
+            raise ValueError("the %r option is not supported, %s instead"
+                             % (option, self._disabled[option]))
+        if option not in iter(self):    # calls the __iter__
+            raise KeyError(option)
+
+    # the type of value is not checked with self._types because python is
+    # dynamically typed
+    @needs_main_thread
+    def __setitem__(self, option, value):
+        self._check_option(option)
+        self._call(None, 'configure', '-' + option, value)
+
+    @needs_main_thread
+    def __getitem__(self, option):
+        self._check_option(option)
+        returntype = self._types.get(option, str)
+        return self._call(returntype, 'cget', '-' + option)
+
+    def __delitem__(self, option):
+        raise TypeError("options cannot be deleted")
+
+    # __contains__ seems to try doing self[option] and catch KeyError by
+    # default, but that doesn't work with disabled options because __getitem__
+    # raises ValueError
+    def __contains__(self, option):
+        try:
+            self._check_option(option)
+            return True
+        except (KeyError, ValueError):
+            return False
+
+    def __iter__(self):
+        # [[str]] is a 2d list of strings
+        for info in self._call([[str]], 'configure'):
+            option = info[0].lstrip('-')
+            if option not in self._disabled:
+                yield option
+
+    def __len__(self):
+        # FIXME: this is wrong if one of the disableds not exists, hard 2 test
+        options = self._call([[str]], 'configure')
+        return len(options) - len(self._disabled)
 
 
 class Color:
@@ -437,9 +507,6 @@ class Image:
         self._init_from_name(name)
 
     def _init_from_name(self, name):
-        # FIXME: things should be restructured to avoid this local import
-        from pythotk._widgets.base import ConfigDict
-
         self._name = name
         self.config = ConfigDict(
             lambda returntype, *args: tk.tcl_call(returntype, self, *args))

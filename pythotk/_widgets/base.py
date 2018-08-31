@@ -4,12 +4,9 @@ import functools
 import operator
 import re
 
-import pythotk
-from pythotk import _structures, TclError
-from pythotk._tcl_calls import (
-    counts, tcl_call, from_tcl, on_quit, create_command, delete_command,
-    needs_main_thread)
-from pythotk._font import Font
+import pythotk as tk
+from pythotk._tcl_calls import counts, from_tcl, needs_main_thread
+from pythotk._structures import ConfigDict, on_quit
 
 _widgets = {}
 on_quit.connect(_widgets.clear)
@@ -21,68 +18,6 @@ def _tkinter_hint(good, bad):
         raise TypeError("use %s, not %s" % (good, bad))
 
     return dont_use_this
-
-
-class ConfigDict(collections.abc.MutableMapping):
-
-    def __init__(self, caller):
-        self._call = caller
-        self._types = {}      # {option: argument for tcl_call}  str is default
-        self._disabled = {}   # {option: instruction string}
-
-    def __repr__(self):
-        return '<a config object, behaves like a dict>'
-
-    __call__ = _tkinter_hint("widget.config['option'] = value",
-                             "widget.config(option=value)")
-
-    def _check_option(self, option):
-        # by default, e.g. -tex would be equivalent to -text, but that's
-        # disabled to make lookups in self._types and self._disabled
-        # easier
-        if option in self._disabled:
-            raise ValueError("the %r option is not supported, %s instead"
-                             % (option, self._disabled[option]))
-        if option not in iter(self):    # calls the __iter__
-            raise KeyError(option)
-
-    # the type of value is not checked with self._types because python is
-    # dynamically typed
-    @needs_main_thread
-    def __setitem__(self, option, value):
-        self._check_option(option)
-        self._call(None, 'configure', '-' + option, value)
-
-    @needs_main_thread
-    def __getitem__(self, option):
-        self._check_option(option)
-        returntype = self._types.get(option, str)
-        return self._call(returntype, 'cget', '-' + option)
-
-    def __delitem__(self, option):
-        raise TypeError("options cannot be deleted")
-
-    # __contains__ seems to try doing self[option] and catch KeyError by
-    # default, but that doesn't work with disabled options because __getitem__
-    # raises ValueError
-    def __contains__(self, option):
-        try:
-            self._check_option(option)
-            return True
-        except (KeyError, ValueError):
-            return False
-
-    def __iter__(self):
-        # [[str]] is a 2d list of strings
-        for info in self._call([[str]], 'configure'):
-            option = info[0].lstrip('-')
-            if option not in self._disabled:
-                yield option
-
-    def __len__(self):
-        # FIXME: this is wrong if one of the disableds not exists, hard 2 test
-        options = self._call([[str]], 'configure')
-        return len(options) - len(self._disabled)
 
 
 class Widget:
@@ -142,66 +77,64 @@ class Widget:
         self.config = ConfigDict(
             lambda returntype, *args: self._call(returntype, self, *args))
         self.config._types.update({
-            # TODO: test all of these
-
             # ttk_widget(3tk)
             'class': str,
             'cursor': str,
             'style': str,
-            'width': _structures.ScreenDistance,
+            'width': tk.ScreenDistance,
 
             # options(3tk)
-            'activebackground': _structures.Color,
-            'activeborderwidth': _structures.ScreenDistance,
-            'activeforeground': _structures.Color,
+            'activebackground': tk.Color,
+            'activeborderwidth': tk.ScreenDistance,
+            'activeforeground': tk.Color,
             'anchor': str,
-            'background': _structures.Color,
-            'bg': _structures.Color,
+            'background': tk.Color,
+            'bg': tk.Color,
             #'bitmap': ???,
-            'borderwidth': _structures.ScreenDistance,
-            'bd': _structures.ScreenDistance,
+            'borderwidth': tk.ScreenDistance,
+            'bd': tk.ScreenDistance,
             'cursor': str,
             'compound': str,
-            'disabledforeground': _structures.Color,
+            'disabledforeground': tk.Color,
             'exportselection': bool,
-            'font': Font,
-            'foreground': _structures.Color,
-            'fg': _structures.Color,
-            'highlightbackground': _structures.Color,
-            'highlightcolor': _structures.Color,
+            'font': tk.Font,
+            'foreground': tk.Color,
+            'fg': tk.Color,
+            'highlightbackground': tk.Color,
+            'highlightcolor': tk.Color,
             'highlightthickness': str,
-            'insertbackground': _structures.Color,
-            'insertborderwidth': _structures.ScreenDistance,
+            'insertbackground': tk.Color,
+            'insertborderwidth': tk.ScreenDistance,
             'insertofftime': int,
             'insertontime': int,
-            'insertwidth': _structures.ScreenDistance,
+            'insertwidth': tk.ScreenDistance,
             'jump': bool,
             'justify': str,
             'orient': str,
-            'padx': _structures.ScreenDistance,
-            'pady': _structures.ScreenDistance,
+            'padx': tk.ScreenDistance,
+            'pady': tk.ScreenDistance,
             'relief': str,
             'repeatdelay': int,
             'repeatinterval': int,
-            'selectbackground': _structures.Color,
-            'selectborderwidth': _structures.ScreenDistance,
-            'selectforeground': _structures.Color,
+            'selectbackground': tk.Color,
+            'selectborderwidth': tk.ScreenDistance,
+            'selectforeground': tk.Color,
             'setgrid': bool,
             'text': str,
-            'troughcolor': _structures.Color,
-            'wraplength': _structures.ScreenDistance,
+            'troughcolor': tk.Color,
+            'wraplength': tk.ScreenDistance,
 
             # these options are in both man pages
-            'textvariable': _structures.TclVar,
+            'textvariable': tk.TclVar,
             'underline': int,
-            'image': _structures.Image,
+            'image': tk.Image,
             #'xscrollcommand': ???,
             #'yscrollcommand': ???,
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
-            'height': _structures.ScreenDistance,
-            'padding': _structures.ScreenDistance,
+            'height': tk.ScreenDistance,
+            'padding': tk.ScreenDistance,
             'state': str,
         })
         self.config.update(options)
@@ -247,7 +180,7 @@ class Widget:
 
     def __repr__(self):
         class_name = type(self).__name__
-        if getattr(pythotk, class_name, None) is type(self):
+        if getattr(tk, class_name, None) is type(self):
             result = 'pythotk.%s widget' % class_name
         else:
             result = '{0.__module__}.{0.__name__} widget'.format(type(self))
@@ -294,8 +227,8 @@ class Widget:
     @needs_main_thread
     def _call(self, *args, **kwargs):
         try:
-            return tcl_call(*args, **kwargs)
-        except pythotk.TclError as err:
+            return tk.tcl_call(*args, **kwargs)
+        except tk.TclError as err:
             if not self.winfo_exists():
                 raise RuntimeError("the widget has been destroyed") from None
             raise err
@@ -315,7 +248,7 @@ class Widget:
                 self._call(None, 'destroy', name)
 
         for command in self._command_list:
-            delete_command(command)
+            tk.delete_command(command)
         self._command_list.clear()      # why not
 
         self._call(None, 'destroy', self)
@@ -334,7 +267,7 @@ class Widget:
         Manual page: :man:`winfo(3tk)`
         """
         # self._call uses this, so this must not use that
-        return tcl_call(bool, 'winfo', 'exists', self)
+        return tk.tcl_call(bool, 'winfo', 'exists', self)
 
     def winfo_toplevel(self):
         """Returns the :class:`Toplevel` widget that this widget is in.
@@ -399,7 +332,7 @@ et`.
         option_args = []
         for name, value in kwargs.items():
             option_args.extend(['-' + name, value])
-        tcl_call(None, 'event', 'generate', self, event, *option_args)
+        self._call(None, 'event', 'generate', self, event, *option_args)
 
 
 # these are from bind(3tk), Tk 8.5 and 8.6 support all of these
@@ -492,7 +425,7 @@ class BindingDict(collections.abc.Mapping):
             assert isinstance(string_value, str)
             try:
                 value = from_tcl(type_, string_value)
-            except (ValueError, TclError) as e:
+            except (ValueError, tk.TclError) as e:
                 if string_value == '??':
                     value = None
                 else:
@@ -516,9 +449,9 @@ class BindingDict(collections.abc.Mapping):
                 self._callback_objects[sequence] = equiv_callback
                 return equiv_callback
 
-        callback = _structures.Callback(Event)
+        callback = tk.Callback(Event)
         runner = functools.partial(self._callback_runner, callback)
-        command = create_command(runner, [str] * len(_BIND_SUBS))
+        command = tk.create_command(runner, [str] * len(_BIND_SUBS))
         self._command_list.append(command)      # avoid memory leaks
 
         self._call_bind(None, sequence, '+%s %s' % (
@@ -546,10 +479,10 @@ class ChildMixin:
             # padx and pady can be lists of 2 screen distances or just 1 screen
             # distance, which is fine because a Tcl screen distance string
             # behaves like a list of 1 item, that screen distance string
-            'padx': [_structures.ScreenDistance],
-            'pady': [_structures.ScreenDistance],
-            'ipadx': _structures.ScreenDistance,
-            'ipady': _structures.ScreenDistance,
+            'padx': [tk.ScreenDistance],
+            'pady': [tk.ScreenDistance],
+            'ipadx': tk.ScreenDistance,
+            'ipady': tk.ScreenDistance,
             '-in': Widget,
             '-expand': bool,
         }

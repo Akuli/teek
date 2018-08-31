@@ -1,9 +1,9 @@
-from pythotk._tcl_calls import (
-    tcl_call, on_quit, create_command, delete_command, needs_main_thread)
+import pythotk as tk
+from pythotk._tcl_calls import needs_main_thread
+
 
 # there's no after_info because i don't see how it would be useful in
 # pythotk
-
 
 class _Timeout:
 
@@ -16,8 +16,8 @@ class _Timeout:
         self._kwargs = kwargs
 
         self._state = 'pending'   # just for __repr__ and error messages
-        self._tcl_command = create_command(self._run)
-        self._id = tcl_call(str, 'after', after_what, self._tcl_command)
+        self._tcl_command = tk.create_command(self._run)
+        self._id = tk.tcl_call(str, 'after', after_what, self._tcl_command)
 
     def __repr__(self):
         name = getattr(self._callback, '__name__', self._callback)
@@ -32,7 +32,7 @@ class _Timeout:
             nonlocal needs_cleanup
             needs_cleanup = False
 
-        on_quit.connect(quit_callback)
+        tk.on_quit.connect(quit_callback)
 
         try:
             self._callback(*self._args, **self._kwargs)
@@ -41,9 +41,9 @@ class _Timeout:
             self._state = 'failed'
             raise e
         finally:
-            on_quit.disconnect(quit_callback)
+            tk.on_quit.disconnect(quit_callback)
             if needs_cleanup:
-                delete_command(self._tcl_command)
+                tk.delete_command(self._tcl_command)
 
     @needs_main_thread
     def cancel(self):
@@ -54,9 +54,9 @@ class _Timeout:
         """
         if self._state != 'pending':
             raise RuntimeError("cannot cancel a %s timeout" % self._state)
-        tcl_call(None, 'after', 'cancel', self._id)
+        tk.tcl_call(None, 'after', 'cancel', self._id)
         self._state = 'cancelled'
-        delete_command(self._tcl_command)
+        tk.delete_command(self._tcl_command)
 
 
 @needs_main_thread

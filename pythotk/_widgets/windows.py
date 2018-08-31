@@ -1,9 +1,7 @@
 import collections.abc
 import re
 
-import pythotk
-from pythotk._structures import Callback, ScreenDistance
-from pythotk._tcl_calls import create_command
+import pythotk as tk
 from pythotk._widgets.base import ChildMixin, Widget
 
 
@@ -15,16 +13,17 @@ class WmMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.on_delete_window = Callback()
-        self.on_delete_window.connect(pythotk.quit)
-        self.on_take_focus = Callback()
+        self.on_delete_window = tk.Callback()
+        self.on_delete_window.connect(tk.quit)
+        self.on_take_focus = tk.Callback()
 
+        # TODO: delete the commands when they are no longer needed, mem leak
         self._call(
             None, 'wm', 'protocol', self._get_wm_widget(), 'WM_DELETE_WINDOW',
-            create_command(self.on_delete_window.run))
+            tk.create_command(self.on_delete_window.run))
         self._call(
             None, 'wm', 'protocol', self._get_wm_widget(), 'WM_TAKE_FOCUS',
-            create_command(self.on_take_focus.run))
+            tk.create_command(self.on_take_focus.run))
 
     def _repr_parts(self):
         result = ['title=' + repr(self.title)]
@@ -225,7 +224,7 @@ class Window(WmMixin, Widget):
         self.toplevel = Toplevel(*args, **kwargs)
         super().__init__('ttk::frame', self.toplevel)
         self.config._types.update({
-            'padding': ScreenDistance,
+            'padding': tk.ScreenDistance,
         })
         ChildMixin.pack(self, fill='both', expand=True)
 

@@ -1,22 +1,21 @@
 import itertools
 
-from ._tcl_calls import tcl_call
-from . import TclError
+import pythotk as tk
 
-_flatten = itertools.chain.from_iterable
+flatten = itertools.chain.from_iterable
 
 
 def _font_property(type_spec, option):
 
     def getter(self):
-        return tcl_call(type_spec, "font", "actual", self, "-" + option)
+        return tk.tcl_call(type_spec, "font", "actual", self, "-" + option)
 
     def setter(self, value):
         if not isinstance(self, NamedFont):
             raise AttributeError(
                 "cannot change options of non-named fonts, but you can use "
                 "the_font.to_named_font() to create a mutable font object")
-        tcl_call(None, "font", "configure", self, "-" + option, value)
+        tk.tcl_call(None, "font", "configure", self, "-" + option, value)
 
     return property(getter, setter)
 
@@ -26,8 +25,8 @@ def _anonymous_font_new_helper(font_description):
     # is the font description a font name? configure works only with
     # font names, not other kinds of font descriptions
     try:
-        tcl_call(None, 'font', 'configure', font_description)
-    except TclError:
+        tk.tcl_call(None, 'font', 'configure', font_description)
+    except tk.TclError:
         return None
 
     # it is a font name
@@ -120,7 +119,7 @@ class Font:
         Calls ``font measure`` documented in :man:`font(3tk)`, and returns an
         integer.
         """
-        return tcl_call(int, "font", "measure", self, text)
+        return tk.tcl_call(int, "font", "measure", self, text)
 
     def metrics(self):
         """
@@ -131,7 +130,7 @@ class Font:
           integers.
         * The value of ``'fixed'`` is True or False.
         """
-        result = tcl_call(
+        result = tk.tcl_call(
             {"-ascent": int, "-descent": int,
              "-linespace": int, "-fixed": bool},
             "font", "metrics", self)
@@ -143,7 +142,7 @@ class Font:
         If this font is already a :class:`.NamedFont`, a copy of it is created
         and returned.
         """
-        options = tcl_call({}, 'font', 'actual', self)
+        options = tk.tcl_call({}, 'font', 'actual', self)
         kwargs = {name.lstrip('-'): value for name, value in options.items()}
         return NamedFont(**kwargs)
 
@@ -157,7 +156,7 @@ class Font:
         by default. Pass ``allow_at_prefix=True`` to get a list that includes
         the ``'@'`` fonts.
         """
-        result = tcl_call([str], "font", "families")
+        result = tk.tcl_call([str], "font", "families")
         if allow_at_prefix:
             return result
         return [family for family in result if not family.startswith('@')]
@@ -198,15 +197,16 @@ class NamedFont(Font):
 
         if name is None:
             # let tk choose a name that's not used yet
-            name = tcl_call(str, 'font', 'create', *options_with_dashes)
+            name = tk.tcl_call(str, 'font', 'create', *options_with_dashes)
         else:
             # do we need to create a font with the given name?
             try:
-                tcl_call(None, 'font', 'create', name, *options_with_dashes)
-            except TclError:
+                tk.tcl_call(None, 'font', 'create', name, *options_with_dashes)
+            except tk.TclError:
                 # no, it exists already, but we must do something with the
                 # options
-                tcl_call(None, 'font', 'configure', name, *options_with_dashes)
+                tk.tcl_call(None, 'font', 'configure', name,
+                            *options_with_dashes)
 
         super().__init__(name)
 
@@ -218,7 +218,7 @@ class NamedFont(Font):
     @classmethod
     def get_all_named_fonts(cls):
         """Returns a list of all :class:`.NamedFont` objects."""
-        return list(map(cls, tcl_call([str], 'font', 'names')))
+        return list(map(cls, tk.tcl_call([str], 'font', 'names')))
 
     def delete(self):
         """Calls ``font delete``.
@@ -226,4 +226,4 @@ class NamedFont(Font):
         The font object is useless after this, and most things will raise
         :exc:`.TclError`.
         """
-        tcl_call(None, "font", "delete", self)
+        tk.tcl_call(None, "font", "delete", self)

@@ -8,8 +8,7 @@ import threading
 import traceback
 import _tkinter
 
-import pythotk
-from pythotk import _structures
+import pythotk as tk
 
 _flatten = itertools.chain.from_iterable
 
@@ -20,14 +19,12 @@ def raise_pythotk_tclerror(func):
         try:
             return func(*args, **kwargs)
         except _tkinter.TclError as e:
-            raise (pythotk.TclError(str(e))
-                   .with_traceback(e.__traceback__)) from None
+            raise tk.TclError(str(e)).with_traceback(e.__traceback__) from None
 
     return result
 
 
 counts = collections.defaultdict(lambda: itertools.count(1))
-on_quit = _structures.Callback()
 
 
 # because readability is good
@@ -122,7 +119,7 @@ class _TclInterpreter:
                 'after', poll_interval_ms, 'pythotk_init_threads_queue_poller')
 
         self._app.createcommand(poller_tcl_command, poller)
-        on_quit.connect(
+        tk.on_quit.connect(
             lambda: None if after_id is None else self._app.call(
                 'after', 'cancel', after_id))
 
@@ -244,7 +241,7 @@ def quit():
         raise RuntimeError("can only quit from main thread")
 
     if _interp is not None:
-        on_quit.run()
+        tk.on_quit.run()
         _interp.call('destroy', '.')
         _interp = None
 
@@ -361,12 +358,11 @@ def from_tcl(type_spec, value):
     if type_spec is bool:
         if not from_tcl(str, value):
             # '' is not a valid bool, but this is usually what was intended
-            # TODO: document this
             return None
 
         try:
             return _get_interp().getboolean(value)
-        except pythotk.TclError as e:
+        except tk.TclError as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
     # special case to allow bases other than 10 and empty strings

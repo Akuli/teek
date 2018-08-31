@@ -1,6 +1,5 @@
-from pythotk._font import Font
-from pythotk._structures import Callback, ScreenDistance
-from pythotk._tcl_calls import create_command, needs_main_thread
+import pythotk as tk
+from pythotk._tcl_calls import needs_main_thread
 from pythotk._widgets.base import Widget, ChildMixin
 
 
@@ -13,7 +12,7 @@ class Frame(ChildMixin, Widget):
     def __init__(self, parent, **options):
         super().__init__('ttk::frame', parent, **options)
         self.config._types.update({
-            'padding': ScreenDistance,
+            'padding': tk.ScreenDistance,
         })
 
 
@@ -52,9 +51,8 @@ class Label(ChildMixin, Widget):
     def __init__(self, parent, text='', **kwargs):
         super().__init__('ttk::label', parent, text=text, **kwargs)
 
-        # TODO: fill in other types
         self.config._types.update({
-            'font': Font,
+            'font': tk.Font,
         })
 
     def _repr_parts(self):
@@ -76,14 +74,14 @@ class Button(ChildMixin, Widget):
         button = tk.Button(some_widget, "Click me")
         button.on_click.connect(do_something)
 
-    See :meth:`.Callback.connect` if you need to pass arguments to the
+    See :meth:`.tk.Callback.connect` if you need to pass arguments to the
     ``do_something`` function.
 
     Manual page: :man:`ttk_button(3tk)`
 
     .. attribute:: on_click
 
-        A :class:`Callback` that runs when the button is clicked.
+        A :class:`tk.Callback` that runs when the button is clicked.
     """
 
     def __init__(self, parent, text='', command=None, **kwargs):
@@ -92,8 +90,8 @@ class Button(ChildMixin, Widget):
             'default': str,
         })
 
-        self.on_click = Callback()
-        command_string = create_command(self.on_click.run)
+        self.on_click = tk.Callback()
+        command_string = tk.create_command(self.on_click.run)
         self._command_list.append(command_string)
         self.config['command'] = command_string
         self.config._disabled['command'] = ("use the on_click attribute " +
@@ -133,7 +131,6 @@ class Entry(ChildMixin, Widget):
         self._call(None, self, 'insert', 0, text)
 
         self.config._types['exportselection'] = bool
-        # TODO: textvariable should be a StringVar
 
     def _repr_parts(self):
         return ['text=' + repr(self.text)]

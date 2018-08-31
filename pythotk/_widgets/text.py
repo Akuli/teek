@@ -1,10 +1,10 @@
 import collections.abc
 import functools
 
-from pythotk._font import Font
-from pythotk._structures import Color, ScreenDistance
+import pythotk as tk
+from pythotk._structures import ConfigDict
 from pythotk._tcl_calls import needs_main_thread
-from pythotk._widgets.base import Widget, ChildMixin, ConfigDict
+from pythotk._widgets.base import Widget, ChildMixin
 
 
 # a new subclass of this is created for each text widget, and inheriting
@@ -52,26 +52,25 @@ class Tag(ConfigDict):
         self._widget = widget
         self.name = name
         super().__init__(self._call_tag_subcommand)
-        dict(self)      # TODO: why do tests fail without this?
 
         self._types.update({
             # TODO: fgstipple, bgstipple
-            'background': Color,
-            'borderwidth': ScreenDistance,
+            'background': tk.Color,
+            'borderwidth': tk.ScreenDistance,
             'elide': bool,
-            'font': Font,
-            'foreground': Color,
+            'font': tk.Font,
+            'foreground': tk.Color,
             'justify': str,
-            'lmargin1': ScreenDistance,
-            'lmargin2': ScreenDistance,
-            'lmargin3': ScreenDistance,
-            'offset': ScreenDistance,
+            'lmargin1': tk.ScreenDistance,
+            'lmargin2': tk.ScreenDistance,
+            'lmargin3': tk.ScreenDistance,
+            'offset': tk.ScreenDistance,
             'overstrike': bool,
             'relief': str,
-            'rmargin': ScreenDistance,
-            'spacing1': ScreenDistance,
-            'spacing2': ScreenDistance,
-            'spacing3': ScreenDistance,
+            'rmargin': tk.ScreenDistance,
+            'spacing1': tk.ScreenDistance,
+            'spacing2': tk.ScreenDistance,
+            'spacing3': tk.ScreenDistance,
             'tabs': [str],
             'tabstyle': str,
             'underline': bool,
@@ -229,12 +228,12 @@ class Text(ChildMixin, Widget):
             'blockcursor': bool,
             'endline': int,
             'height': int,
-            'inactiveselectbackground': Color,
+            'inactiveselectbackground': tk.Color,
             'insertunfocussed': str,
             'maxundo': int,
-            'spacing1': ScreenDistance,
-            'spacing2': ScreenDistance,
-            'spacing3': ScreenDistance,
+            'spacing1': tk.ScreenDistance,
+            'spacing2': tk.ScreenDistance,
+            'spacing3': tk.ScreenDistance,
             'startline': int,
             'state': str,
             'tabs': [str],

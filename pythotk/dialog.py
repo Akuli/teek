@@ -1,4 +1,4 @@
-from functools import partial as _partial
+from functools import partial
 import os
 
 import pythotk as tk
@@ -43,14 +43,14 @@ def _messagebox(type, title, message, detail=None, **kwargs):
     return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs))
 
 
-info = _partial(_messagebox, 'ok', icon='info')
-warning = _partial(_messagebox, 'ok', icon='warning')
-error = _partial(_messagebox, 'ok', icon='error')
-ok_cancel = _partial(_messagebox, 'okcancel', icon='question')
-retry_cancel = _partial(_messagebox, 'retrycancel', icon='warning')
-yes_no = _partial(_messagebox, 'yesno', icon='question')
-yes_no_cancel = _partial(_messagebox, 'yesnocancel', icon='question')
-abort_retry_ignore = _partial(_messagebox, 'abortretryignore', icon='error')
+info = partial(_messagebox, 'ok', icon='info')
+warning = partial(_messagebox, 'ok', icon='warning')
+error = partial(_messagebox, 'ok', icon='error')
+ok_cancel = partial(_messagebox, 'okcancel', icon='question')
+retry_cancel = partial(_messagebox, 'retrycancel', icon='warning')
+yes_no = partial(_messagebox, 'yesno', icon='question')
+yes_no_cancel = partial(_messagebox, 'yesnocancel', icon='question')
+abort_retry_ignore = partial(_messagebox, 'abortretryignore', icon='error')
 
 
 def _check_multiple(kwargs):
