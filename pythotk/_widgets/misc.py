@@ -121,6 +121,61 @@ class Button(ChildMixin, Widget):
         return ['text=' + repr(self.config['text'])]
 
     def invoke(self):
+        """Runs :attr:`on_click`.
+
+        See ``pathname invoke`` in :man:`ttk_button(3tk)` for details.
+        """
+        self._call(None, self, 'invoke')
+
+
+# TODO: an example of the variable trickery
+class Checkbutton(ChildMixin, Widget):
+    """A square-shaped, checkable box with text next to it.
+
+    For convenience, ``text`` and ``command`` arguments work the same way as
+    with :class:`.Button`.
+
+    By default, :attr:`on_check` callbacks (including the *command* argument)
+    run with ``True`` as the only argument when the checkbutton is checked, and
+    with ``False`` when the checkbutton is unchecked. You can pass
+    ``onvalue=False, offvalue=True`` to reverse this if you find it useful for
+    some reason. This also affects the values that end up in the ``variable``
+    option (see manual page), which is a :class:`.BooleanVar`.
+
+    Manual page: :man:`ttk_checkbutton(3tk)`
+
+    .. attribute:: on_check
+
+        A :class:`.Callback` that runs when the checkbutton is checked or
+        unchecked. The callback runs with ``True`` or ``False`` as the only
+        argument depending on whether the checkbutton is checked.
+    """
+
+    def __init__(self, parent, text='', command=None, **kwargs):
+        super().__init__('ttk::checkbutton', parent, text=text, **kwargs)
+        self.config._types.update({
+            'onvalue': bool,
+            'offvalue': bool,
+            'variable': tk.BooleanVar,
+        })
+
+        self.on_check = tk.Callback(bool)
+        command_string = tk.create_command(self._command_callback)
+        self._command_list.append(command_string)
+        self.config['command'] = command_string
+        self.config._disabled['command'] = ("use the on_check attribute " +
+                                            "or an initialization argument")
+        if command is not None:
+            self.on_check.connect(command)
+
+    def _command_callback(self):
+        self.on_check.run(self.config['variable'].get())
+
+    def invoke(self):
+        """Runs :attr:`on_check`.
+
+        See ``pathname invoke`` in :man:`ttk_checkbutton(3tk)` for details.
+        """
         self._call(None, self, 'invoke')
 
 

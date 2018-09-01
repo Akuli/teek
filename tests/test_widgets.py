@@ -410,11 +410,37 @@ def test_labelframe():
     assert repr(labelframe) == "<pythotk.LabelFrame widget: text='hello'>"
 
 
+def test_checkbutton():
+    assert tk.Checkbutton(tk.Window()).config['text'] == ''
+    assert tk.Checkbutton(tk.Window(), 'asd').config['text'] == 'asd'
+
+    asd = []
+
+    checkbutton = tk.Checkbutton(tk.Window(), 'asd', asd.append)
+    checkbutton.on_check.connect(asd.append)
+    checkbutton.invoke()
+    assert checkbutton.config['variable'].get() is True
+    checkbutton.invoke()
+    assert checkbutton.config['variable'].get() is False
+    assert asd == [True, True, False, False]
+    asd.clear()
+
+    checkbutton = tk.Checkbutton(tk.Window(), 'asd', asd.append,
+                                 onvalue=False, offvalue=True)
+    checkbutton.on_check.connect(asd.append)
+    checkbutton.invoke()
+    assert checkbutton.config['variable'].get() is False
+    checkbutton.invoke()
+    assert checkbutton.config['variable'].get() is True
+    assert asd == [False, False, True, True]
+    asd.clear()
+
+
 def test_config_types(check_config_types):
     window = tk.Window()
     widgets = [window, window.toplevel, tk.Frame(window), tk.Separator(window),
                tk.Label(window), tk.Button(window), tk.Entry(window),
-               tk.LabelFrame(window)]
+               tk.LabelFrame(window), tk.Checkbutton(window)]
     for widget in widgets:
         check_config_types(widget.config, type(widget).__name__)
 

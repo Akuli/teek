@@ -23,7 +23,6 @@ the code works doesn't hurt either.
 Currently these tkinter widgets are missing in pythotk:
 
 * ``tkinter.Canvas``
-* ``tkinter.Checkbutton``, ``tkinter.ttk.Checkbutton``
 * ``tkinter.Listbox``
 * ``tkinter.Menu``
 * ``tkinter.Menubutton``, ``tkinter.ttk.Menubutton``
@@ -271,6 +270,9 @@ Variable Objects
 ``DoubleVar`` is :class:`.FloatVar` in pythotk because not all python users
 know that ``double`` means a precise ``float`` in programming languages like C.
 Other variable classes have same names.
+
+There is no ``trace()`` method, but there is a
+:attr:`~.TclVariable.write_trace` attribute.
 
 
 Font Objects

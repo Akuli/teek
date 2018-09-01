@@ -30,6 +30,8 @@ looking for, and ignore rest of this.
     :members:
 .. autoclass:: pythotk.Button
     :members:
+.. autoclass:: pythotk.Checkbutton
+    :members:
 .. autoclass:: pythotk.Label
     :members:
 .. autoclass:: pythotk.LabelFrame
