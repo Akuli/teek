@@ -1,5 +1,4 @@
 import collections.abc
-import contextlib
 import weakref
 
 import pythotk as tk
@@ -93,8 +92,8 @@ class NotebookTab:
 
     def __init__(self, widget, **kwargs):
         if not isinstance(widget.parent, Notebook):
-            raise ValueError("widgets of NotebookTabs must be child widgets of "
-                             "a Notebook, but %r is a child widget of %r"
+            raise ValueError("widgets of NotebookTabs must be child widgets "
+                             "of a Notebook, but %r is a child widget of %r"
                              % (widget, widget.parent))
 
         if widget in widget.parent._tab_objects:
