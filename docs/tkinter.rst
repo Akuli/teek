@@ -268,8 +268,9 @@ tkinter, but pythotk has nicer support for them:
 Variable Objects
 ----------------
 
-There is no ``StringVar`` or ``IntVar`` in pythotk; instead, there is just one
-:class:`.TclVar` class that handles all types.
+``DoubleVar`` is :class:`.FloatVar` in pythotk because not all python users
+know that ``double`` means a precise ``float`` in programming languages like C.
+Other variable classes have same names.
 
 
 Font Objects

@@ -6,12 +6,16 @@ import pytest
 import pythotk as tk
 
 
-def test_basic_stuff():
-    var = tk.TclVar()
-    var.set('asd')
-    assert var.get() == 'asd'
+class IntListVar(tk.TclVariable):
+    type_spec = [int]
 
-    var.type = [int]
+
+def test_basic_stuff():
+    var = tk.IntVar()
+    var.set('123')      # doesn't need to be of same type
+    assert var.get() == 123
+
+    var = IntListVar()
     var.set([1, 2])
     assert var.get() == [1, 2]
 
@@ -21,7 +25,7 @@ def test_write_trace(handy_callback):
     def tracer(value):
         assert value == [1, 2, 3]
 
-    var = tk.TclVar(type=[int])
+    var = IntListVar()
     assert var.write_trace is var.write_trace
     var.write_trace.connect(tracer)
     var.set([1, 2, 3])
@@ -30,26 +34,34 @@ def test_write_trace(handy_callback):
 
 def test_creating_var_objects_from_name():
     asd = []
-    var = tk.TclVar()
+    var = tk.StringVar()
     var.write_trace.connect(asd.append)
     var.set('a')
-    tk.TclVar(name=var.to_tcl()).set('b')
-    tk.TclVar.from_tcl(var.to_tcl()).set('c')
+    tk.StringVar(name=var.to_tcl()).set('b')
+    tk.StringVar.from_tcl(var.to_tcl()).set('c')
     assert asd == ['a', 'b', 'c']
 
 
 def test_repr():
-    var = tk.TclVar(name='testie_var')
-    assert repr(var) == "<TclVar 'testie_var': no value has been set>"
+    var = tk.StringVar(name='testie_var')
+    assert repr(var) == "<StringVar 'testie_var': no value has been set>"
     var.set('asd')
-    assert repr(var) == "<TclVar 'testie_var': 'asd'>"
+    assert repr(var) == "<StringVar 'testie_var': 'asd'>"
 
 
 @pytest.mark.slow
 def test_wait():
-    var = tk.TclVar()
+    var = tk.StringVar()
     start = time.time()
     tk.after(500, functools.partial(var.set, "boo"))
     var.wait()          # should run the event loop ==> after callback works
     end = time.time()
     assert (end - start) > 0.5
+
+
+def test_not_subclassed():
+    with pytest.raises(TypeError) as error:
+        tk.TclVariable()
+    assert "cannot create instances of TclVariable" in str(error.value)
+    assert "subclass TclVariable" in str(error.value)
+    assert "'type_spec' class attribute" in str(error.value)

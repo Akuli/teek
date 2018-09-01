@@ -70,8 +70,16 @@ Of course, :class:`.Font` and :class:`.NamedFont` objects can also be set to
 Tcl Variable Objects
 --------------------
 
-.. autoclass:: pythotk.TclVar
+.. autoclass:: pythotk.TclVariable
     :members:
+
+.. class:: pythotk.StringVar
+           pythotk.IntVar
+           pythotk.FloatVar
+           pythotk.BooleanVar
+
+    Handy :class:`.TclVariable` subclasses for variables with :class:`str`,
+    :class:`int`, :class:`float` and :class:`bool` values, respectively.
 
 
 Images

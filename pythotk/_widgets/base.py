@@ -125,7 +125,7 @@ class Widget:
             'wraplength': tk.ScreenDistance,
 
             # these options are in both man pages
-            'textvariable': tk.TclVar,
+            'textvariable': tk.StringVar,
             'underline': int,
             'image': tk.Image,
             #'xscrollcommand': ???,

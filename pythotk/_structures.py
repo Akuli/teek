@@ -327,40 +327,42 @@ class Color:
         return hash(self._rgb)
 
 
-class TclVar:
+class TclVariable:
     """Represents a global Tcl variable.
 
     In Tcl, it's possible to e.g. run code when the value of a variable
     changes, or wait until the variable is set. Python's variables can't do
-    things like that, so Tcl variables are represented as ``TclVar`` objects
-    in Python. If you want to set the value of the variable object,
+    things like that, so Tcl variables are represented as :class:`.TclVariable`
+    objects in Python. If you want to set the value of the variable object,
     ``variable_object = new_value`` doesn't work because that only sets a
     Python variable, and you need ``variable_object.set(new_value)`` instead.
     Similarly, ``variable_object.get()`` returns the value of the Tcl variable.
 
-    Use ``TclVar(name='asd')`` to create a variable object that represents a
-    Tcl variable named ``asd``, or ``TclVar()`` to let pythotk choose a
-    variable name for you.
+    The :class:`.TclVariable` class is useless by itself. Usable variable
+    classes are subclasses of it that override :attr:`type_spec`.
 
-    By default, :meth:`get` returns a string. The ``type`` keyword argument
-    should be :ref:`a type spec <type-spec>`, and it changes that. For example,
-    the :meth:`get` method of ``TclVar(type=int)`` returns an integer.
+    Use ``SomeUsableTclVarSubclass(name='asd')`` to create a variable object
+    that represents a Tcl variable named ``asd``, or
+    ``SomeUsableTclVarSubclass()`` to let pythotk choose a variable name for
+    you.
 
-    .. attribute:: type
+    .. attribute:: type_spec
 
-        This ``TclVar()`` argument and attribute is a
-        :ref:`type spec <type-spec>` of what :meth:`get` returns.
+        This class attribute should be set to a
+        :ref:`type specification <type-spec>` of what :meth:`get` returns.
     """
 
     _default_names = map('pythotk_var_{}'.format, itertools.count(1))
+    type_spec = None
 
-    def __init__(self, *, name=None, type=str):
+    def __init__(self, *, name=None):
+        if type(self).type_spec is None:
+            raise TypeError(("cannot create instances of {0}, subclass {0} "
+                             "and set a 'type_spec' class attribute "
+                             "instead").format(type(self).__name__))
         if name is None:
-            # must use self.__class__ instead of type(self) because type is
-            # a local variable here, lol
-            name = 'pythotk_var_' + next(self.__class__._default_names)
+            name = 'pythotk_var_' + next(type(self)._default_names)
         self._name = name
-        self.type = type
         self._write_trace = None
 
     def __repr__(self):
@@ -375,8 +377,7 @@ class TclVar:
     def from_tcl(cls, varname):
         """Creates a variable object from a name string.
 
-        See :ref:`type-spec` for details. Note that the :attr:`type` of the
-        resulting variable object is ``str``, and you may need to change it.
+        See :ref:`type-spec` for details.
         """
         return cls(name=varname)
 
@@ -387,14 +388,14 @@ class TclVar:
     def set(self, new_value):
         """Sets the value of the variable.
 
-        The value does not need to be of the :attr:`type` of the variable; it
-        can be anything that can be :ref:`converted to tcl <to-tcl>`.
+        The value does not need to be of the variable's type; it can be
+        anything that can be :ref:`converted to tcl <to-tcl>`.
         """
         tk.tcl_call(None, 'set', self, new_value)
 
     def get(self):
         """Returns the value of the variable."""
-        return tk.tcl_call(self.type, 'set', self._name)
+        return tk.tcl_call(type(self).type_spec, 'set', self._name)
 
     def wait(self):
         """Waits for this variable to be modified.
@@ -414,9 +415,12 @@ class TclVar:
         :man:`trace(3tcl)`.
         """
         if self._write_trace is None:
-            # self.type can change and it is a type spec (not necessarily
-            # compatible with isinstance), so must not rely on that
-            self._write_trace = Callback(object)
+            if isinstance(self.type_spec, type):
+                # e.g. str int float, not e.g. [str] (str, int) {'a': str}
+                self._write_trace = Callback(self.type_spec)
+            else:
+                # this is nice and simple
+                self._write_trace = Callback(object)
 
             def runner(*junk):
                 self._write_trace.run(self.get())
@@ -426,6 +430,12 @@ class TclVar:
                         self, 'write', command)
 
         return self._write_trace
+
+
+class StringVar(TclVariable): type_spec = str       # flake8: noqa
+class IntVar(TclVariable): type_spec = int          # flake8: noqa
+class FloatVar(TclVariable): type_spec = float      # flake8: noqa
+class BooleanVar(TclVariable): type_spec = bool     # flake8: noqa
 
 
 @functools.total_ordering
