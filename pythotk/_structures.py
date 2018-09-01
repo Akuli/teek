@@ -114,8 +114,11 @@ class ConfigDict(collections.abc.MutableMapping):
         # search for options not in this
         self._types = {}
 
-        # {option: instruction string}
-        self._disabled = {}
+        # {option: function called with 0 args that returns the value}
+        self._special = {}
+
+        # {option: return value from a function in self._special}
+        self._special_values = {}
 
     def __repr__(self):
         return '<a config object, behaves like a dict>'
@@ -146,45 +149,49 @@ class ConfigDict(collections.abc.MutableMapping):
         # by default, e.g. -tex would be equivalent to -text, but that's
         # disabled to make lookups in self._types and self._disabled
         # easier
-        if option in self._disabled:
-            raise ValueError("the %r option is not supported, %s instead"
-                             % (option, self._disabled[option]))
-        if option not in iter(self):    # calls the __iter__
-            raise KeyError(option)
+        if option not in self._list_options():
+            raise KeyError(option)      # for compatibility with dicts
 
     # the type of value is not checked with self._types because python is
     # dynamically typed
     @needs_main_thread
     def __setitem__(self, option, value):
         self._check_option(option)
+        if option in self._special:
+            message = "cannot set the value of %r" % option
+            if isinstance(self[option], Callback):
+                message += (
+                   ", maybe use widget.config[%r].connect() instead?" % option)
+            raise ValueError(message)
+
         self._set(option, value)
 
     @needs_main_thread
     def __getitem__(self, option):
         self._check_option(option)
+
+        if option in self._special_values:
+            return self._special_values[option]
+        if option in self._special:
+            value = self._special[option]()
+            self._special_values[option] = value
+            return value
+
         return self._get(option)
 
+    # MutableMapping requires that there is a __delitem__
     def __delitem__(self, option):
         raise TypeError("options cannot be deleted")
 
-    # __contains__ seems to try doing self[option] and catch KeyError by
-    # default, but that doesn't work with disabled options because __getitem__
-    # raises ValueError
-    def __contains__(self, option):
-        try:
-            self._check_option(option)
-            return True
-        except (KeyError, ValueError):
-            return False
-
     def __iter__(self):
-        for option in self._list_options():
-            if option not in self._disabled:
-                yield option
+        return iter(self._list_options())
 
     def __len__(self):
-        # this is correct in corner cases
-        return len(set(self._list_options()) - self._disabled.keys())
+        options = self._list_options()
+        try:
+            return len(options)
+        except TypeError:   # why can't len() consume iterators like 'in' :((
+            return len(list(options))
 
 
 class CgetConfigureConfigDict(ConfigDict):

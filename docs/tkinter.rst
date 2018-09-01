@@ -131,24 +131,24 @@ widgets do. Some of the biggest differences are listed here, but not everything
 is; refer to :ref:`the documentation <widgets>` of the widget that is causing
 errors for more details.
 
-Button
-    Tkinter buttons have a ``command`` option that is set to a function that runs
-    when the button is clicked, but pythotk doesn't have that:
+Button and CheckButton
+    Tkinter buttons and checkbuttons have a ``command`` option that is set to a
+    function that runs when the button is clicked, but that's a
+    :class:`.Callback` object in pythotk:
 
     >>> button.config['command'] = print
     Traceback (most recent call last):
         ...
-    ValueError: the 'command' option is not supported, use the on_click attribute or an initialization argument instead
+    ValueError: cannot set the value of 'command', maybe use widget.config['command'].connect() instead?
+    >>> button.config['command'].connect(print)
 
-    Use :attr:`.Button.on_click` instead.
+    This way more than one callback can be easily connected to the button.
 
-    >>> button.on_click.connect(print)
-
-Text
+Text and Notebook
     Many things are very different (read: much better and more pythonic) in
     pythotk. You probably need to read most of pythotk's
-    :ref:`text widget docs <textwidget>` anyway, so I won't even try to summarize
-    everything here.
+    :ref:`text widget docs <textwidget>` or :ref:`notebook docs <notebook>`
+    anyway, so I won't even try to summarize everything here.
 
 Entry
     Instead of ``insert``, ``delete`` and ``get`` methods, there is a settable

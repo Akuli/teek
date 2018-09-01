@@ -3,11 +3,11 @@
 Binding
 =======
 
-:class:`.Button` widgets have an :attr:`~.Button.on_click` callback that runs
-when the button is clicked. But what if you have some other widget instead of a
-button, and you want to do something when it's clicked? This can be useful; for
-example, my editor displays its logo in the about dialog, and if the logo is
-clicked, it shows the logo in full size.
+:class:`.Button` widgets have a ``'command'`` option, and that is set to a
+callback that runs when the button is clicked. But what if you have some other
+widget instead of a button, and you want to do something when it's clicked?
+This can be useful; for example, my editor displays its logo in the about
+dialog, and if the logo is clicked, it shows the logo in full size.
 
 Bindings are not limited to just clicking. You can bind to some other things as
 well, such as mouse movement and key presses.

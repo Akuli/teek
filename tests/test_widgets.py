@@ -332,46 +332,47 @@ def test_buttons(capsys):
     assert button2.config['text'] == button3.config['text'] == 'click me'
 
     for button in [button1, button2, button3]:
-        assert 'command' not in button.config
+        assert isinstance(button.config['command'], tk.Callback)
         with pytest.raises(ValueError) as error:
             button.config['command'] = print
-        assert str(error.value).endswith(
-            "use the on_click attribute or an initialization argument instead")
+        assert str(error.value) == (
+            "cannot set the value of 'command', "
+            "maybe use widget.config['command'].connect() instead?")
 
     # ideally there would be some way to click the button virtually and
     # let tk handle it, but i haven't gotten anything like that to work
-    button1.on_click.run()
-    button2.on_click.run()
+    button1.config['command'].run()
+    button2.config['command'].run()
     assert stuff == []
-    button3.on_click.run()
+    button3.config['command'].run()
     assert stuff == [3]
 
-    button1.on_click.connect(stuff.append, args=[1])
-    button2.on_click.connect(stuff.append, args=[2])
-    button3.on_click.connect(stuff.append, args=['wolo'])
-    button3.on_click.connect(stuff.append, args=['wolo'])
+    button1.config['command'].connect(stuff.append, args=[1])
+    button2.config['command'].connect(stuff.append, args=[2])
+    button3.config['command'].connect(stuff.append, args=['wolo'])
+    button3.config['command'].connect(stuff.append, args=['wolo'])
 
     stuff.clear()
     for button in [button1, button2, button3]:
-        button.on_click.run()
+        button.config['command'].run()
     assert stuff == [1, 2, 3, 'wolo', 'wolo']
 
     def oops():
         raise ValueError("shit")
 
     assert capsys.readouterr() == ('', '')
-    button1.on_click.connect(oops)
-    button1.on_click.run()
+    button1.config['command'].connect(oops)
+    button1.config['command'].run()
     output, errors = capsys.readouterr()
     assert not output
-    assert 'button1.on_click.connect(oops)' in errors
+    assert "button1.config['command'].connect(oops)" in errors
 
 
 def test_button_invoke():
     button = tk.Button(tk.Window())
     stuff = []
-    button.on_click.connect(stuff.append, args=[1])
-    button.on_click.connect(stuff.append, args=[2])
+    button.config['command'].connect(stuff.append, args=[1])
+    button.config['command'].connect(stuff.append, args=[2])
     button.invoke()
     assert stuff == [1, 2]
 
@@ -417,7 +418,7 @@ def test_checkbutton():
     asd = []
 
     checkbutton = tk.Checkbutton(tk.Window(), 'asd', asd.append)
-    checkbutton.on_check.connect(asd.append)
+    checkbutton.config['command'].connect(asd.append)
     checkbutton.invoke()
     assert checkbutton.config['variable'].get() is True
     checkbutton.invoke()
@@ -427,7 +428,7 @@ def test_checkbutton():
 
     checkbutton = tk.Checkbutton(tk.Window(), 'asd', asd.append,
                                  onvalue=False, offvalue=True)
-    checkbutton.on_check.connect(asd.append)
+    checkbutton.config['command'].connect(asd.append)
     checkbutton.invoke()
     assert checkbutton.config['variable'].get() is False
     checkbutton.invoke()

@@ -336,6 +336,18 @@ after ``on_click``, and when ``on_click`` has been called, it creates the
 button and passes the return value of ``on_click`` to it. Be careful to pass
 the function itself without calling it.
 
+.. admonition:: BTW
+
+    Pythotk lets you omit the ``command=`` part when creating buttons if you
+    put the button text before the command, so this...
+    ::
+
+        button = tk.Button(window, "Click me", on_click)
+
+    ...does the same thing as this::
+
+        button = tk.Button(window, "Click me", command=on_click)
+
 Here is another common mistake::
 
     import time

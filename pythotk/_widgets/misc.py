@@ -80,9 +80,12 @@ class LabelFrame(ChildMixin, Widget):
 class Button(ChildMixin, Widget):
     """A widget that runs a callback when it's clicked.
 
-    ``text`` can be given as with :class:`Label`. If ``command`` is given, it
-    should be a function that will be called with no arguments when the button
-    is clicked. This...
+    ``text`` can be given as with :class:`Label`.
+
+    The ``'command'`` option is not settable, and its value is a
+    :class:`.Callback` that runs with no arguments when the button is
+    clicked. If the *command* argument is given, it will be treated so that
+    this...
     ::
 
         button = tk.Button(some_widget, "Click me", do_something)
@@ -90,16 +93,12 @@ class Button(ChildMixin, Widget):
     ...does the same thing as this::
 
         button = tk.Button(some_widget, "Click me")
-        button.on_click.connect(do_something)
+        button.config['command'].connect(do_something)
 
-    See :meth:`.Callback.connect` if you need to pass arguments to the
-    ``do_something`` function.
+    See :meth:`.Callback.connect` documentation if you need to pass arguments
+    to the ``do_something`` function.
 
     Manual page: :man:`ttk_button(3tk)`
-
-    .. attribute:: on_click
-
-        A :class:`.Callback` that runs when the button is clicked.
     """
 
     def __init__(self, parent, text='', command=None, **kwargs):
@@ -107,21 +106,23 @@ class Button(ChildMixin, Widget):
         self.config._types.update({
             'default': str,
         })
+        self.config._special['command'] = self._create_click_command
 
-        self.on_click = tk.Callback()
-        command_string = tk.create_command(self.on_click.run)
-        self._command_list.append(command_string)
-        self.config['command'] = command_string
-        self.config._disabled['command'] = ("use the on_click attribute " +
-                                            "or an initialization argument")
         if command is not None:
-            self.on_click.connect(command)
+            self.config['command'].connect(command)
+
+    def _create_click_command(self):
+        result = tk.Callback()
+        command_string = tk.create_command(result.run)
+        self._command_list.append(command_string)
+        self._call(None, self, 'configure', '-command', command_string)
+        return result
 
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
 
     def invoke(self):
-        """Runs :attr:`on_click`.
+        """Runs the command callback.
 
         See ``pathname invoke`` in :man:`ttk_button(3tk)` for details.
         """
@@ -134,12 +135,13 @@ class Checkbutton(ChildMixin, Widget):
     For convenience, ``text`` and ``command`` arguments work the same way as
     with :class:`.Button`.
 
-    By default, :attr:`on_check` callbacks (including the *command* argument)
-    run with ``True`` as the only argument when the checkbutton is checked, and
-    with ``False`` when the checkbutton is unchecked. You can pass
-    ``onvalue=False, offvalue=True`` to reverse this if you find it useful for
-    some reason. This also affects the values that end up in the ``variable``
-    option (see manual page), which is a :class:`.BooleanVar`.
+    The ``'command'`` option is not settable, and its value is a
+    :class:`.Callback`. By default, it runs with ``True`` as the only argument
+    when the checkbutton is checked, and with ``False`` when the checkbutton is
+    unchecked. You can pass ``onvalue=False, offvalue=True`` to reverse this if
+    you find it useful for some reason. This also affects the values that end
+    up in the ``'variable'`` option (see manual page), which is a
+    :class:`.BooleanVar`.
 
     Example::
 
@@ -156,12 +158,6 @@ class Checkbutton(ChildMixin, Widget):
         tk.run()
 
     Manual page: :man:`ttk_checkbutton(3tk)`
-
-    .. attribute:: on_check
-
-        A :class:`.Callback` that runs when the checkbutton is checked or
-        unchecked. The callback runs with ``True`` or ``False`` as the only
-        argument depending on whether the checkbutton is checked.
     """
 
     def __init__(self, parent, text='', command=None, **kwargs):
@@ -171,21 +167,25 @@ class Checkbutton(ChildMixin, Widget):
             'offvalue': bool,
             'variable': tk.BooleanVar,
         })
+        self.config._special['command'] = self._create_check_command
 
-        self.on_check = tk.Callback(bool)
-        command_string = tk.create_command(self._command_callback)
-        self._command_list.append(command_string)
-        self.config['command'] = command_string
-        self.config._disabled['command'] = ("use the on_check attribute " +
-                                            "or an initialization argument")
         if command is not None:
-            self.on_check.connect(command)
+            self.config['command'].connect(command)
 
-    def _command_callback(self):
-        self.on_check.run(self.config['variable'].get())
+    def _command_runner(self):
+        self.config['command'].run(self.config['variable'].get())
+
+    def _create_check_command(self):
+        result = tk.Callback(bool)
+        command_string = tk.create_command(self._command_runner)
+        self._command_list.append(command_string)
+        self._call(None, self, 'configure', '-command', command_string)
+        return result
 
     def invoke(self):
-        """Checks or unchecks the checkbutton and runs :attr:`on_check`.
+        """
+        Checks or unchecks the checkbutton, updates the variable and runs the
+        command callback.
 
         See ``pathname invoke`` in :man:`ttk_checkbutton(3tk)` for details.
         """
