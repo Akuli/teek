@@ -37,6 +37,9 @@ class Separator(ChildMixin, Widget):
     def __init__(self, parent, **options):
         super().__init__('ttk::separator', parent, **options)
 
+    def _repr_parts(self):
+        return ['orient=' + repr(self.config['orient'])]
+
 
 class Label(ChildMixin, Widget):
     """A widget that displays text.

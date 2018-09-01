@@ -394,7 +394,12 @@ def test_entry():
 
 
 def test_separator():
-    assert tk.Separator(tk.Window()).config['orient'] == 'horizontal'
+    hsep = tk.Separator(tk.Window())
+    vsep = tk.Separator(tk.Window(), orient='vertical')
+    assert hsep.config['orient'] == 'horizontal'
+    assert vsep.config['orient'] == 'vertical'
+    assert repr(hsep) == "<pythotk.Separator widget: orient='horizontal'>"
+    assert repr(vsep) == "<pythotk.Separator widget: orient='vertical'>"
 
 
 def test_config_types(check_config_types):
