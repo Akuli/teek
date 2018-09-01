@@ -6,7 +6,7 @@ import re
 
 import pythotk as tk
 from pythotk._tcl_calls import counts, from_tcl, needs_main_thread
-from pythotk._structures import ConfigDict, on_quit
+from pythotk._structures import CgetConfigureConfigDict, on_quit
 
 _widgets = {}
 on_quit.connect(_widgets.clear)
@@ -74,7 +74,7 @@ class Widget:
         self._call(None, widgetname, self.to_tcl())
         _widgets[self.to_tcl()] = self
 
-        self.config = ConfigDict(
+        self.config = CgetConfigureConfigDict(
             lambda returntype, *args: self._call(returntype, self, *args))
         self.config._types.update({
             # ttk_widget(3tk)

@@ -2,7 +2,7 @@ import collections.abc
 import functools
 
 import pythotk as tk
-from pythotk._structures import ConfigDict
+from pythotk._structures import CgetConfigureConfigDict
 from pythotk._tcl_calls import needs_main_thread
 from pythotk._widgets.base import Widget, ChildMixin
 
@@ -46,7 +46,7 @@ class IndexBase(collections.namedtuple('TextIndex', 'line column')):
     wordend = functools.partialmethod(_apply_suffix, 'wordend')
 
 
-class Tag(ConfigDict):
+class Tag(CgetConfigureConfigDict):
 
     def __init__(self, widget, name):
         self._widget = widget

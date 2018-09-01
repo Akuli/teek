@@ -1,3 +1,4 @@
+import abc
 import base64
 import collections.abc
 import functools
@@ -107,10 +108,12 @@ on_quit = Callback()
 
 class ConfigDict(collections.abc.MutableMapping):
 
-    def __init__(self, caller):
-        self._call = caller
-        self._types = {}      # {option: argument for tcl_call}  str is default
-        self._disabled = {}   # {option: instruction string}
+    def __init__(self):
+        # {option: type spec}
+        self._types = collections.defaultdict(lambda: str)
+
+        # {option: instruction string}
+        self._disabled = {}
 
     def __repr__(self):
         return '<a config object, behaves like a dict>'
@@ -118,6 +121,24 @@ class ConfigDict(collections.abc.MutableMapping):
     def __call__(self, *args, **kwargs):
         raise TypeError("use widget.config['option'] = value, "
                         "not widget.config(option=value)")
+
+    @abc.abstractmethod
+    def _set(self, option, value):
+        """Sets an option to the given value.
+
+        *option* is an option name without a leading dash.
+        """
+
+    @abc.abstractmethod
+    def _get(self, option, returntype):
+        """Returns the value of an option.
+
+        See _set. The returntype should be self._types[option].
+        """
+
+    @abc.abstractmethod
+    def _list_options(self):
+        """Returns an iterable of options that can be passed to _get."""
 
     def _check_option(self, option):
         # by default, e.g. -tex would be equivalent to -text, but that's
@@ -134,13 +155,12 @@ class ConfigDict(collections.abc.MutableMapping):
     @needs_main_thread
     def __setitem__(self, option, value):
         self._check_option(option)
-        self._call(None, 'configure', '-' + option, value)
+        self._set(option, value)
 
     @needs_main_thread
     def __getitem__(self, option):
         self._check_option(option)
-        returntype = self._types.get(option, str)
-        return self._call(returntype, 'cget', '-' + option)
+        return self._get(option)
 
     def __delitem__(self, option):
         raise TypeError("options cannot be deleted")
@@ -156,16 +176,30 @@ class ConfigDict(collections.abc.MutableMapping):
             return False
 
     def __iter__(self):
-        # [[str]] is a 2d list of strings
-        for info in self._call([[str]], 'configure'):
-            option = info[0].lstrip('-')
+        for option in self._list_options():
             if option not in self._disabled:
                 yield option
 
     def __len__(self):
-        # FIXME: this is wrong if one of the disableds not exists, hard 2 test
-        options = self._call([[str]], 'configure')
-        return len(options) - len(self._disabled)
+        # this is correct in corner cases
+        return len(set(self._list_options()) - self._disabled.keys())
+
+
+class CgetConfigureConfigDict(ConfigDict):
+
+    def __init__(self, caller_func):
+        super().__init__()
+        self._caller_func = caller_func
+
+    def _set(self, option, value):
+        self._caller_func(None, 'configure', '-' + option, value)
+
+    def _get(self, option):
+        return self._caller_func(self._types[option], 'cget', '-' + option)
+
+    def _list_options(self):
+        infos = self._caller_func([[str]], 'configure')
+        return (info[0].lstrip('-') for info in infos)
 
 
 class Color:
@@ -508,7 +542,7 @@ class Image:
 
     def _init_from_name(self, name):
         self._name = name
-        self.config = ConfigDict(
+        self.config = CgetConfigureConfigDict(
             lambda returntype, *args: tk.tcl_call(returntype, self, *args))
         self.config._types.update({
             'data': str,
