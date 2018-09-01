@@ -40,6 +40,11 @@ Pythotk widgets have these methods:
 
     * The value of ``'in'`` is a pythotk widget.
     * The value of ``'expand'`` is True or False.
+    * The values of ``'ipadx'`` and ``'ipady'`` are :class:`.ScreenDistance`
+      objects.
+    * The values of ``'padx'`` and ``'pady'`` are lists of
+      :class:`.ScreenDistance` objects. Each list contains 1 or 2 items; see
+      ``-padx`` in :man:`pack(3tk)` for details.
     * Other values are strings.
 
     See also ``pack info`` in :man:`pack(3tk)`. The returned dictionary is a
