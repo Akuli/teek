@@ -93,9 +93,9 @@ class NotebookTab:
 
     def __init__(self, widget, **kwargs):
         if not isinstance(widget.parent, Notebook):
-            raise TypeError("widgets of NotebookTabs must be child widgets of "
-                            "a Notebook, but %r is a child widget of %r"
-                            % (widget, widget.parent))
+            raise ValueError("widgets of NotebookTabs must be child widgets of "
+                             "a Notebook, but %r is a child widget of %r"
+                             % (widget, widget.parent))
 
         if widget in widget.parent._tab_objects:
             raise RuntimeError("there is already a NotebookTab of %r"
@@ -193,9 +193,9 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     @needs_main_thread
     def insert(self, index, tab):
         if not isinstance(tab, NotebookTab):
-            raise TypeError("expected a NotebookTab, got %r" % (tab,))
+            raise TypeError("expected a NotebookTab object, got %r" % (tab,))
         if tab.widget.parent is not self:
-            raise ValueError("cannot add a tab of a child widget of %r to %r"
+            raise ValueError("cannot add %r's tab to %r"
                              % (tab.widget.parent, self))
 
         # lists do this
