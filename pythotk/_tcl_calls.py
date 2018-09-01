@@ -386,7 +386,7 @@ def from_tcl(type_spec, value):
             return type_spec.from_tcl(string)
 
     elif isinstance(type_spec, (list, tuple, dict)):
-        items = _get_interp().splitlist(value)
+        items = _get_interp().splitlist(from_tcl(str, value))
 
         if isinstance(type_spec, list):
             # [int] -> [1, 2, 3]

@@ -479,10 +479,10 @@ class ChildMixin:
             # padx and pady can be lists of 2 screen distances or just 1 screen
             # distance, which is fine because a Tcl screen distance string
             # behaves like a list of 1 item, that screen distance string
-            'padx': [tk.ScreenDistance],
-            'pady': [tk.ScreenDistance],
-            'ipadx': tk.ScreenDistance,
-            'ipady': tk.ScreenDistance,
+            '-padx': [tk.ScreenDistance],
+            '-pady': [tk.ScreenDistance],
+            '-ipadx': tk.ScreenDistance,
+            '-ipady': tk.ScreenDistance,
             '-in': Widget,
             '-expand': bool,
         }

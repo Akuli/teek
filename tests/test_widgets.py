@@ -478,8 +478,14 @@ def test_packing():
     assert pack_info['fill'] == 'both'
     assert pack_info['expand'] is True
     assert pack_info['anchor'] == 'center'
-    for string_key in ['padx', 'pady', 'ipadx', 'ipady']:
-        assert isinstance(pack_info[string_key], str)
+
+    for option in ['padx', 'pady']:
+        assert isinstance(pack_info[option], list)
+        assert len(pack_info[option]) in {1, 2}
+        for item in pack_info[option]:
+            assert isinstance(item, tk.ScreenDistance)
+    for option in ['ipadx', 'ipady']:
+        assert isinstance(pack_info[option], tk.ScreenDistance)
 
     button.pack_forget()
     with pytest.raises(tk.TclError):
