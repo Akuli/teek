@@ -24,7 +24,6 @@ Currently these tkinter widgets are missing in pythotk:
 
 * ``tkinter.Canvas``
 * ``tkinter.Checkbutton``, ``tkinter.ttk.Checkbutton``
-* ``tkinter.LabelFrame``, ``tkinter.ttk.Labelframe``
 * ``tkinter.Listbox``
 * ``tkinter.Menu``
 * ``tkinter.Menubutton``, ``tkinter.ttk.Menubutton``
@@ -89,6 +88,11 @@ broken. Replace all of them with :class:`tk.Window <.Window>`.
 If you have code that uses ``tkinter.Message``, you should use a ``Label``
 instead. I believe message widgets were a thing before labels could handle
 multiline text, but nowadays the text of labels can contain ``\n`` characters.
+
+If you have code that uses ``ttk.Labelframe``, use ``LabelFrame`` instead. Look
+carefully: ``Labelframe`` and ``LabelFrame`` are not the same. Non-ttk tkinter
+supports ``LabelFrame`` only, but for some reason, ``tkinter/ttk.py`` has
+``Labelframe`` in addition to ``LabelFrame``.
 
 
 Run

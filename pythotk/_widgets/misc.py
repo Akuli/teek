@@ -54,8 +54,23 @@ class Label(ChildMixin, Widget):
     def __init__(self, parent, text='', **kwargs):
         super().__init__('ttk::label', parent, text=text, **kwargs)
 
+    def _repr_parts(self):
+        return ['text=' + repr(self.config['text'])]
+
+
+class LabelFrame(ChildMixin, Widget):
+    """A frame with a visible border line and title text.
+
+    For convenience, the ``text`` option can be given as with :class:`.Label`.
+
+    Manual page: :man:`ttk_labelframe(3tk)`
+    """
+
+    def __init__(self, parent, text='', **kwargs):
+        super().__init__('ttk::labelframe', parent, text=text, **kwargs)
         self.config._types.update({
-            'font': tk.Font,
+            'labelanchor': str,
+            'labelwidget': Widget,
         })
 
     def _repr_parts(self):

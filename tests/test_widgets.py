@@ -402,10 +402,19 @@ def test_separator():
     assert repr(vsep) == "<pythotk.Separator widget: orient='vertical'>"
 
 
+def test_labelframe():
+    assert tk.LabelFrame(tk.Window()).config['text'] == ''
+    assert tk.LabelFrame(tk.Window(), 'hello').config['text'] == 'hello'
+
+    labelframe = tk.LabelFrame(tk.Window(), 'hello')
+    assert repr(labelframe) == "<pythotk.LabelFrame widget: text='hello'>"
+
+
 def test_config_types(check_config_types):
     window = tk.Window()
     widgets = [window, window.toplevel, tk.Frame(window), tk.Separator(window),
-               tk.Label(window), tk.Button(window), tk.Entry(window)]
+               tk.Label(window), tk.Button(window), tk.Entry(window),
+               tk.LabelFrame(window)]
     for widget in widgets:
         check_config_types(widget.config, type(widget).__name__)
 

@@ -32,6 +32,8 @@ looking for, and ignore rest of this.
     :members:
 .. autoclass:: pythotk.Label
     :members:
+.. autoclass:: pythotk.LabelFrame
+    :members:
 .. autoclass:: pythotk.Entry
     :members:
 .. autoclass:: pythotk.Separator
