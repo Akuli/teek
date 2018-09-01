@@ -11,6 +11,7 @@ looking for, and ignore rest of this.
     :hidden:
 
     textwidget
+    notebook
 
 .. autoclass:: pythotk.Widget
     :members: from_tcl, to_tcl, destroy, winfo_exists, winfo_children, winfo_toplevel
@@ -19,6 +20,11 @@ looking for, and ignore rest of this.
     :noindex:
 
     See :ref:`textwidget`.
+
+.. class:: pythotk.Notebook
+    :noindex:
+
+    See :ref:`notebook`.
 
 .. autoclass:: pythotk.Window
     :members:

@@ -45,19 +45,15 @@ class NotebookTab:
     Represents a tab that is in a notebook, or is ready to be added to a
     notebook.
 
-    ``NotebookTab`` objects are **not** widgets; they represent a widget in the
-    notebook and the notebook tab options associated with that widget, like the
-    text of the tab. The *widget* will show up in the tab when the tab is added
-    to a notebook.
-
-    Each ``NotebookTab`` belongs to a specific notebook widget. For example, if
-    you create a tab like this...
+    The *widget* must be a child widget of a :class:`.Notebook` widget. Each
+    :class:`.NotebookTab` belongs to the widget's parent notebook; for example,
+    if you create a tab like this...
     ::
 
-        tab = tk.NotebookTab(tk.Label(some_notebook, "hello"))
+        tab = tk.NotebookTab(tk.Label(asd_notebook, "hello"))
 
     ...then the tab cannot be added to any other notebook widget than
-    ``some_notebook``, because ``some_notebook`` is the parent widget of the
+    ``asd_notebook``, because ``asd_notebook`` is the parent widget of the
     label.
 
     Most methods raise :exc:`RuntimeError` if the tab has not been added to the
@@ -117,7 +113,7 @@ class NotebookTab:
             raise RuntimeError("the tab is not in the notebook yet")
 
     def hide(self):
-        """Calls ``pathName hide`` documented in :man:`ttk_notebook(3tk)`.
+        """Call ``pathName hide`` documented in :man:`ttk_notebook(3tk)`.
 
         Use :meth:`unhide` to make the tab visible again. :exc:`RuntimeError`
         is raised if the tab has not been added to a notebook.
@@ -126,7 +122,7 @@ class NotebookTab:
         self.widget.parent._call(None, self.widget.parent, 'hide', self.widget)
 
     def unhide(self):
-        """Undoes a :meth:`hide` call."""
+        """Undoe a :meth:`hide` call."""
         self._check_in_notebook()
         self.widget.parent._call(None, self.widget.parent, 'add', self.widget)
 
@@ -138,13 +134,15 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     :class:`.Notebook`. Here are some facts that can be useful when deciding
     which methods to override:
 
-    * The only method that deletes :class:`.NotebookTab` objects from the
-      notebook is ``__delitem__()``. A deletion like``del notebook[index]``
+    * Override ``__delitem__()`` to customize removing tabs from the notebook.
+      A deletion like ``del notebook[index]``
       does ``notebook.__delitem__(index)``, which calls ``pathName forget``
-      documented in :man:`ttk_notebook(3tk)`.
-    * The only method that adds :class:`.NotebookTab` objects to the notebook
-      is :meth:`insert`. Other methods call it as well; for example,
-      ``notebook.append(tab)`` does ``notebook.insert(len(notebook), tab)``.
+      documented in :man:`ttk_notebook(3tk)`. All other kinds of deletions call
+      ``__delitem__`` as well.
+    * Override ``insert()`` if you want to customize adding new tabs to the
+      notebook. The ``insert`` method is called every time when a new tab is
+      added with any method. Make sure that your override is compatible with
+      the ``insert()`` method of :class:`collections.abc.MutableSequence`.
 
     As usual, use :func:`super` when overriding.
     """
@@ -189,8 +187,14 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     def __delitem__(self, index):
         self._call(None, self, 'forget', self[index].widget)
 
+    # yes, an empty docstring does the right thing here, otherwise the
+    # docstring seems to be copied from MutableSequence which is not what i
+    # want because MutableSequence's docstring:
+    #   * doesn't explain the details
+    #   * is not good RST
     @needs_main_thread
     def insert(self, index, tab):
+        """"""
         if not isinstance(tab, NotebookTab):
             raise TypeError("expected a NotebookTab object, got %r" % (tab,))
         if tab.widget.parent is not self:
@@ -231,6 +235,11 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     @property
     @needs_main_thread
     def selected_tab(self):
+        """This is the tab that the user is currently looking at.
+
+        You can set this to any other tab in the notebook to change the
+        currently selected tab.
+        """
         widget = self._call(Widget, self, 'select')
 
         # return a tab object instead of a widget

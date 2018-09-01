@@ -28,7 +28,6 @@ Currently these tkinter widgets are missing in pythotk:
 * ``tkinter.Listbox``
 * ``tkinter.Menu``
 * ``tkinter.Menubutton``, ``tkinter.ttk.Menubutton``
-* ``tkinter.ttk.Notebook``
 * ``tkinter.OptionMenu``
 * ``tkinter.PanedWindow``, ``tkinter.ttk.Panedwindow``
 * ``tkinter.ttk.Progressbar``
