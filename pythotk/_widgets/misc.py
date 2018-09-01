@@ -128,7 +128,6 @@ class Button(ChildMixin, Widget):
         self._call(None, self, 'invoke')
 
 
-# TODO: an example of the variable trickery
 class Checkbutton(ChildMixin, Widget):
     """A square-shaped, checkable box with text next to it.
 
@@ -141,6 +140,20 @@ class Checkbutton(ChildMixin, Widget):
     ``onvalue=False, offvalue=True`` to reverse this if you find it useful for
     some reason. This also affects the values that end up in the ``variable``
     option (see manual page), which is a :class:`.BooleanVar`.
+
+    Example::
+
+        import pythotk as tk
+
+        def on_check_or_uncheck(checked):
+            if checked:
+                print("Checked")
+            else:
+                print("Unchecked")
+
+        window = tk.Window("Checkbutton Example")
+        tk.Checkbutton(window, "Check me", on_check_or_uncheck).pack()
+        tk.run()
 
     Manual page: :man:`ttk_checkbutton(3tk)`
 
