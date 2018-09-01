@@ -110,7 +110,9 @@ class ConfigDict(collections.abc.MutableMapping):
 
     def __init__(self):
         # {option: type spec}
-        self._types = collections.defaultdict(lambda: str)
+        # use .get(option, str), this is not a defaultdict because it tests
+        # search for options not in this
+        self._types = {}
 
         # {option: instruction string}
         self._disabled = {}
@@ -130,10 +132,10 @@ class ConfigDict(collections.abc.MutableMapping):
         """
 
     @abc.abstractmethod
-    def _get(self, option, returntype):
+    def _get(self, option):
         """Returns the value of an option.
 
-        See _set. The returntype should be self._types[option].
+        See _set. Should return a value of type self._types.get(option, str).
         """
 
     @abc.abstractmethod
@@ -195,7 +197,8 @@ class CgetConfigureConfigDict(ConfigDict):
         self._caller_func(None, 'configure', '-' + option, value)
 
     def _get(self, option):
-        return self._caller_func(self._types[option], 'cget', '-' + option)
+        return self._caller_func(self._types.get(option, str),
+                                 'cget', '-' + option)
 
     def _list_options(self):
         infos = self._caller_func([[str]], 'configure')
