@@ -1,5 +1,6 @@
 import collections.abc
 import contextlib
+import weakref
 
 import pythotk as tk
 from pythotk._structures import ConfigDict
@@ -22,19 +23,22 @@ class TabConfigDict(ConfigDict):
             'underline': int,
         })
 
+    # self._tab.widget.parent is the notebook, lol
     def _set(self, option, value):
         self._tab._check_in_notebook()
-        tk.tcl_call(None, self._tab.notebook,
-                    'tab', self.widget, '-' + option, value)
+        tk.tcl_call(None, self._tab.widget.parent,
+                    'tab', self._tab.widget, '-' + option, value)
 
     def _get(self, option):
         self._tab._check_in_notebook()
-        return tk.tcl_call(self._types[option], self._tab.notebook,
+        return tk.tcl_call(self._types[option], self._tab.widget.parent,
                            'tab', self._tab.widget, '-' + option)
 
     def _list_options(self):
-        return tk.tcl_call({}, self._tab.notebook,
-                           'tab', self._tab.widget).keys()
+        self._tab._check_in_notebook()
+        for option in tk.tcl_call({}, self._tab.widget.parent,
+                                  'tab', self._tab.widget):
+            yield option.lstrip('-')
 
 
 class NotebookTab:
@@ -47,7 +51,17 @@ class NotebookTab:
     text of the tab. The *widget* will show up in the tab when the tab is added
     to a notebook.
 
-    Most methods raise :exc:`RuntimeError` if the tab has not been added to a
+    Each ``NotebookTab`` belongs to a specific notebook widget. For example, if
+    you create a tab like this...
+    ::
+
+        tab = tk.NotebookTab(tk.Label(some_notebook, "hello"))
+
+    ...then the tab cannot be added to any other notebook widget than
+    ``some_notebook``, because ``some_notebook`` is the parent widget of the
+    label.
+
+    Most methods raise :exc:`RuntimeError` if the tab has not been added to the
     notebook yet. This includes doing pretty much anything with :attr:`config`.
 
     For convenience, options can be passed when creating a
@@ -62,6 +76,9 @@ class NotebookTab:
         notebook.append(tab)
         tab.config['text'] = "Tab Title"
 
+    There are never multiple :class:`NotebookTab` objects that represent the
+    same tab.
+
     .. attribute:: config
 
         Similar to the ``config`` attribute that widgets have. The available
@@ -70,53 +87,35 @@ class NotebookTab:
     .. attribute:: widget
 
         This attribute and initialization argument is the widget in the tab. It
-        should be a child widget of the notebook.
-
-    .. attribute:: notebook
-
-        The :class:`.Notebook` widget that the tab is in, or None. Don't set
-        this attribute yourself; instead, add the tab to a :class:`.Notebook`
-        or remove it from the notebook. This attribute will update
-        automatically.
+        should be a child widget of the notebook. Use ``tab.widget.parent`` to
+        access the :class:`.Notebook` that the tab belongs to.
     """
 
     def __init__(self, widget, **kwargs):
+        if not isinstance(widget.parent, Notebook):
+            raise TypeError("widgets of NotebookTabs must be child widgets of "
+                            "a Notebook, but %r is a child widget of %r"
+                            % (widget, widget.parent))
+
+        if widget in widget.parent._tab_objects:
+            raise RuntimeError("there is already a NotebookTab of %r"
+                               % (widget,))
+
         self.widget = widget
-        self.notebook = None
         self.config = TabConfigDict(self)
         self._initial_options = kwargs
 
-    # only used in Notebook.__getitem__, which is important because overriding
-    # Notebook.__getitem__ for custom tab classes is a documented thing to do
-    @classmethod
-    def _from_notebook_and_widget(cls, notebook, widget):
-        tab = cls.__new__(cls)   # create new instance without __init__ call
-        tab.notebook = notebook
-        tab.widget = widget
-        tab.config = TabConfigDict(tab)
-        tab._initial_options = {}
-        return tab
+        # if anything above failed for whatever reason, this tab object is
+        # broken, and in that case this doesn't run, which is good
+        widget.parent._tab_objects[widget] = self
 
-    def __eq__(self, other):
-        if not isinstance(other, NotebookTab):
-            return NotImplemented
-        return self.widget is other.widget and self.notebook is other.notebook
-
-    def __hash__(self):
-        return hash((self.widget, self.notebook))
+    def __repr__(self):
+        item_reprs = ['%s=%r' % pair for pair in self._initial_options.items()]
+        return 'NotebookTab(%s)' % ', '.join([repr(self.widget)] + item_reprs)
 
     def _check_in_notebook(self):
-        if self.notebook is None:
-            raise RuntimeError("the tab is not in a notebook yet")
-
-    @contextlib.contextmanager
-    def _adding_to_notebook_helper(self, notebook):
-        if self.notebook is not None:
-            raise RuntimeError("cannot add same NotebookTab object to "
-                               "multiple notebooks")
-        yield
-        self.notebook = notebook
-        self.config.update(self._initial_options)
+        if self not in self.widget.parent:
+            raise RuntimeError("the tab is not in the notebook yet")
 
     def hide(self):
         """Calls ``pathName hide`` documented in :man:`ttk_notebook(3tk)`.
@@ -125,12 +124,12 @@ class NotebookTab:
         is raised if the tab has not been added to a notebook.
         """
         self._check_in_notebook()
-        self.notebook._call(None, self.notebook, 'hide', self.widget)
+        self.widget.parent._call(None, self.widget.parent, 'hide', self.widget)
 
     def unhide(self):
         """Undoes a :meth:`hide` call."""
         self._check_in_notebook()
-        self.notebook._call(None, self.notebook, 'add', self.widget)
+        self.widget.parent._call(None, self.widget.parent, 'add', self.widget)
 
 
 class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
@@ -140,16 +139,12 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     :class:`.Notebook`. Here are some facts that can be useful when deciding
     which methods to override:
 
-    * The only method that creates new :class:`.NotebookTab` objects is
-      ``__getitem__()``. When you do ``notebook[index]``, Python actually does
-      ``notebook.__getitem__(index)``. Other list-like things are guaranteed to
-      call ``__getitem__()`` to get the tab objects.
     * The only method that deletes :class:`.NotebookTab` objects from the
-      notebook is ``__delitem__()``. ``del notebook[index]`` does
-      ``notebook.__delitem__(index)``, which calls ``pathName forget``
+      notebook is ``__delitem__()``. A deletion like``del notebook[index]``
+      does ``notebook.__delitem__(index)``, which calls ``pathName forget``
       documented in :man:`ttk_notebook(3tk)`.
-    * The only method that adds existing :class:`.NotebookTab` objects to the
-      notebook is :meth:`insert`. Other methods call it as well; for example,
+    * The only method that adds :class:`.NotebookTab` objects to the notebook
+      is :meth:`insert`. Other methods call it as well; for example,
       ``notebook.append(tab)`` does ``notebook.insert(len(notebook), tab)``.
 
     As usual, use :func:`super` when overriding.
@@ -157,6 +152,21 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
 
     def __init__(self, parent, **kwargs):
         super().__init__('ttk::notebook', parent, **kwargs)
+
+        # keys are widgets, and values are NotebookTabs that can be garbage
+        # collected when the widgets are garbage collected
+        self._tab_objects = weakref.WeakKeyDictionary()
+
+    def _get_tab_of_widget(self, widget):
+        try:
+            return self._tab_objects[widget]
+        except KeyError:
+            # can happen if the tab was added with a Tcl call
+            assert widget.parent is self
+            return NotebookTab(widget)  # adds the new tab to self._tab_objects
+
+    def _repr_parts(self):
+        return ["contains %d tabs" % len(self)]
 
     def __len__(self):
         return self._call(int, self, 'index', 'end')
@@ -169,7 +179,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         # there seems to be no way to get a widget by index without getting a
         # list of all widgets
         widgets = self._call([Widget], self, 'tabs')
-        return NotebookTab._from_notebook_and_widget(self, widgets[index])
+        return self._get_tab_of_widget(widgets[index])
 
     @needs_main_thread
     def __setitem__(self, index, tab):
@@ -177,15 +187,16 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         self.insert(index, tab)
 
     @needs_main_thread
-    def __delitem__(self, index, tab):
-        tab = self[index]
-        tab.notebook = None
-        self._call(None, self, 'forget', tab.widget)
+    def __delitem__(self, index):
+        self._call(None, self, 'forget', self[index].widget)
 
     @needs_main_thread
     def insert(self, index, tab):
         if not isinstance(tab, NotebookTab):
             raise TypeError("expected a NotebookTab, got %r" % (tab,))
+        if tab.widget.parent is not self:
+            raise ValueError("cannot add a tab of a child widget of %r to %r"
+                             % (tab.widget.parent, self))
 
         # lists do this
         if index < 0:
@@ -195,18 +206,28 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         if index > len(self):
             index = len(self)
 
-        with tab._adding_to_notebook_helper(self):
-            self._call(None, self, 'insert', index, tab.widget)
+        # because ttk is fun, isn't it
+        if index == len(self):
+            index = 'end'
+
+        self._call(None, self, 'insert', index, tab.widget)
+        tab.config.update(tab._initial_options)
 
     @needs_main_thread
     def move(self, tab, new_index):
         """
         Move a tab so that after calling this, ``self[new_index]`` is ``tab``.
+
+        The new index may be negative. :class:`IndexError` is raised if the
+        index is not in the correct range.
         """
         if tab not in self:
             raise ValueError("add the tab to the notebook first, "
                              "then you can move it")
-        self._call(None, self, 'insert', index, tab.widget)
+
+        # support negative indexes, and raise IndexErrors accordingly
+        new_index = range(len(self))[new_index]
+        self._call(None, self, 'insert', new_index, tab.widget)
 
     @property
     @needs_main_thread
