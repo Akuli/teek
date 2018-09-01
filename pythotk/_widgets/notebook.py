@@ -30,8 +30,9 @@ class TabConfigDict(ConfigDict):
 
     def _get(self, option):
         self._tab._check_in_notebook()
-        return tk.tcl_call(self._types[option], self._tab.widget.parent,
-                           'tab', self._tab.widget, '-' + option)
+        return tk.tcl_call(self._types.get(option, str),
+                           self._tab.widget.parent, 'tab', self._tab.widget,
+                           '-' + option)
 
     def _list_options(self):
         self._tab._check_in_notebook()
