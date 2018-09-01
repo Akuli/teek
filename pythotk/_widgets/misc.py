@@ -185,7 +185,7 @@ class Checkbutton(ChildMixin, Widget):
         self.on_check.run(self.config['variable'].get())
 
     def invoke(self):
-        """Runs :attr:`on_check`.
+        """Checks or unchecks the checkbutton and runs :attr:`on_check`.
 
         See ``pathname invoke`` in :man:`ttk_checkbutton(3tk)` for details.
         """
