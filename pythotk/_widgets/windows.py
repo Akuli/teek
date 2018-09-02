@@ -187,10 +187,6 @@ class Toplevel(WmMixin, Widget):
     def _get_wm_widget(self):
         return self
 
-    @classmethod
-    def from_widget_path(cls, path_string):
-        raise NotImplementedError
-
 
 class Window(WmMixin, Widget):
     """A convenient widget that represents a Ttk frame inside a toplevel.
