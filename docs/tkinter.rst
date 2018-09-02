@@ -66,7 +66,7 @@ Or much worse::
 
 In these cases, you should replace both ``tkinter.something`` and
 ``tkinter.ttk.something`` with ``tk.something`` and do the
-``import pythotk as tk``. Pythotk contains ttk widgets as needed.
+``import pythotk as tk``. The ``pythotk`` module contains everything you need.
 
 After this, try it out. It probably doesn't work yet, so keep reading.
 
