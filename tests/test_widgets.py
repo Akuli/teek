@@ -213,6 +213,25 @@ def test_options():
     assert widget1.config != widget2.config
 
 
+def test_scrolling():
+    text = tk.Text(tk.Window())
+    asd = []
+
+    def callback(x, y):
+        asd.extend([x, y])
+
+    text.config['yscrollcommand'].connect(callback)
+    text.insert(text.end, 'toot\ntoot\n' * text.config['height'])
+
+    # scroll to end, and make sure everything is visible
+    tk.tcl_call(None, text, 'yview', 'moveto', 1.0)
+    text.pack()
+    tk.update()
+
+    assert round(asd[-2], 1) == 0.5
+    assert asd[-1] == 1.0
+
+
 def test_bind(handy_callback):
     widget = tk.Window()
     assert not widget.bindings.keys()

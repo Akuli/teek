@@ -128,8 +128,7 @@ class Widget:
             'textvariable': tk.StringVar,
             'underline': int,
             'image': tk.Image,
-            #'xscrollcommand': ???,
-            #'yscrollcommand': ???,
+            #'xscrollcommand' and 'yscrollcommand' are done below
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
@@ -137,6 +136,10 @@ class Widget:
             'padding': tk.ScreenDistance,
             'state': str,
         })
+        for option_name in ('xscrollcommand', 'yscrollcommand'):
+            self.config._special[option_name] = functools.partial(
+                self._create_scroll_callback, option_name)
+
         self.config.update(options)
 
         # command strings that are deleted when the widget is destroyed
@@ -197,6 +200,13 @@ class Widget:
     def _repr_parts(self):
         # overrided in subclasses
         return []
+
+    def _create_scroll_callback(self, option_name):
+        result = tk.Callback(float, float)
+        command_string = tk.create_command(result.run, [float, float])
+        self._command_list.append(command_string)
+        self._call(None, self, 'configure', '-' + option_name, command_string)
+        return result
 
     __getitem__ = _tkinter_hint("widget.config['option']", "widget['option']")
     __setitem__ = _tkinter_hint("widget.config['option']", "widget['option']")
