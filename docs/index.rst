@@ -8,8 +8,7 @@ Welcome to Pythotk's documentation!
 
 Pythotk is a pythonic way to write Tk GUIs in Python. See
 `the README <https://github.com/Akuli/pythotk/#pythotk>`_ for an introduction
-to pythotk, and :ref:`getting-started` for important things about using
-pythotk.
+to pythotk, and then click the tutorial link below to get started.
 
 
 Tutorials and Guides
