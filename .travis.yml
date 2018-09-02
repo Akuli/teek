@@ -7,9 +7,11 @@ python:
   - nightly
   - "pypy3.5"
 install:
-  - pip install pytest flake8 sphinx
+  - pip install pytest pytest-cov python-coveralls flake8 sphinx
 script:
   - flake8 pythotk/ tests/ *.py
 
   # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
-  - xvfb-run python -m pytest
+  - xvfb-run python -m pytest --cov=pythotk
+after_success:
+  - coveralls
