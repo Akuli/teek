@@ -25,18 +25,16 @@ class Callback:
         hello again
     """
 
-    def __init__(self, *types):
-        self._argtypes = types
+    def __init__(self):
         self._connections = []
 
     def connect(self, function, args=(), kwargs=None):
         """Schedule ``callback(*args, **kwargs)`` to run.
 
-        If the callback has its own arguments (e.g.
-        ``Callback(int, int)``), they will appear before the *args*
-        given here. For example:
+        If some arguments are passed to :meth:`run`, they will appear before
+        the *args* given here. For example:
 
-        >>> c = Callback(int, int)
+        >>> c = Callback()
         >>> c.connect(print, args=['hello'], kwargs={'sep': '-'})
         >>> c.run(1, 2)     # print(1, 2, 'hello', sep='-')
         1-2-hello
@@ -85,12 +83,6 @@ class Callback:
 
     def run(self, *args):
         """Run the connected callbacks."""
-        if (len(args) != len(self._argtypes) or
-                not all(map(isinstance, args, self._argtypes))):
-            good = ', '.join(cls.__name__ for cls in self._argtypes)
-            bad = ', '.join(type(arg).__name__ for arg in args)
-            raise TypeError("should be run(%s), not run(%s)" % (good, bad))
-
         for func, extra_args, kwargs, stack_info in self._connections:
             try:
                 func(*(args + tuple(extra_args)), **kwargs)
@@ -422,12 +414,7 @@ class TclVariable:
         :man:`trace(3tcl)`.
         """
         if self._write_trace is None:
-            if isinstance(self.type_spec, type):
-                # e.g. str int float, not e.g. [str] (str, int) {'a': str}
-                self._write_trace = Callback(self.type_spec)
-            else:
-                # this is nice and simple
-                self._write_trace = Callback(object)
+            self._write_trace = Callback()
 
             def runner(*junk):
                 self._write_trace.run(self.get())

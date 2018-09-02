@@ -176,7 +176,7 @@ class Checkbutton(ChildMixin, Widget):
         self.config['command'].run(self.config['variable'].get())
 
     def _create_check_command(self):
-        result = tk.Callback(bool)
+        result = tk.Callback()
         command_string = tk.create_command(self._command_runner)
         self._command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)

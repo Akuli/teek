@@ -202,7 +202,7 @@ class Widget:
         return []
 
     def _create_scroll_callback(self, option_name):
-        result = tk.Callback(float, float)
+        result = tk.Callback()
         command_string = tk.create_command(result.run, [float, float])
         self._command_list.append(command_string)
         self._call(None, self, 'configure', '-' + option_name, command_string)
@@ -459,7 +459,7 @@ class BindingDict(collections.abc.Mapping):
                 self._callback_objects[sequence] = equiv_callback
                 return equiv_callback
 
-        callback = tk.Callback(Event)
+        callback = tk.Callback()
         runner = functools.partial(self._callback_runner, callback)
         command = tk.create_command(runner, [str] * len(_BIND_SUBS))
         self._command_list.append(command)      # avoid memory leaks

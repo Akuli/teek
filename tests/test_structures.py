@@ -9,22 +9,10 @@ def test_callbacks(capsys):
     result1 = []
     result2 = []
 
-    cb = tk.Callback(str)
+    cb = tk.Callback()
     cb.connect(result1.append)
     cb.connect(result1.append)   # repeated intentionally
     cb.connect(result2.append)
-
-    with pytest.raises(TypeError) as error:
-        cb.run(123)
-    assert str(error.value) == "should be run(str), not run(int)"
-
-    with pytest.raises(TypeError) as error:
-        cb.run("hello", "world")
-    assert str(error.value) == "should be run(str), not run(str, str)"
-
-    with pytest.raises(TypeError) as error:
-        cb.run(123)
-    assert str(error.value) == "should be run(str), not run(int)"
 
     cb.run('lol')
     assert result1 == ['lol', 'lol']
