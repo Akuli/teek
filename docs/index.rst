@@ -19,6 +19,7 @@ Tutorials and Guides
 
     Beginner-friendly tutorial (start here) <tutorial>
     tkinter
+    concurrency
 
 
 Reference
@@ -36,7 +37,6 @@ covered in the tutorial.
     dialog
     misc-objs
     platform-info
-    concurrency
 
 
 Understanding pythotk
