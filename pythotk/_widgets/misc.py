@@ -252,7 +252,6 @@ class Entry(ChildMixin, Widget):
         self._call(None, self, 'icursor', new_pos)
 
 
-# TODO: add an example to the docstring
 class Scrollbar(ChildMixin, Widget):
     """A widget for scrolling other widgets, like :class:`.Text`.
 
