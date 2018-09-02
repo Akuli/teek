@@ -44,3 +44,5 @@ looking for, and ignore rest of this.
     :members:
 .. autoclass:: pythotk.Toplevel
     :members:
+.. autoclass:: pythotk.Scrollbar
+    :members:

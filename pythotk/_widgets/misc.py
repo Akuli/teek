@@ -1,5 +1,5 @@
 import pythotk as tk
-from pythotk._tcl_calls import needs_main_thread
+from pythotk._tcl_calls import from_tcl, needs_main_thread
 from pythotk._widgets.base import Widget, ChildMixin
 
 
@@ -250,3 +250,77 @@ class Entry(ChildMixin, Widget):
     @cursor_pos.setter
     def cursor_pos(self, new_pos):
         self._call(None, self, 'icursor', new_pos)
+
+
+# TODO: add an example to the docstring
+class Scrollbar(ChildMixin, Widget):
+    """A widget for scrolling other widgets, like :class:`.Text`.
+
+    In order to use a scrollbar, there are two things you need to do:
+
+    1. Tell a scrollable widget (e.g. :class:`.Text`) to use the scrollbar.
+    2. Tell the scrollbar to scroll the widget.
+
+    For example::
+
+        import pythotk as tk
+
+        window = tk.Window()
+
+        text = tk.Text(window)
+        text.pack(side='left', fill='both', expand=True)
+        scrollbar = tk.Scrollbar(window)
+        scrollbar.pack(side='left', fill='y')
+
+        text.config['yscrollcommand'].connect(scrollbar.set)  # 1.
+        scrollbar.config['command'].connect(text.yview)       # 2.
+
+        tk.run()
+
+    The value of the scrollbar's ``'command'`` option is a :class:`.Callback`
+    that runs when the scrollbar is scrolled. It runs with arguments suitable
+    for :meth:`.Text.xview` or :meth:`.Text.yview`. See ``SCROLLING COMMANDS``
+    in :man:`ttk_scrollbar(3tk)` for details about the arguments.
+
+    Manual page: :man:`ttk_scrollbar(3tk)`
+    """
+
+    def __init__(self, parent, **kwargs):
+        super().__init__('ttk::scrollbar', parent, **kwargs)
+        self.config._special['command'] = self._create_scrolling_command
+
+    # this runs when the user moves the scrollbar
+    def _command_runner(self, *args):
+        if args[0] == 'moveto':
+            moveto, fraction = args
+            fraction = from_tcl(float, fraction)
+            self.config['command'].run('moveto', fraction)
+        elif args[0] == 'scroll' and args[-1] in ('units', 'pages'):
+            scroll, number, units_or_pages = args
+            number = from_tcl(int, number)
+            self.config['command'].run('scroll', number, units_or_pages)
+        else:   # pragma: no cover
+            raise ValueError("ttk::scrollbar's command ran with unexpected "
+                             "arguments: " + repr(args))
+
+    def _create_scrolling_command(self):
+        result = tk.Callback()
+        command_string = tk.create_command(
+            self._command_runner, extra_args_type=str)
+        self._command_list.append(command_string)
+        self._call(None, self, 'configure', '-command', command_string)
+        return result
+
+    def set(self, first, last):
+        """Set the scrollbar's position.
+
+        See ``pathName set`` in :man:`ttk_scrollbar(3tk)` for details.
+        """
+        self._call(None, self, 'set', first, last)
+
+    def get(self):
+        """Return a two-tuple of floats that have been passed to :meth:`set`.
+
+        See also ``pathName get`` in :man:`ttk_scrollbar(3tk)`.
+        """
+        return self._call((float, float), self, 'get')

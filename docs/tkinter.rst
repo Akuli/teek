@@ -31,7 +31,6 @@ Currently these tkinter widgets are missing in pythotk:
 * ``tkinter.ttk.Progressbar``
 * ``tkinter.Radiobutton``, ``tkinter.ttk.Radiobutton``
 * ``tkinter.Scale``, ``tkinter.ttk.Scale``
-* ``tkinter.Scrollbar``, ``tkinter.ttk.Scrollbar``
 * ``tkinter.ttk.Sizegrip``
 * ``tkinter.Spinbox``
 * ``tkinter.ttk.Treeview``

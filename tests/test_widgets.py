@@ -437,11 +437,47 @@ def test_checkbutton():
     asd.clear()
 
 
+def test_scrollbar(handy_callback):
+    scrollbar = tk.Scrollbar(tk.Window())
+    assert scrollbar.get() == (0.0, 1.0)
+
+    # testing the set method isn't as easy as you might think because get()
+    # doesn't return the newly set arguments after calling set()
+    @handy_callback
+    def asd(*args):
+        assert args == ('set', '1.2', '3.4')
+
+    asd_command = tk.create_command(asd, extra_args_type=str)
+    tk.tcl_call(None, 'rename', scrollbar.to_tcl(), 'real_scrollbar')
+    tk.tcl_call(None, 'rename', asd_command, scrollbar.to_tcl())
+    try:
+        scrollbar.set(1.2, 3.4)
+        assert asd.ran_once()
+    finally:
+        tk.delete_command(scrollbar.to_tcl())
+        tk.tcl_call(None, 'rename', 'real_scrollbar', scrollbar.to_tcl())
+
+    # this tests the code that runs when the user scrolls the scrollbar
+    log = []
+    scrollbar.config['command'].connect(lambda *args: log.append(args))
+
+    command_string = tk.tcl_call(str, scrollbar, 'cget', '-command')
+    tk.tcl_call(None, command_string, 'moveto', 1.2)
+    tk.tcl_call(None, command_string, 'scroll', 1, 'units')
+    tk.tcl_call(None, command_string, 'scroll', 2, 'pages')
+    assert log == [
+        ('moveto', 1.2),
+        ('scroll', 1, 'units'),
+        ('scroll', 2, 'pages')
+    ]
+
+
 def test_config_types(check_config_types):
     window = tk.Window()
     widgets = [window, window.toplevel, tk.Frame(window), tk.Separator(window),
                tk.Label(window), tk.Button(window), tk.Entry(window),
-               tk.LabelFrame(window), tk.Checkbutton(window)]
+               tk.LabelFrame(window), tk.Checkbutton(window),
+               tk.Scrollbar(window)]
     for widget in widgets:
         check_config_types(widget.config, type(widget).__name__)
 

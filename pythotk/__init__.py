@@ -36,7 +36,7 @@ from pythotk._tcl_calls import (
 from pythotk._timeouts import after, after_idle
 from pythotk._widgets.base import Widget
 from pythotk._widgets.misc import (
-    Button, Checkbutton, Entry, Frame, Label, LabelFrame, Separator)
+    Button, Checkbutton, Entry, Frame, Label, LabelFrame, Scrollbar, Separator)
 from pythotk._widgets.notebook import Notebook, NotebookTab
 from pythotk._widgets.text import Text
 from pythotk._widgets.windows import Window, Toplevel
