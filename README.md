@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Akuli/pythotk.svg?branch=master)](https://travis-ci.org/Akuli/pythotk)
 [![Documentation Status](https://readthedocs.org/projects/pythotk/badge/?version=latest)](https://pythotk.readthedocs.io/en/latest/?badge=latest)
+[![Coverage Status](https://coveralls.io/repos/github/Akuli/pythotk/badge.svg?branch=master)](https://coveralls.io/github/Akuli/pythotk?branch=master)
 
 Pythotk, short for "pythonic Tk", is a pythonic and user-friendly alternative
 to tkinter. It doesn't come with Python so you need to install it yourself, but
