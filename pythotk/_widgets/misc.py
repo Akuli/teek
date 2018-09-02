@@ -3,80 +3,6 @@ from pythotk._tcl_calls import from_tcl, needs_main_thread
 from pythotk._widgets.base import Widget, ChildMixin
 
 
-class Frame(ChildMixin, Widget):
-    """An empty widget. Frames are often used as containers for other widgets.
-
-    Manual page: :man:`ttk_frame(3tk)`
-    """
-
-    def __init__(self, parent, **options):
-        super().__init__('ttk::frame', parent, **options)
-        self.config._types.update({
-            'padding': tk.ScreenDistance,
-        })
-
-
-class Separator(ChildMixin, Widget):
-    """A horizontal or vertical line, depending on an ``orient`` option.
-
-    Create a horizontal separator like this...
-    ::
-
-        separator = tk.Separator(some_widget, orient='horizontal')
-        separator.pack(fill='x')    # default is side='top'
-
-    ...and create a vertical separator like this::
-
-        separator = tk.Separator(some_widget, orient='vertical')
-        separator.pack(fill='y', side='left')   # can also use side='right'
-
-    Manual page: :man:`ttk_separator(3tk)`
-    """
-    # TODO: link to pack docs
-
-    def __init__(self, parent, **options):
-        super().__init__('ttk::separator', parent, **options)
-
-    def _repr_parts(self):
-        return ['orient=' + repr(self.config['orient'])]
-
-
-class Label(ChildMixin, Widget):
-    """A widget that displays text.
-
-    For convenience, the ``text`` option can be also given as a positional
-    initialization argument, so ``tk.Label(parent, "hello")`` and
-    ``tk.Label(parent, text="hello")`` do the same thing.
-
-    Manual page: :man:`ttk_label(3tk)`
-    """
-
-    def __init__(self, parent, text='', **kwargs):
-        super().__init__('ttk::label', parent, text=text, **kwargs)
-
-    def _repr_parts(self):
-        return ['text=' + repr(self.config['text'])]
-
-
-class LabelFrame(ChildMixin, Widget):
-    """A frame with a visible border line and title text.
-
-    For convenience, the ``text`` option can be given as with :class:`.Label`.
-
-    Manual page: :man:`ttk_labelframe(3tk)`
-    """
-
-    def __init__(self, parent, text='', **kwargs):
-        super().__init__('ttk::labelframe', parent, text=text, **kwargs)
-        self.config._types.update({
-            'labelanchor': str,
-            'labelwidget': Widget,
-        })
-
-    def _repr_parts(self):
-        return ['text=' + repr(self.config['text'])]
-
-
 class Button(ChildMixin, Widget):
     """A widget that runs a callback when it's clicked.
 
@@ -252,6 +178,55 @@ class Entry(ChildMixin, Widget):
         self._call(None, self, 'icursor', new_pos)
 
 
+class Frame(ChildMixin, Widget):
+    """An empty widget. Frames are often used as containers for other widgets.
+
+    Manual page: :man:`ttk_frame(3tk)`
+    """
+
+    def __init__(self, parent, **options):
+        super().__init__('ttk::frame', parent, **options)
+        self.config._types.update({
+            'padding': tk.ScreenDistance,
+        })
+
+
+class Label(ChildMixin, Widget):
+    """A widget that displays text.
+
+    For convenience, the ``text`` option can be also given as a positional
+    initialization argument, so ``tk.Label(parent, "hello")`` and
+    ``tk.Label(parent, text="hello")`` do the same thing.
+
+    Manual page: :man:`ttk_label(3tk)`
+    """
+
+    def __init__(self, parent, text='', **kwargs):
+        super().__init__('ttk::label', parent, text=text, **kwargs)
+
+    def _repr_parts(self):
+        return ['text=' + repr(self.config['text'])]
+
+
+class LabelFrame(ChildMixin, Widget):
+    """A frame with a visible border line and title text.
+
+    For convenience, the ``text`` option can be given as with :class:`.Label`.
+
+    Manual page: :man:`ttk_labelframe(3tk)`
+    """
+
+    def __init__(self, parent, text='', **kwargs):
+        super().__init__('ttk::labelframe', parent, text=text, **kwargs)
+        self.config._types.update({
+            'labelanchor': str,
+            'labelwidget': Widget,
+        })
+
+    def _repr_parts(self):
+        return ['text=' + repr(self.config['text'])]
+
+
 class Scrollbar(ChildMixin, Widget):
     """A widget for scrolling other widgets, like :class:`.Text`.
 
@@ -323,3 +298,28 @@ class Scrollbar(ChildMixin, Widget):
         See also ``pathName get`` in :man:`ttk_scrollbar(3tk)`.
         """
         return self._call((float, float), self, 'get')
+
+
+class Separator(ChildMixin, Widget):
+    """A horizontal or vertical line, depending on an ``orient`` option.
+
+    Create a horizontal separator like this...
+    ::
+
+        separator = tk.Separator(some_widget, orient='horizontal')
+        separator.pack(fill='x')    # default is side='top'
+
+    ...and create a vertical separator like this::
+
+        separator = tk.Separator(some_widget, orient='vertical')
+        separator.pack(fill='y', side='left')   # can also use side='right'
+
+    Manual page: :man:`ttk_separator(3tk)`
+    """
+    # TODO: link to pack docs
+
+    def __init__(self, parent, **options):
+        super().__init__('ttk::separator', parent, **options)
+
+    def _repr_parts(self):
+        return ['orient=' + repr(self.config['orient'])]
