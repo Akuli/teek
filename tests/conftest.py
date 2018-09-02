@@ -69,7 +69,7 @@ def check_config_types():
 
         # were there keys that defaulted to str?
         for key in config:
-            if key not in config._types:
+            if key not in config._types and key not in config._special:
                 print('\ncheck_config_types', debug_info, 'warning: type of',
                       key, 'was guessed to be str')
 
