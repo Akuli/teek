@@ -128,7 +128,7 @@ class Widget:
             'textvariable': tk.StringVar,
             'underline': int,
             'image': tk.Image,
-            #'xscrollcommand' and 'yscrollcommand' are done below
+            # 'xscrollcommand' and 'yscrollcommand' are done below
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
