@@ -68,9 +68,9 @@ def check_config_types():
         dict(config)
 
         # were there keys that defaulted to str?
-        for key in config:
-            if key not in config._types and key not in config._special:
-                print('\ncheck_config_types', debug_info, 'warning: type of',
-                      key, 'was guessed to be str')
+        known_keys = config._types.keys() | config._special.keys()
+        for key in (config.keys() - known_keys):
+            print('\ncheck_config_types', debug_info, 'warning: type of',
+                  key, 'was guessed to be str')
 
     return checker
