@@ -139,3 +139,28 @@ def test_marks():
     assert text.marks['before space'] == text.start.forward(chars=5)
     del text.marks['before space']
     assert 'before space' not in text.marks
+
+
+def test_scrolling():
+    text = tk.Text(tk.Window())
+    asd = []
+
+    def callback(x, y):
+        asd.extend([x, y])
+
+    text.config['yscrollcommand'].connect(callback)
+    text.insert(text.end, 'toot\ntoot\n' * text.config['height'])
+
+    # scroll to end, and make sure everything is visible
+    text.yview('moveto', 1)
+    text.pack()
+    tk.update()
+
+    assert round(asd[-2], 1) == 0.5
+    assert asd[-1] == 1.0
+
+    # yview return type checks
+    assert text.yview('moveto', 1) is None
+    pair = text.yview()
+    assert isinstance(pair, tuple) and len(pair) == 2
+    assert all(isinstance(item, float) for item in pair)

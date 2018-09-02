@@ -219,6 +219,17 @@ class Text(ChildMixin, Widget):
         A dictionary-like object with mark names as keys and
         :ref:`index objects <textwidget-index>` as values. See
         :ref:`textwidget-marks`.
+
+    .. method:: xview(*args)
+                yview(*args)
+
+        These call ``pathName xview`` and ``pathName yview`` as documented in
+        :man:`text(3tk)`. Pass string arguments to these methods to invoke the
+        subcommands. For example, ``text_widget.yview('moveto', 1)`` scrolls to
+        end vertically.
+
+        If no arguments are given, these methods return a two-tuple of floats
+        (see the manual page); otherwise, None is returned.
     """
 
     def __init__(self, parent, **kwargs):
@@ -312,3 +323,13 @@ class Text(ChildMixin, Widget):
         """See :man:`text(3tk)` and :meth:`insert`."""
         index1, index2 = self.index(*index1), self.index(*index2)
         self._call(None, self, 'replace', index1, index2, new_text, tag_list)
+
+    def _xview_or_yview(self, xview_or_yview, *args):
+        if not args:
+            return self._call((float, float), self, xview_or_yview)
+
+        self._call(None, self, xview_or_yview, *args)
+        return None
+
+    xview = functools.partialmethod(_xview_or_yview, 'xview')
+    yview = functools.partialmethod(_xview_or_yview, 'yview')
