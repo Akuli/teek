@@ -2,6 +2,7 @@ import collections.abc
 import re
 
 import pythotk as tk
+from pythotk._structures import ConfigDict
 from pythotk._widgets.base import ChildMixin, Widget
 
 
@@ -188,6 +189,37 @@ class Toplevel(WmMixin, Widget):
         return self
 
 
+# allow accessing Toplevel config things like 'menu' through the Window widget
+class FallbackConfigDict(ConfigDict):
+
+    def __init__(self, main_config, fallback_config):
+        super().__init__()
+
+        # these may avoid breaking something, but at least they avoid getting
+        # lots of warnings from check_config_types, see tests
+        self._types.update(main_config._types)
+        self._types.update(fallback_config._types)
+
+        self._main_config = main_config
+        self._fallback_config = fallback_config
+
+    def _set(self, option, value):
+        if option in self._main_config._list_options():
+            self._main_config._set(option, value)
+        else:
+            self._fallback_config._set(option, value)
+
+    def _get(self, option):
+        if option in self._main_config._list_options():
+            return self._main_config._get(option)
+        else:
+            return self._fallback_config._get(option)
+
+    def _list_options(self):
+        return (set(self._main_config._list_options()) |
+                set(self._fallback_config._list_options()))
+
+
 class Window(WmMixin, Widget):
     """A convenient widget that represents a Ttk frame inside a toplevel.
 
@@ -201,6 +233,14 @@ class Window(WmMixin, Widget):
     just create a :class:`Window` and add widgets to that.
 
     All initialization arguments are passed to :class:`Toplevel`.
+
+    The :attr:`config` attribute combines options from the :class:`.Frame` and
+    the :class:`.Toplevel` so that it uses :class:`.Frame` options whenever
+    they are available, and :class:`.Toplevel` options otherwise. For example,
+    :class:`.Frame` has an option named ``'width'``, so
+    ``some_window.config['width']`` uses that, but frames don't have a
+    ``'menu'`` option, so ``some_window.config['menu']`` uses the toplevel's
+    menu option.
 
     There is no manual page for this class because this is purely a pythotk
     feature; there is no ``window`` widget in Tk.
@@ -219,6 +259,7 @@ class Window(WmMixin, Widget):
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
         super().__init__('ttk::frame', self.toplevel)
+        self.config = FallbackConfigDict(self.config, self.toplevel.config)
         ChildMixin.pack(self, fill='both', expand=True)
 
     def _get_wm_widget(self):

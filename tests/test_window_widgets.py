@@ -98,3 +98,27 @@ def test_geometry_changes():
     window.geometry(100, 200, 300, 400)
     tk.update()
     assert window.geometry() == (100, 200, 300, 400)
+
+
+# 'menu' is an option that Toplevel has and Frame doesn't have, so Window must
+# use its toplevel's menu option
+def test_window_menu_like_options_fallback_to_toplevel_options():
+    window = tk.Window()
+    toplevel = window.toplevel
+    frame = tk.Frame(window)
+    menu = tk.Menu()
+
+    assert 'menu' not in frame.config
+    assert 'menu' in toplevel.config
+    assert 'menu' in window.config
+
+    with pytest.raises(KeyError):
+        frame.config['menu']
+    assert toplevel.config['menu'] is None
+    assert window.config['menu'] is None
+
+    window.config['menu'] = menu
+    assert window.config['menu'] is menu
+    assert toplevel.config['menu'] is menu
+    with pytest.raises(KeyError):
+        frame.config['menu']
