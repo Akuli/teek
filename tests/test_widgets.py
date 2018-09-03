@@ -288,3 +288,18 @@ def test_packing():
     label2.pack(in_=frame)
     assert window.pack_slaves() == [label1]
     assert frame.pack_slaves() == [label2]
+
+
+def test_winfo_ismapped():
+    window = tk.Window()
+    tk.update()
+    assert window.winfo_ismapped() is True
+
+    frame = tk.Frame(window)
+    assert frame.winfo_ismapped() is False
+    tk.update()
+    assert frame.winfo_ismapped() is False
+
+    frame.pack()
+    tk.update()
+    assert frame.winfo_ismapped() is True

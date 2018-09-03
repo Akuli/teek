@@ -279,6 +279,15 @@ class Widget:
         # self._call uses this, so this must not use that
         return tk.tcl_call(bool, 'winfo', 'exists', self)
 
+    def winfo_ismapped(self):
+        """
+        Returns True if the widget is showing on the screen, or False
+        otherwise.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(bool, 'winfo', 'ismapped', self)
+
     def winfo_toplevel(self):
         """Returns the :class:`Toplevel` widget that this widget is in.
 
