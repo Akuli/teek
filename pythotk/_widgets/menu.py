@@ -6,15 +6,44 @@ from pythotk._tcl_calls import needs_main_thread
 from pythotk._widgets.base import Widget
 
 
-# instances of this class assume that the indexes don't change unexpectedly
-# TODO: document that
+# all menu item things that do something run in the main thread to avoid any
+# kind of use of menu items that are in an inconsistent state, and the Menu
+# class also does this... think of it as poor man's locking or something
 class MenuItem:
 
-    def __init__(self, menu, index):
-        self._menu = menu
-        self._index = index
+    def __init__(self, *args, **kwargs):
+        self._options = kwargs.copy()
 
-        # this line of code feels like java
+        if not args:
+            self.type = 'separator'
+        elif len(args) == 2:
+            self._options['label'], second_object = args
+            if isinstance(second_object, tk.BooleanVar):
+                self.type = 'checkbutton'
+                self._options['variable'] = second_object
+            elif callable(second_object):
+                self.type = 'command'
+                self._command_callback = second_object  # see _adding_finalizer
+            elif isinstance(second_object, Menu):
+                self.type = 'cascade'
+                self._options['menu'] = second_object
+            else:   # assume an iterable
+                self.type = 'cascade'
+                self._options['menu'] = Menu(second_object)
+        elif len(args) == 3:
+            self.type = 'radiobutton'
+            (self._options['label'],
+             self._options['variable'],
+             self._options['value']) = args
+        else:
+            raise TypeError(
+                "expected 0, 2 or 3 arguments to MenuItem, got " + len(args))
+
+        self._args = args
+        self._kwargs = kwargs
+        self._menu = None
+        self._index = None
+
         self.config = CgetConfigureConfigDict(self._config_entrycommand_caller)
         self.config._types.update({
             'activebackground': tk.Color,
@@ -44,65 +73,59 @@ class MenuItem:
         self.config._special['command'] = self._create_command
 
     def __repr__(self):
-        return '<%s menu item, label=%r>' % (self.type, self.config['label'])
+        parts = list(map(repr, self._args))
+        parts.extend('%s=%r' % pair for pair in self._kwargs.items())
+        return 'MenuItem(%s)' % ', '.join(parts)
 
+    def _get_insert_args(self):
+        for option, value in self._kwargs.items():
+            yield '-' + option
+            yield value
+
+    def _after_adding(self, menu, index):
+        self._menu = menu
+        self._index = index
+        self.config.update(self._options)
+        if self.type == 'command':
+            self.config['command'].connect(self._command_callback)
+
+    def _after_removing(self):
+        self._menu = None
+        self._index = None
+
+    def _check_in_menu(self):
+        assert (self._menu is None) == (self._index is None)
+        if self._menu is None:
+            raise RuntimeError("the MenuItem hasn't been added to a Menu yet")
+
+    @needs_main_thread
     def _config_entrycommand_caller(self, returntype, subcommand, *args):
         assert subcommand in {'cget', 'configure'}
+        self._check_in_menu()
         return tk.tcl_call(returntype, self._menu, 'entry' + subcommand,
                            self._index, *args)
 
     def _create_command(self):
-        # because there may be multiple MenuItem objects that represent the
-        # same item index
-        existing_command_string = tk.tcl_call(str, self._menu, 'entrycget',
-                                              self._index, '-command')
-        try:
-            return self._menu._command_callback_cache[existing_command_string]
-        except KeyError:
-            pass
-
+        self._check_in_menu()
         result = tk.Callback()
         command_string = tk.create_command(result.run)
-        self._menu._command_callback_cache[command_string] = result
         tk.tcl_call(None, self._menu, 'entryconfigure', self._index,
                     '-command', command_string)
+        self._menu._command_list.append(command_string)
         return result
-
-    def __eq__(self, other):
-        if not isinstance(other, MenuItem):
-            return NotImplemented
-        return self._menu is other._menu and self._index == other._index
-
-    def __hash__(self):
-        return hash((self._menu, self._index))
-
-    @property
-    def type(self):
-        """A string like ``'command'`` or ``'separator'``.
-
-        See ``pathName type`` in :man:`menu(3tk)` for details.
-        """
-        return tk.tcl_call(str, self._menu, 'type', self._index)
 
 
 # does not use ChildMixin because usually it's a bad idea to e.g. pack a menu
+# TODO: document that this class assumes that nothing else changes the
+#       underlying Tcl widget
 class Menu(Widget, collections.abc.MutableSequence):
     """A menu widget that can be e.g. added to a :class:`.Window`."""
 
     def __init__(self, items=(), **kwargs):
         kwargs.setdefault('tearoff', False)
         super().__init__('menu', None, **kwargs)
-
-        # keys are string values of -command, values are Callbacks
-        self._command_callback_cache = {}
-
+        self._items = []
         self.extend(items)
-
-    def destroy(self):
-        super().destroy()
-        for command in self._command_callback_cache:
-            tk.delete_command(command)
-        self._command_callback_cache.clear()    # because why not
 
     def _repr_parts(self):
         return ['contains %d items' % len(self)]
@@ -111,79 +134,52 @@ class Menu(Widget, collections.abc.MutableSequence):
     def __getitem__(self, index):
         if isinstance(index, slice):
             raise TypeError("slicing a Menu widget is not supported")
-
-        index = range(len(self))[index]    # handle indexes like python does it
-        return MenuItem(self, index)
+        return self._items[index]
 
     @needs_main_thread
     def __delitem__(self, index):
         if isinstance(index, slice):
             raise TypeError("slicing a Menu widget is not supported")
 
-        index = range(len(self))[index]
+        index = range(len(self))[index]    # handle indexes like python does it
         self._call(None, self, 'delete', index)
+        item = self._items.pop(index)
+        item._after_removing()
+
+        # indexes after the deleted item are messed up
+        for index in range(index, len(self._items)):
+            self._items[index]._index = index
 
     @needs_main_thread
     def __setitem__(self, index, value):
         if isinstance(index, slice):
             raise TypeError("slicing a Menu widget is not supported")
 
-        # FIXME: this breaks with a negative index
+        # this is needed because otherwise this breaks with a negative index,
+        # and this code handles indexes like python does it
+        index = range(len(self))[index]
+
         del self[index]
         self.insert(index, value)
 
+    @needs_main_thread
     def __len__(self):
-        # '$widget index end' returns the last index, not the total number of
-        # items
-        length = self._call(str, self, 'index', 'end')
-        if length == 'none':    # no items
-            return 0
-        return int(length) + 1
+        return len(self._items)
 
-    def insert(self, index, item):
-        if item and isinstance(item[-1], collections.abc.Mapping):
-            options = item[-1]
-            item = item[:-1]
-        else:
-            options = {}
+    @needs_main_thread
+    def insert(self, index, item: MenuItem):
+        if not isinstance(item, MenuItem):
+            # TODO: test that tuples are handled correctly here because that
+            #       might be a common mistake
+            raise TypeError("expected a MenuItem, got %r" % (item,))
 
-        do_after_adding = lambda menuitem: None     # noqa
+        # handle the index line python does it
+        self._items.insert(index, item)
+        index = self._items.index(item)
+        self._call(None, self, 'insert', index, item.type,
+                   *item._get_insert_args())
+        item._after_adding(self, index)
 
-        if not item:
-            type_ = 'separator'
-        elif len(item) == 2:
-            options['label'], second_object = item
-            if isinstance(second_object, tk.BooleanVar):
-                type_ = 'checkbutton'
-                options['variable'] = second_object
-            elif callable(second_object):
-                type_ = 'command'
-                do_after_adding = lambda menuitem: (
-                    menuitem.config['command'].connect(second_object))
-            elif isinstance(second_object, Menu):
-                type_ = 'cascade'
-                options['menu'] = second_object
-            else:   # assume an iterable
-                type_ = 'cascade'
-                options['menu'] = Menu(second_object)
-        elif len(item) == 3:
-            type_ = 'radiobutton'
-            options['label'], options['variable'], options['value'] = item
-        else:
-            raise TypeError(
-                "expected a sequence of length 0, 2 or 3, got " + repr(item))
-
-        # lists do this
-        if index < 0:
-            index += len(self)
-        if index < 0:
-            index = 0
-        if index > len(self):
-            index = len(self)
-
-        args = []
-        for option, value in options.items():
-            args.extend(['-' + option, value])
-
-        self._call(None, self, 'insert', index, type_, *args)
-        do_after_adding(self[index])
+        # inserting to self._items messed up items after the index
+        for index2 in range(index + 1, len(self._items)):
+            self._items[index2]._index = index2
