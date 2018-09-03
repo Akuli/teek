@@ -28,19 +28,14 @@ def test_item_types():
 
 
 def test_menuitem_objects():
-    menu = tk.Menu([
-        tk.MenuItem("Click me", print, activeforeground=tk.Color(1, 2, 3)),
-    ])
-    assert menu[0] is menu[0]
-    assert repr(menu[0]) == (
-        "MenuItem("
-        "'Click me'"
-        ", "
-        "<built-in function print>"
-        ", "
-        "activeforeground=<Color '#010203': red=1, green=2, blue=3>"
-        ")"
-    )
+    item = tk.MenuItem("Click me", print, activeforeground=tk.Color(1, 2, 3))
+    assert repr(item) == (
+        "<MenuItem('Click me', <built-in function print>): "
+        "type='command', not added to a menu yet>")
+    tk.Menu().append(item)
+    assert repr(item) == (
+        "<MenuItem('Click me', <built-in function print>): "
+        "type='command', added to a menu>")
 
 
 def test_repr():
@@ -68,6 +63,20 @@ def test_not_added_to_menu_yet():
     assert menu.pop() is item
     with check:
         item.config['label']
+
+
+def test_added_to_2_menus_at_the_same_time():
+    item = tk.MenuItem("Click me", print)
+    menu = tk.Menu()
+    menu.append(item)
+
+    check = pytest.raises(RuntimeError, match=(
+        r'^cannot add a MenuItem to two different menus '
+        r'or twice to the same menu$'))
+    with check:
+        menu.append(item)
+    with check:
+        tk.Menu().append(item)
 
 
 def test_destroying_deletes_commands(handy_callback):

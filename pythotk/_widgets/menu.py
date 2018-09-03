@@ -73,14 +73,25 @@ class MenuItem:
         self.config._special['command'] = self._create_command
 
     def __repr__(self):
-        parts = list(map(repr, self._args))
-        parts.extend('%s=%r' % pair for pair in self._kwargs.items())
-        return 'MenuItem(%s)' % ', '.join(parts)
+        parts = ['type=%r' % self.type]
+        if self._menu is None:
+            parts.append("not added to a menu yet")
+        else:
+            parts.append("added to a menu")
 
-    def _get_insert_args(self):
+        return '<%s%r: %s>' % (type(self).__name__, self._args,
+                               ', '.join(parts))
+
+    def _prepare_adding(self):
+        if self._menu is not None:
+            raise RuntimeError(
+                "cannot add a MenuItem to two different menus "
+                "or twice to the same menu")
+
+        insert_args = []
         for option, value in self._kwargs.items():
-            yield '-' + option
-            yield value
+            insert_args.extend(['-' + option, value])
+        return insert_args
 
     def _after_adding(self, menu, index):
         self._menu = menu
@@ -174,10 +185,10 @@ class Menu(Widget, collections.abc.MutableSequence):
             raise TypeError("expected a MenuItem, got %r" % (item,))
 
         # handle the index line python does it
+        insert_args = item._prepare_adding()
         self._items.insert(index, item)
         index = self._items.index(item)
-        self._call(None, self, 'insert', index, item.type,
-                   *item._get_insert_args())
+        self._call(None, self, 'insert', index, item.type, *insert_args)
         item._after_adding(self, index)
 
         # inserting to self._items messed up items after the index
