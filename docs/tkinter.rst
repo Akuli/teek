@@ -24,7 +24,6 @@ Currently these tkinter widgets are missing in pythotk:
 
 * ``tkinter.Canvas``
 * ``tkinter.Listbox``
-* ``tkinter.Menu``
 * ``tkinter.Menubutton``, ``tkinter.ttk.Menubutton``
 * ``tkinter.OptionMenu``
 * ``tkinter.PanedWindow``, ``tkinter.ttk.Panedwindow``

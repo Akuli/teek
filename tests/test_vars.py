@@ -20,6 +20,23 @@ def test_basic_stuff():
     assert var.get() == [1, 2]
 
 
+def test_eq_hash():
+    stringvar1 = tk.StringVar(name='test_var')
+    stringvar2 = tk.StringVar(name='test_var')
+    lol = tk.StringVar(name='lol_var')
+    intvar = tk.IntVar(name='test_var')
+
+    assert stringvar1 == stringvar1
+    assert stringvar1 == stringvar2
+    assert stringvar1 != lol
+    assert stringvar1 != intvar
+    assert stringvar1 != 1234
+
+    assert {stringvar1: 'asd'}[stringvar2] == 'asd'
+    with pytest.raises(KeyError):
+        {stringvar1: 'asd'}[intvar]
+
+
 def test_write_trace(handy_callback):
     @handy_callback
     def tracer(value):

@@ -360,7 +360,7 @@ class TclVariable:
                              "and set a 'type_spec' class attribute "
                              "instead").format(type(self).__name__))
         if name is None:
-            name = 'pythotk_var_' + next(type(self)._default_names)
+            name = next(type(self)._default_names)
         self._name = name
         self._write_trace = None
 
@@ -371,6 +371,15 @@ class TclVariable:
             value_repr = 'no value has been set'
 
         return '<%s %r: %s>' % (type(self).__name__, self.to_tcl(), value_repr)
+
+    def __eq__(self, other):
+        if not isinstance(other, TclVariable):
+            return NotImplemented
+        return (type(self).type_spec is type(other).type_spec and
+                self._name == other._name)
+
+    def __hash__(self):
+        return hash((type(self).type_spec, self._name))
 
     @classmethod
     def from_tcl(cls, varname):
