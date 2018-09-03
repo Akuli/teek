@@ -189,3 +189,23 @@ class Menu(Widget, collections.abc.MutableSequence):
         # inserting to self._items messed up items after the index
         for index2 in range(index + 1, len(self._items)):
             self._items[index2]._index = index2
+
+    def popup(self, x, y, menu_item=None):
+        """Displays the menu on the screen.
+
+        x and y are coordinates in pixels, relative to the screen. See
+        :man:`tk_popup(3tk)` for details. If *menu_item* is given, its index
+        is passed to :man:`tk_popup(3tk)`.
+
+        There are two ways to show popup menus in Tk. This is one of them, and
+        ``post`` is another. I spent a while trying to find something that
+        explains the difference, and the best thing I found is `this book <htt\
+ps://books.google.fi/books?id=BWf6mdwHjDMC&printsec=frontcover&hl=fi#v=onepage\
+&q&f=false>`_. The book uses ``tk_popup``, and one of the authors is John
+        Ousterhout, the creator of Tcl and Tk.
+        """
+        if menu_item is None:
+            tk.tcl_call(None, 'tk_popup', self, x, y)
+        else:
+            menu_item._check_in_menu()
+            tk.tcl_call(None, 'tk_popup', self, x, y, menu_item._index)

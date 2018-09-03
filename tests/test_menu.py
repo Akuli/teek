@@ -213,3 +213,14 @@ def test_indexes_dont_mess_up_ever_like_srsly_not_ever_never():
     check()
     menu.clear()
     check()
+
+
+def test_popup():
+    menu = tk.Menu()
+    assert not menu.winfo_ismapped()
+    menu.popup(123, 456)
+    assert menu.winfo_ismapped()
+
+    menu2 = tk.Menu([tk.MenuItem("Click me", print)])
+    menu2.popup(123, 456, menu2[0])
+    assert menu2.winfo_ismapped()
