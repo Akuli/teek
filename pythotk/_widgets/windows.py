@@ -219,9 +219,6 @@ class Window(WmMixin, Widget):
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
         super().__init__('ttk::frame', self.toplevel)
-        self.config._types.update({
-            'padding': tk.ScreenDistance,
-        })
         ChildMixin.pack(self, fill='both', expand=True)
 
     def _get_wm_widget(self):
