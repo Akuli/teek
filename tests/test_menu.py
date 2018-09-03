@@ -23,7 +23,7 @@ def test_item_types():
     for submenu_item in (menu[-2], menu[-1]):
         assert submenu_item.config['menu'][0].type == 'command'
 
-    with pytest.raises(TypeError) as error:
+    with pytest.raises(TypeError):
         tk.MenuItem("adding only 1 argument is wrong")
 
 
