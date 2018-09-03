@@ -177,7 +177,7 @@ class Toplevel(WmMixin, Widget):
         self.config._types.update({
             'colormap': str,    # 'new' or a widget name, didn't bother
             'container': bool,
-            'menu': Widget,  # TODO: should be Menu, but Menu doesn't exist yet
+            'menu': tk.Menu,
             'screen': str,
             'use': int,
             'visual': str,      # didn't bother
