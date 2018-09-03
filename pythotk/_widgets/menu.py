@@ -88,11 +88,6 @@ class MenuItem:
                 "cannot add a MenuItem to two different menus "
                 "or twice to the same menu")
 
-        insert_args = []
-        for option, value in self._kwargs.items():
-            insert_args.extend(['-' + option, value])
-        return insert_args
-
     def _after_adding(self, menu, index):
         self._menu = menu
         self._index = index
@@ -185,10 +180,10 @@ class Menu(Widget, collections.abc.MutableSequence):
             raise TypeError("expected a MenuItem, got %r" % (item,))
 
         # handle the index line python does it
-        insert_args = item._prepare_adding()
+        item._prepare_adding()
         self._items.insert(index, item)
         index = self._items.index(item)
-        self._call(None, self, 'insert', index, item.type, *insert_args)
+        self._call(None, self, 'insert', index, item.type)
         item._after_adding(self, index)
 
         # inserting to self._items messed up items after the index
