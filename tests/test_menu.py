@@ -39,8 +39,11 @@ def test_menuitem_objects():
 
 
 def test_repr():
-    assert repr(tk.Menu([tk.MenuItem("Click me", print)] * 2)) == (
-        '<pythotk.Menu widget: contains 2 items>')
+    menu = tk.Menu([
+        tk.MenuItem("Click me", print),
+        tk.MenuItem("Check me", tk.BooleanVar()),
+    ])
+    assert repr(menu) == '<pythotk.Menu widget: contains 2 items>'
 
 
 def test_must_be_menuitem_object():
