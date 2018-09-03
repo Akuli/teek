@@ -37,7 +37,7 @@ class MenuItem:
              self._options['value']) = args
         else:
             raise TypeError(
-                "expected 0, 2 or 3 arguments to MenuItem, got " + len(args))
+                "expected 0, 2 or 3 arguments to MenuItem, got %d" % len(args))
 
         self._args = args
         self._kwargs = kwargs
