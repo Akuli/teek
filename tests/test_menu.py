@@ -32,10 +32,15 @@ def test_menuitem_objects():
     assert repr(item) == (
         "<MenuItem('Click me', <built-in function print>): "
         "type='command', not added to a menu yet>")
-    tk.Menu().append(item)
+
+    menu = tk.Menu([item])
     assert repr(item) == (
         "<MenuItem('Click me', <built-in function print>): "
         "type='command', added to a menu>")
+
+    # the menu should cache the item
+    assert menu[0] is item
+    assert menu[0] is menu[0]
 
 
 def test_repr():
@@ -151,6 +156,37 @@ def test_slicing_not_supported_errors():
         menu[:] = []
     with check:
         del menu[:]
+
+
+def test_readding_to_menus():
+    menu1 = tk.Menu()
+    menu2 = tk.Menu()
+
+    def lengths():
+        return (len(menu1), len(menu2))
+
+    item = tk.MenuItem()
+    assert lengths() == (0, 0)
+
+    menu1.append(item)
+    assert lengths() == (1, 0)
+    menu1.remove(item)
+    assert lengths() == (0, 0)
+
+    menu1.append(item)
+    assert lengths() == (1, 0)
+    menu1.remove(item)
+    assert lengths() == (0, 0)
+
+    menu2.append(item)
+    assert lengths() == (0, 1)
+    menu2.remove(item)
+    assert lengths() == (0, 0)
+
+    menu1.append(item)
+    assert lengths() == (1, 0)
+    menu1.remove(item)
+    assert lengths() == (0, 0)
 
 
 def test_indexes_dont_mess_up_ever_like_srsly_not_ever_never():
