@@ -54,26 +54,33 @@ class Tag(CgetConfigureConfigDict):
         super().__init__(self._call_tag_subcommand)
 
         self._types.update({
-            # TODO: fgstipple, bgstipple
             'background': tk.Color,
+            #'bgstipple': ???,
             'borderwidth': tk.ScreenDistance,
             'elide': bool,
+            #'fgstipple': ???,
             'font': tk.Font,
             'foreground': tk.Color,
             'justify': str,
             'lmargin1': tk.ScreenDistance,
             'lmargin2': tk.ScreenDistance,
             'lmargin3': tk.ScreenDistance,
+            'lmargincolor': tk.Color,
             'offset': tk.ScreenDistance,
             'overstrike': bool,
+            'overstrikefg': tk.Color,
             'relief': str,
             'rmargin': tk.ScreenDistance,
+            'rmargincolor': tk.Color,
+            'selectbackground': tk.Color,
+            'selectforeground': tk.Color,
             'spacing1': tk.ScreenDistance,
             'spacing2': tk.ScreenDistance,
             'spacing3': tk.ScreenDistance,
             'tabs': [str],
             'tabstyle': str,
             'underline': bool,
+            'underlinefg': tk.Color,
             'wrap': str,
         })
 

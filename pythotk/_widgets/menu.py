@@ -236,6 +236,12 @@ d', added to a menu>
     def __init__(self, items=(), **kwargs):
         kwargs.setdefault('tearoff', False)
         super().__init__('menu', None, **kwargs)
+        self.config._types.update({
+            'selectcolor': tk.Color,
+            'tearoff': bool,
+            'title': str,
+            'type': str,
+        })
         self._items = []
         self.extend(items)
 
