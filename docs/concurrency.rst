@@ -251,11 +251,13 @@ same time in different threads. That's not nice.
 A simple alternative is to make the button grayed out in the paste function::
 
     def paste(self):
-        self.paste_button.config['state'] = 'disabled'
+        self.paste_button.state.add('disabled')
         self.url_label.config['text'] = "Pasting..."
         ...
         self.url_label.config['text'] = url
-        self.paste_button.config['state'] = 'normal'
+        self.paste_button.state.remove('disabled')
+
+See :attr:`.Widget.state` for documentation about the state thing.
 
 If you don't want to disable widgets or you would need to disable a widget and
 all widgets in it, you can use :meth:`.Widget.busy` instead, like this::
