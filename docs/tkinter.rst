@@ -27,7 +27,6 @@ Currently these tkinter widgets are missing in pythotk:
 * ``tkinter.Menubutton``, ``tkinter.ttk.Menubutton``
 * ``tkinter.OptionMenu``
 * ``tkinter.PanedWindow``, ``tkinter.ttk.Panedwindow``
-* ``tkinter.ttk.Progressbar``
 * ``tkinter.Radiobutton``, ``tkinter.ttk.Radiobutton``
 * ``tkinter.Scale``, ``tkinter.ttk.Scale``
 * ``tkinter.ttk.Sizegrip``
