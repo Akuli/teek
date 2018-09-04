@@ -274,13 +274,13 @@ class Progressbar(ChildMixin, Widget):
             ...
         ZeroDivisionError: division by zero
 
-        If we have no work to do and we have done nothing (``0/0``), then how many
-        percents of the work is done? It doesn't make any sense. You can handle
-        these cases e.g. like this::
+        If we have no work to do and we have done nothing (``0/0``), then how
+        many percents of the work is done? It doesn't make sense. You can
+        handle these cases e.g. like this::
 
             if total == 0:
-                # 0/0 things done, make the progress bar grayed out because there
-                # is no progress to indicate
+                # 0/0 things done, make the progress bar grayed out because
+                # there is no progress to indicate
                 progress_bar.state.add('disabled')
             else:
                 progress_bar.config['value'] = (done / total) * 100
