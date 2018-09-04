@@ -78,6 +78,11 @@ I found the Mac OSX specific code from here_.
 
 .. _here: https://books.google.fi/books?id=BWf6mdwHjDMC&pg=PT392&lpg=PT392&dq=tk_popup+vs+post&source=bl&ots=n32EYTF27b&sig=V0xXtCqHmKKa37BRNCdPk6unhr4&hl=fi&sa=X&ved=2ahUKEwikwa7A0pzdAhVKCCwKHSeNCa4Q6AEwBHoECAYQAQ#v=onepage&q=tk_popup%20vs%20post&f=false
 
+Menu widgets are *not* Ttk widgets. If you don't know what that means, you
+should go :ref:`here <tcl-tk-tkinter-pythotk>` and learn. The only practical
+thing I can think of right now is that menus don't have a
+:attr:`~.Widget.state` attribute.
+
 
 .. _creating-menu-items:
 

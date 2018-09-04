@@ -12,6 +12,32 @@ _widgets = {}
 on_quit.connect(_widgets.clear)
 
 
+class StateSet(collections.abc.MutableSet):
+
+    def __init__(self, widget):
+        self._widget = widget
+
+    def __repr__(self):
+        # yes, this uses [] even though it behaves like a set, that's the best
+        # thing i thought of
+        return '<state set: %r>' % (list(self),)
+
+    def __iter__(self):
+        return iter(self._widget._call([str], self._widget, 'state'))
+
+    def __len__(self):
+        return len(self._widget._call([str], self._widget, 'state'))
+
+    def __contains__(self, state):
+        return self._widget._call(bool, self._widget, 'instate', state)
+
+    def add(self, state):
+        self._widget._call(None, self._widget, 'state', state)
+
+    def discard(self, state):
+        self._widget._call(None, self._widget, 'state', '!' + state)
+
+
 # make things more tkinter-user-friendly
 def _tkinter_hint(good, bad):
     def dont_use_this(self, *args, **kwargs):
@@ -53,6 +79,21 @@ class Widget:
         {...,
          'text': 'Even newer text',
          ...}
+
+    .. attribute:: state
+
+        Represents the Ttk state of the widget. The state object behaves like a
+        :class:`set` of strings. For example, ``widget.state.add('disabled')``
+        makes a widget look like it's grayed out, and
+        ``widget.state.remove('disabled')`` undoes that. See ``STATES`` in
+        :man:`ttk_intro(3tk)` for more details about states.
+
+        .. note::
+            Only Ttk widgets have states, and this attribute is set to None for
+            non-Ttk widgets. If you don't know what Ttk is, you should read
+            about it in :ref:`the pythotk tutorial <tcl-tk-tkinter-pythotk>`.
+            Most pythotk widgets are ttk widgets, but some aren't, and that's
+            mentioned in the documentation of those widgets.
     """
 
     def __init__(self, widgetname, parent, **options):
@@ -148,6 +189,11 @@ class Widget:
         self.bindings = BindingDict(    # BindingDict is defined below
          lambda returntype, *args: self._call(returntype, 'bind', self, *args),
          self._command_list)
+
+        if widgetname.startswith('ttk::'):
+            self.state = StateSet(self)
+        else:
+            self.state = None
 
     @classmethod
     def from_tcl(cls, path_string):

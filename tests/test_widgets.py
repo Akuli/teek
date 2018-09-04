@@ -1,3 +1,4 @@
+import collections.abc
 import contextlib
 import pythotk as tk
 import re
@@ -303,3 +304,37 @@ def test_winfo_ismapped():
     frame.pack()
     tk.update()
     assert frame.winfo_ismapped() is True
+
+
+def test_state():
+    assert tk.Menu().state is None
+    assert tk.Toplevel().state is None
+
+    state = tk.Button(tk.Window()).state
+    assert state is not None
+    assert isinstance(state, collections.abc.Set)
+    assert isinstance(state, collections.abc.MutableSet)
+
+    assert 'disabled' not in state
+
+    state.add('disabled')
+    assert 'disabled' in state
+    state.add('disabled')
+    assert 'disabled' in state
+
+    state.discard('disabled')
+    assert 'disabled' not in state
+    state.discard('disabled')
+    assert 'disabled' not in state
+
+    state.add('disabled')
+    state.remove('disabled')
+    assert 'disabled' not in state
+    with pytest.raises(KeyError):
+        state.remove('disabled')
+
+    assert not state
+    assert repr(state) == "<state set: []>"
+    state.add('disabled')
+    assert state
+    assert repr(state) == "<state set: ['disabled']>"
