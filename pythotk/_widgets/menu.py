@@ -10,6 +10,52 @@ from pythotk._widgets.base import Widget
 # kind of use of menu items that are in an inconsistent state, and the Menu
 # class also does this... think of it as poor man's locking or something
 class MenuItem:
+    """
+    Represents an item of a menu. See :ref:`creating-menu-items` for details
+    about the arguments.
+
+    Tk's manual pages call these things "menu entries" instead of "menu items",
+    but I called them items to avoid confusing these with :class:`.Entry`.
+
+    There are two kinds of :class:`.MenuItem` objects:
+
+    * Menu items that are not in any :class:`.Menu` widget because they haven't
+      been added to a menu yet, or they have been removed from a menu. Trying
+      to do something with these menu items will likely raise a
+      :class:`.RuntimeError`.
+    * Menu items that are currently in a :class:`.Menu`.
+
+    Here's an example:
+
+    >>> item = tk.MenuItem("Click me", print)
+    >>> item.config['label'] = "New text"
+    Traceback (most recent call last):
+        ...
+    RuntimeError: the MenuItem hasn't been added to a Menu yet
+    >>> menu = tk.Menu()
+    >>> menu.append(item)
+    >>> item.config['label'] = "New text"
+    >>> item.config['label']
+    'New text'
+
+    .. attribute:: config
+
+        This attribute is similar to :attr:`.Widget.config`. See
+        ``MENU ENTRY OPTIONS`` in :man:`menu(3tk)`.
+
+        The types of the values are the same as for similar widgets. For
+        example, the ``'command'`` of a :class:`.Button` widget is a
+        :class:`.Callback` object connected to a function passed to
+        :class:`.Button`, and so is the ``'command'`` of
+        ``tk.MenuItem("Click me", some_function)``.
+
+    .. attribute:: type
+
+        This is a string. Currently the possible values are
+        ``'separator'``, ``'checkbutton'``, ``'command'``, ``'cascade'`` and
+        ``'radiobutton'`` as documented :ref:`above <creating-menu-items>`.
+        Don't set this attribute yourself.
+    """
 
     def __init__(self, *args, **kwargs):
         self._options = kwargs.copy()
@@ -125,7 +171,67 @@ class MenuItem:
 # TODO: document that this class assumes that nothing else changes the
 #       underlying Tcl widget
 class Menu(Widget, collections.abc.MutableSequence):
-    """A menu widget that can be e.g. added to a :class:`.Window`."""
+    """This is the menu widget.
+
+    The ``items`` should be an iterable of :class:`.MenuItem` objects, and it's
+    treated so that this...
+    ::
+
+        menu = tk.Menu([
+            tk.MenuItem("Click me", print),
+            tk.MenuItem("No, click me instead", print),
+        ])
+
+    ...does the same thing as this::
+
+        menu = tk.Menu()
+        menu.append(tk.MenuItem("Click me", print))
+        menu.append(tk.MenuItem("No, click me instead", print))
+
+    Menu widgets behave like lists of menu items, so if you can do something to
+    a list of :class:`.MenuItem` objects, you can probably do it directly to a
+    :class:`.Menu` widget as well.
+
+    However, menu widgets don't support slicing, like lists do:
+
+    >>> menu = tk.Menu([
+    ...     tk.MenuItem("Click me", print),
+    ... ])
+    >>> menu.append(tk.MenuItem("No, click me instead", print))
+    >>> menu
+    <pythotk.Menu widget: contains 2 items>
+    >>> menu[0]     # this works
+    <MenuItem('Click me', <built-in function print>): type='command', added to\
+ a menu>
+    >>> for item in menu:   # this works
+    ...     print(item)
+    ...
+    <MenuItem('Click me', <built-in function print>): type='command', added to\
+ a menu>
+    <MenuItem('No, click me instead', <built-in function print>): type='comman\
+d', added to a menu>
+    >>> menu[:2]    # but this doesn't work
+    Traceback (most recent call last):
+      ...
+    TypeError: slicing a Menu widget is not supported
+    >>> list(menu)[:2]    # workaround      # doctest: +ELLIPSIS
+    [<MenuItem(...): ...>, <MenuItem(...): ...>]
+
+    :class:`.Menu` objects assume that nothing changes the underlying Tk menu
+    widget without the :class:`.Menu` object. For example:
+
+    >>> menu = tk.Menu()
+    >>> command = menu.to_tcl()
+    >>> command      # doctest: +SKIP
+    '.menu1'
+    >>> # DON'T DO THIS, this is a bad idea
+    >>> tk.tcl_eval(None, '%s add checkbutton -command {puts hello}' % command)
+    >>> len(menu)   # the menu widget doesn't know that we added an item
+    0
+
+    If you don't know what :func:`.tcl_eval` does, you don't need to worry
+    about doing this accidentally.
+    """
 
     def __init__(self, items=(), **kwargs):
         kwargs.setdefault('tearoff', False)

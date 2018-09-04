@@ -234,10 +234,10 @@ class Window(WmMixin, Widget):
 
     All initialization arguments are passed to :class:`Toplevel`.
 
-    The :attr:`config` attribute combines options from the :class:`.Frame` and
-    the :class:`.Toplevel` so that it uses :class:`.Frame` options whenever
-    they are available, and :class:`.Toplevel` options otherwise. For example,
-    :class:`.Frame` has an option named ``'width'``, so
+    The :attr:`~.Widget.config` attribute combines options from the
+    :class:`.Frame` and the :class:`.Toplevel` so that it uses :class:`.Frame`
+    options whenever they are available, and :class:`.Toplevel` options
+    otherwise. For example, :class:`.Frame` has an option named ``'width'``, so
     ``some_window.config['width']`` uses that, but frames don't have a
     ``'menu'`` option, so ``some_window.config['menu']`` uses the toplevel's
     menu option.

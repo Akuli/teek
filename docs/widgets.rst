@@ -12,6 +12,7 @@ looking for, and ignore rest of this.
 
     textwidget
     notebook
+    menu
 
 .. autoclass:: pythotk.Widget
     :members: from_tcl, to_tcl, destroy, winfo_exists, winfo_children, winfo_toplevel
@@ -28,6 +29,11 @@ looking for, and ignore rest of this.
     :members:
 .. autoclass:: pythotk.LabelFrame
     :members:
+
+.. class:: pythotk.Menu
+    :noindex:
+
+    See :ref:`menu`.
 
 .. class:: pythotk.Notebook
     :noindex:
