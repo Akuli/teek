@@ -183,7 +183,7 @@ def test_config_types(check_config_types):
     widgets = [window, window.toplevel, tk.Frame(window), tk.Separator(window),
                tk.Label(window), tk.Button(window), tk.Entry(window),
                tk.LabelFrame(window), tk.Checkbutton(window),
-               tk.Scrollbar(window), tk.Menu()]
+               tk.Scrollbar(window), tk.Menu(), tk.Progressbar(window)]
     for widget in widgets:
         check_config_types(widget.config, type(widget).__name__)
 

@@ -227,6 +227,115 @@ class LabelFrame(ChildMixin, Widget):
         return ['text=' + repr(self.config['text'])]
 
 
+class Progressbar(ChildMixin, Widget):
+    """
+    Displays progress of a long-running operation. This is useful if you are
+    :ref:`running something concurrently <concurrency>` and you want to let the
+    user know that something is happening.
+
+    The progress bar can be used in two modes. Pass ``mode='indeterminate'``
+    and call :meth:`start` to make the progress bar bounce back and forth
+    forever. If you want to create a progress bar that actually displays
+    progress instead of just letting the user know that something is happening,
+    don't pass ``mode='indeterminate'``; the default is ``mode='determinate'``,
+    which does what you want.
+
+    There's a ``'value'`` option that can be used to set the progress in
+    determinate mode. A value of 0 means that nothing is done, and 100 means
+    that we are ready. If you do math on a regular basis, that's all you need
+    to know, but if you are not very good at math, keep reading:
+
+    .. admonition:: Progress Math
+
+        If your program does 5 things, and 2 of them are done, you should do
+        this::
+
+            progress_bar.config['value'] = (2 / 5) * 100
+
+        It works like this:
+
+        * The program has done 2 things out of 5; that is, 2/5. That is a
+          division. Its value turns out to be 0.4.
+        * We want percents. They are numbers between 0 and 100. The
+          ``done / total`` calculation gives us a number between 0 and 1; if we
+          have done nothing, we have ``0 / 5 == 0.0``, and if we have done
+          everything, we have ``5 / 5 == 1.0``. If we add ``* 100``, we get
+          ``0.0 * 100 = 0.0`` when we haven't done anything, and
+          ``1.0 * 100 == 100.0`` when we have done everything. Awesome!
+
+        ::
+
+            progress_bar.config['value'] = (done / total) * 100
+
+        However, this fails if ``total == 0``:
+
+        >>> 1/0
+        Traceback (most recent call last):
+            ...
+        ZeroDivisionError: division by zero
+
+        If we have no work to do and we have done nothing (``0/0``), then how many
+        percents of the work is done? It doesn't make any sense. You can handle
+        these cases e.g. like this::
+
+            if total == 0:
+                # 0/0 things done, make the progress bar grayed out because there
+                # is no progress to indicate
+                progress_bar.state.add('disabled')
+            else:
+                progress_bar.config['value'] = (done / total) * 100
+
+    If multiplying by 100 is annoying, you can create the progress bar like
+    this...
+    ::
+
+        progress_bar = tk.Progressbar(parent_widget, maximum=1)
+
+    ...and then set numbers between 0 and 1 to
+    ``progress_bar.config['value']``::
+
+        if total == 0:
+            progress_bar.state.add('disabled')
+        else:
+            progress_bar.config['value'] = done / total
+
+    Manual page: :man:`ttk_progressbar(3tk)`
+    """
+
+    def __init__(self, parent, **kwargs):
+        super().__init__('ttk::progressbar', parent, **kwargs)
+        self.config._types.update({
+            'orient': str,
+            'length': tk.ScreenDistance,    # undocumented but true
+            'maximum': float,
+            'mode': str,
+            #'phase': ???,
+            'value': float,
+            'variable': tk.FloatVar,
+        })
+
+    def _repr_parts(self):
+        result = ['mode=' + repr(self.config['mode'])]
+        if self.config['mode'] == 'determinate':
+            result.append('value=' + repr(self.config['value']))
+            result.append('maximum=' + repr(self.config['maximum']))
+        return result
+
+    def start(self, interval=50):
+        """Makes an indeterminate mode progress bar bounce back and forth.
+
+        The progress bar will move by a tiny bit every *interval* milliseconds.
+        A small interval makes the progress bar look smoother, but don't make
+        it too small to avoid keeping CPU usage down. The default should be
+        good enough for most things.
+        """
+        self._call(None, self, 'start', interval)
+
+    def stop(self):
+        """Stops the bouncing started by :meth:`start`."""
+        self._call(None, self, 'stop')
+
+
 class Scrollbar(ChildMixin, Widget):
     """A widget for scrolling other widgets, like :class:`.Text`.
 

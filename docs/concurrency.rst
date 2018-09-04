@@ -1,3 +1,5 @@
+.. _concurrency:
+
 Concurrency
 ===========
 
@@ -223,8 +225,6 @@ Pythotk's ``init_threads()`` does the hard things for you:
 .. autofunction:: pythotk.init_threads
 
 
-.. _something-is-happening:
-
 Letting the user know that something is happening
 -------------------------------------------------
 
@@ -274,6 +274,9 @@ Here is the reference.
 .. automethod:: pythotk.Widget.busy_forget
 .. automethod:: pythotk.Widget.busy_status
 .. automethod:: pythotk.Widget.busy
+
+For more advanced things, you can also use a separate :class:`.Progressbar`
+widget.
 
 
 .. _after-cb:

@@ -40,6 +40,8 @@ looking for, and ignore rest of this.
 
     See :ref:`notebook`.
 
+.. autoclass:: pythotk.Progressbar
+    :members:
 .. autoclass:: pythotk.Scrollbar
     :members:
 .. autoclass:: pythotk.Separator

@@ -130,6 +130,32 @@ def test_labelframe():
     assert repr(labelframe) == "<pythotk.LabelFrame widget: text='hello'>"
 
 
+def test_progressbar():
+    progress_bar = tk.Progressbar(tk.Window())
+    assert progress_bar.config['value'] == 0
+
+    # test that bouncy methods don't raise errors, they are tested better below
+    progress_bar.config['mode'] = 'indeterminate'
+    progress_bar.start()
+    progress_bar.stop()
+
+
+@pytest.mark.slow
+def test_progressbar_bouncing():
+    progress_bar = tk.Progressbar(tk.Window(), mode='indeterminate')
+    assert progress_bar.config['value'] == 0
+    progress_bar.start()
+
+    def done_callback():
+        # the value gets set to 10 on my system, so this should be enough
+        assert progress_bar.config['value'] > 5
+        progress_bar.stop()     # prevents funny tk errors
+        tk.quit()
+
+    tk.after(500, done_callback)
+    tk.run()
+
+
 def test_scrollbar(handy_callback):
     scrollbar = tk.Scrollbar(tk.Window())
     assert scrollbar.get() == (0.0, 1.0)
