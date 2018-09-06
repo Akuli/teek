@@ -1,0 +1,12 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flipt.buildapi"
+
+[tool.flit.metadata]
+module = "pythotk"
+author = "Akuli"
+author-email = "akuviljanen17@gmail.com"
+home-page = "https://github.com/Akuli/pythotk"
+description-file = "README.md"
+requires-python = ">=3.4"
+keywords = "pythonic tk tcl tkinter gui beginner"

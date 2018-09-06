@@ -1,7 +1,10 @@
+"""Pythotk is a pythonic alternative to tkinter."""
 # flake8: noqa
 
 import os as _os
 import sys as _sys
+
+__version__ = '0.1'
 
 if _os.environ.get('READTHEDOCS', None) == 'True':   # pragma: no cover
     # readthedocs must be able to import everything without _tkinter
