@@ -280,15 +280,19 @@ if we_actually_dont_want_to_timeout():
 This section contains the commands I use when working on pythotk. If you
 use windows, replace `python3` with `py`.
 
-- `python3 -m pip install --user sphinx pytest` installs everything you
-  need for developing pythotk.
-- `py -m pytest` runs tests (they are in the `tests` subdirectory). It is
-  normal to get lots of tiny windows on the screen while running the tests.
-- Some of the tests take more than 0.5 seconds to run. They are decorated with
-  `@pytest.mark.slow`, and you can run all non-slow tests with
-  `py -m pytest --skipslow`. The `--skipslow` argument is implemented in
-  `tests/conftest.py`.
-- `coverage run --include='pythotk/*' -m pytest && coverage html` runs tests
+- `python3 -m pip install --user sphinx pytest pytest-cov flit` installs
+  everything you need for developing pythotk.
+- `python3 -m pytest` runs tests (they are in the `tests` subdirectory). It is
+  normal to get lots of tiny windows on the screen while running the tests. I
+  use these pytest options:
+    - `--skipslow` makes the tests run faster by skipping tests that are
+      decorated with `@pytest.mark.slow`.
+    - `--durations=10` prints the list of 10 slowest tests at the end of the
+      test run. This is a good way to figure out which tests to mark slow.
+    - `--cov=pythotk` runs the tests under coverage. Run
+      `python3 -m coverage html` and open `htmlcov/index.html` to view the
+      results. Coverage results from travis builds go to [coveralls].
+- `python3 -m pytest --cov=pythotk run --include='pythotk/*' -m pytest && coverage html` runs tests
   under coverage and generates a coverage report to `htmlcov/index.html`. Open
   it in a browser to view it. The tests run slower under coverage, so I like
   to first run them without coverage and run again with coverage when they all
@@ -304,6 +308,9 @@ use windows, replace `python3` with `py`.
   branch), and if [the travis build] fails, I know I did something badly. If
   you want to lint things yourself, find the correct command from
   `.travis.yml`.
+- `flit publish` uploads to PyPI. You can ask me to run this after I have
+  merged something to master.
 
 [readthedocs builds the docs]: https://readthedocs.org/projects/pythotk/builds/
 [the travis build]: https://travis-ci.org/Akuli/pythotk
+[coveralls]: https://coveralls.io/github/Akuli/pythotk
