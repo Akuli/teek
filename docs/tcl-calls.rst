@@ -81,7 +81,8 @@ Python object. Here is a list of valid type specifications:
 * ``int``, ``float`` or any other subclass of :class:`numbers.Real` means that
   the value will be converted to that class by first converting to string as if
   ``str`` was used, and then calling the class with the stringed value as an
-  argument.
+  argument. However, if the stringed value is the empty string, None is
+  returned and the class isn't called.
 * If the type specification is a class with a ``from_tcl()`` classmethod, that
   will be called with one argument, the value converted to a string. If the
   stringed value is an empty string, None is returned and ``from_tcl()`` is not

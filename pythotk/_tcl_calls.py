@@ -374,7 +374,10 @@ def from_tcl(type_spec, value):
 
     if isinstance(type_spec, type):     # it's a class
         if issubclass(type_spec, numbers.Real):     # must be after bool check
-            return type_spec(from_tcl(str, value))
+            string = from_tcl(str, value)
+            if not string:
+                return None
+            return type_spec(string)
 
         if hasattr(type_spec, 'from_tcl'):
             string = from_tcl(str, value)
