@@ -41,6 +41,7 @@ def test_eval_and_call(handy_commands):
     assert tk.tcl_eval(None, 'if {1 == 2} {puts omg}') is None
     assert tk.tcl_eval(str, 'list a b c') == 'a b c'
     assert tk.tcl_eval(int, 'expr 22 / 7') == 3
+    assert tk.tcl_eval(int, 'returnEmptyString') is None
     assert round(tk.tcl_eval(float, 'expr 22 / 7.0'), 2) == 3.14
     assert tk.tcl_eval([int], 'list 1 2 3') == [1, 2, 3]
     assert tk.tcl_eval([str], 'list { a} {b } { c }') == [' a', 'b ', ' c ']
