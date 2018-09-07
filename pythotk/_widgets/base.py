@@ -6,7 +6,7 @@ import re
 
 import pythotk as tk
 from pythotk._tcl_calls import counts, from_tcl, needs_main_thread
-from pythotk._structures import CgetConfigureConfigDict, on_quit
+from pythotk._structures import ConfigDict, CgetConfigureConfigDict, on_quit
 
 _widgets = {}
 on_quit.connect(_widgets.clear)
@@ -36,6 +36,63 @@ class StateSet(collections.abc.MutableSet):
 
     def discard(self, state):
         self._widget._call(None, self._widget, 'state', '!' + state)
+
+
+class GridRowOrColumnConfig(ConfigDict):
+
+    def __init__(self, configure_method):
+        super().__init__()
+        self._types.update({
+            'minsize': tk.ScreenDistance,
+            'weight': float,
+            'uniform': str,
+            'pad': tk.ScreenDistance,
+        })
+        self._configure = configure_method
+
+    def _set(self, option, value):
+        self._configure(None, '-' + option, value)
+
+    def _get(self, option):
+        return self._configure(self._types.get(option, str), '-' + option)
+
+    def _list_options(self):
+        return (key.lstrip('-') for key in self._configure({}).keys())
+
+
+class GridRowOrColumn:
+
+    def __init__(self, widget, row_or_column, number):
+        super().__init__()
+        self._widget = widget
+        self._row_or_column = row_or_column
+        self._number = number
+        self.config = GridRowOrColumnConfig(self._configure)
+
+    def __repr__(self):
+        return (
+            "<grid %s %d: has a config attribute and a get_slaves() method>"
+            % (self._row_or_column, self._number))
+
+    def __eq__(self, other):
+        if not isinstance(other, GridRowOrColumn):
+            return NotImplemented
+        return (self._widget == other._widget and
+                self._row_or_column == other._row_or_column and
+                self._number == other._number)
+
+    def __hash__(self):
+        return hash((self._widget, self._row_or_column, self._number))
+
+    def _configure(self, returntype, *args):
+        return self._widget._call(
+            returntype, 'grid', self._row_or_column + 'configure',
+            self._widget, self._number, *args)
+
+    def get_slaves(self):
+        return self._widget._call(
+            [Widget], 'grid', 'slaves', self._widget,
+            '-' + self._row_or_column, self._number)
 
 
 # make things more tkinter-user-friendly
@@ -341,8 +398,23 @@ class Widget:
         """
         return self._call(Widget, 'winfo', 'toplevel', self)
 
-    def pack_slaves(self):
-        return self._call([Widget], 'pack', 'slaves', self)
+    def _pack_or_grid_slaves(self, geometry_manager):
+        return self._call([Widget], geometry_manager, 'slaves', self)
+
+    pack_slaves = functools.partialmethod(_pack_or_grid_slaves, 'pack')
+    grid_slaves = functools.partialmethod(_pack_or_grid_slaves, 'grid')
+
+    @property
+    def grid_rows(self):
+        width, height = self._call([int], 'grid', 'size', self)
+        return [GridRowOrColumn(self, 'row', number)
+                for number in range(height)]
+
+    @property
+    def grid_columns(self):
+        width, height = self._call([int], 'grid', 'size', self)
+        return [GridRowOrColumn(self, 'column', number)
+                for number in range(width)]
 
     def busy_hold(self):
         """See ``tk busy hold`` in :man:`busy(3tk)`.
@@ -525,31 +597,52 @@ class BindingDict(collections.abc.Mapping):
         return callback
 
 
+# TODO: "RELATIVE PLACEMENT" in grid(3tk)
 class ChildMixin:
 
-    def pack(self, **kwargs):
+    def _pack_or_grid(self, geometry_manager, **kwargs):
         args = []
         for name, value in kwargs.items():
             if name == 'in_':
                 name = 'in'
             args.append('-' + name)
             args.append(value)
-        self._call(None, 'pack', self.to_tcl(), *args)
+        self._call(None, geometry_manager, self.to_tcl(), *args)
 
-    def pack_forget(self):
-        self._call(None, 'pack', 'forget', self.to_tcl())
+    def _pack_or_grid_forget(self, geometry_manager):
+        self._call(None, geometry_manager, 'forget', self.to_tcl())
 
-    def pack_info(self):
+    def _pack_or_grid_info(self, geometry_manager):
         types = {
+            '-in': Widget,
+
             # padx and pady can be lists of 2 screen distances or just 1 screen
             # distance, which is fine because a Tcl screen distance string
-            # behaves like a list of 1 item, that screen distance string
+            # behaves like a list of 1 item
             '-padx': [tk.ScreenDistance],
             '-pady': [tk.ScreenDistance],
             '-ipadx': tk.ScreenDistance,
             '-ipady': tk.ScreenDistance,
-            '-in': Widget,
-            '-expand': bool,
         }
-        result = self._call(types, 'pack', 'info', self.to_tcl())
+        if geometry_manager == 'pack':
+            types.update({
+                '-expand': bool,
+            })
+        if geometry_manager == 'grid':
+            types.update({
+                '-column': int,
+                '-columnspan': int,
+                '-row': int,
+                '-rowspan': int,
+                '-sticky': str,
+            })
+
+        result = self._call(types, geometry_manager, 'info', self.to_tcl())
         return {key.lstrip('-'): value for key, value in result.items()}
+
+    pack = functools.partialmethod(_pack_or_grid, 'pack')
+    grid = functools.partialmethod(_pack_or_grid, 'grid')
+    pack_forget = functools.partialmethod(_pack_or_grid_forget, 'pack')
+    grid_forget = functools.partialmethod(_pack_or_grid_forget, 'grid')
+    pack_info = functools.partialmethod(_pack_or_grid_info, 'pack')
+    grid_info = functools.partialmethod(_pack_or_grid_info, 'grid')

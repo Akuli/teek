@@ -6,9 +6,9 @@ Geometry Managers: pack, grid, place
 Geometry managers are ways to add widgets inside other widgets.
 
 .. note::
-    Right now :man:`pack(3tk)` is the only supported geometry manager, and you
-    need to do :ref:`Tcl calls <tcl-calls>` yourself if you want to use
-    :man:`grid(3tk)` or :man:`place(3tk)`. I know, it sucks :(
+    Right now :man:`place(3tk)` is not supported, and you need to do
+    :ref:`Tcl calls <tcl-calls>` yourself if you want to use it. I know,
+    it sucks :(
 
 
 Pack
@@ -16,6 +16,10 @@ Pack
 
 This is a simple geometry manager useful for laying out big things. If you want
 to have two big widgets next to each other, this is the right choice.
+
+.. seealso::
+    There is a beginner-friendly introduction to pack
+    :ref:`here <pack-with-frames>`.
 
 Pack options have a ``-`` in front of them in Tcl, but pythotk hides that, so
 Tcl code like ``-anchor center`` looks like ``anchor='center'`` in pythotk.
@@ -59,3 +63,146 @@ Pythotk widgets have these methods:
 
     Returns a list of other :class:`Widgets <.Widget>` packed into the widget.
     See ``pack slaves`` in :man:`pack(3tk)` for more details.
+
+
+Grid
+----
+
+This geometry manager is useful for making griddy things that would be hard or
+impossible to do with pack. Here is an example::
+
+    import pythotk as tk
+
+
+    window = tk.Window("Calculator")
+
+    rows = [
+        ['7', '8', '9', '*', '/'],
+        ['4', '5', '6', '+', '-'],
+        ['1', '2', '3', None, None],
+        [None, None, '.', None, None],
+    ]
+
+    for row_number, row in enumerate(rows):
+        for column_number, text in enumerate(row):
+            if text is not None:
+                button = tk.Button(window, text, width=3)
+                button.grid(row=row_number, column=column_number, sticky='nswe')
+
+    zerobutton = tk.Button(window, '0')
+    zerobutton.grid(row=3, column=0, columnspan=2, sticky='nswe')
+    equalbutton = tk.Button(window, '=')
+    equalbutton.grid(row=2, column=3, rowspan=2, columnspan=2, sticky='nswe')
+
+    for row_or_column in (window.grid_rows + window.grid_columns):
+        row_or_column.config['weight'] = 1
+
+    tk.run()
+
+Let's go through some of that line by line.
+::
+
+    for row_number, row in enumerate(rows):
+        for column_number, text in enumerate(row):
+
+This is a way to loop over the row list with indexes. For example, if ``text``
+is ``'*'``, then ``row_number`` is 0 and ``column_number`` is 3, because
+``text`` is the fourth element of the first sublist of ``rows``.
+::
+
+    button.grid(row=row_number, column=column_number, sticky='nswe')
+
+The ``sticky='nswe'`` makes the button fill all the space it has in the grid
+cell. The ``n`` means "north" (up), ``w`` means "west" (left), etc.
+::
+
+    zerobutton.grid(row=3, column=0, columnspan=2, sticky='nswe')
+
+``columnspan=2`` makes the button *span* two columns, so some of it is in one
+column, and rest of it is in the other. The default is ``columnspan=1``.
+::
+
+    for row_or_column in (window.grid_rows + window.grid_columns):
+        row_or_column.config['weight'] = 1
+
+This loops through all grid rows and columns of the widget, and makes
+everything stretch as the window is resized. Comment out these lines and resize
+the window to understand why I did this. See :ref:`grid-row-column-objects`
+below for details.
+
+
+.. method:: pythotk.Widget.grid(**kwargs)
+
+    Very similar to :meth:`~.Widget.pack`. See ``grid configure`` in
+    :man:`grid(3tk)` for details.
+
+.. method:: pythotk.Widget.grid_forget()
+
+    See ``grid forget`` in :man:`grid(3tk)`.
+
+.. method:: pythotk.Widget.grid_info()
+
+    Very similar to :meth:`~.Widget.pack_info`. The types of values are as
+    follows:
+
+    * The value of ``'in'`` is a pythotk widget.
+    * The values of ``'ipadx'`` and ``'ipady'`` are :class:`.ScreenDistance`
+      objects.
+    * The values of ``'padx'`` and ``'pady'`` are lists of
+      :class:`.ScreenDistance` objects. Each list contains 1 or 2 items; see
+      ``-padx`` in :man:`pack(3tk)` for details.
+    * The values of ``'row'``, ``'rowspan'``, ``'column'`` and ``'columnspan'``
+      are integers.
+    * Other values are strings.
+
+.. method:: pythotk.Widget.grid_slaves()
+
+    Similar to :meth:`~.Widget.pack_slaves`. Use
+    :meth:`row_or_column.get_slaves()` if you need the ``-row`` and ``-column``
+    options of ``grid slaves`` in :man:`grid(3tk)`.
+
+.. attribute:: pythotk.Widget.grid_rows
+               pythotk.Widget.grid_columns
+
+    Lists of :ref:`row objects or column objects <grid-row-column-objects>`.
+
+
+.. _grid-row-column-objects:
+
+Grid Row and Column Objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tk has some options and other things that can be done to rows or columns of a
+grid. These are represented with row objects and column objects in pythotk.
+
+>>> window = tk.Window()
+>>> window.grid_rows
+[]
+>>> tk.Label(window, "label text").grid()    # goes to row 0, column 0
+>>> window.grid_rows
+[<grid row 0: has a config attribute and a get_slaves() method>]
+>>> window.grid_columns
+[<grid column 0: has a config attribute and a get_slaves() method>]
+>>> window.grid_columns[0].config['weight']
+0.0
+>>> window.grid_columns[0].get_slaves()
+[<pythotk.Label widget: text='label text'>]
+
+Here is the reference:
+
+.. attribute:: row_or_column.config
+
+    An object that represents row or column options. Similar to
+    :attr:`.Widget.config`.
+
+    See ``grid columnconfigure`` and ``grid rowconfigure`` in :man:`grid(3tk)`
+    for the available options. ``'weight'`` is a float, ``'minsize'`` and
+    ``'pad'`` are :class:`.ScreenDistance` objects and ``'uniform'`` is a
+    string.
+
+.. method:: row_or_column.get_slaves()
+
+    Returns a list of widgets in the row or column.
+
+    This calls ``grid slaves`` documented in :man:`grid(3tk)` with a ``-row``
+    or ``-column`` option.

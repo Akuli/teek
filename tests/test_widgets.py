@@ -250,47 +250,6 @@ def test_widget_name_bug():
         assert label.to_tcl() != button.to_tcl()
 
 
-def test_packing():
-    window = tk.Window()
-    button = tk.Button(window)
-    button.pack(fill='both', expand=True)
-
-    pack_info = button.pack_info()
-    assert pack_info['in'] is window
-    assert pack_info['side'] == 'top'
-    assert pack_info['fill'] == 'both'
-    assert pack_info['expand'] is True
-    assert pack_info['anchor'] == 'center'
-
-    for option in ['padx', 'pady']:
-        assert isinstance(pack_info[option], list)
-        assert len(pack_info[option]) in {1, 2}
-        for item in pack_info[option]:
-            assert isinstance(item, tk.ScreenDistance)
-    for option in ['ipadx', 'ipady']:
-        assert isinstance(pack_info[option], tk.ScreenDistance)
-
-    button.pack_forget()
-    with pytest.raises(tk.TclError):
-        button.pack_info()
-
-    button.pack(**pack_info)
-    assert button.pack_info() == pack_info
-    button.pack_forget()
-
-    assert window.pack_slaves() == []
-    label1 = tk.Label(window, 'label one')
-    label1.pack()
-    label2 = tk.Label(window, 'label two')
-    label2.pack()
-    assert window.pack_slaves() == [label1, label2]
-
-    frame = tk.Frame(window)
-    label2.pack(in_=frame)
-    assert window.pack_slaves() == [label1]
-    assert frame.pack_slaves() == [label2]
-
-
 def test_winfo_ismapped():
     window = tk.Window()
     tk.update()
