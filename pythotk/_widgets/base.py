@@ -416,6 +416,13 @@ class Widget:
         return [GridRowOrColumn(self, 'column', number)
                 for number in range(width)]
 
+    grid_rowconfigure = _tkinter_hint(
+        "widget.grid_rows[index].config['option'] = value",
+        "widget.grid_rowconfigure(index, option=value)")
+    grid_columnconfigure = _tkinter_hint(
+        "widget.grid_columns[index].config['option'] = value",
+        "widget.grid_columnconfigure(index, option=value)")
+
     def busy_hold(self):
         """See ``tk busy hold`` in :man:`busy(3tk)`.
 
