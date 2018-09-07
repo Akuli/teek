@@ -398,11 +398,12 @@ class Widget:
         """
         return self._call(Widget, 'winfo', 'toplevel', self)
 
-    def _pack_or_grid_slaves(self, geometry_manager):
+    def _geometry_manager_slaves(self, geometry_manager):
         return self._call([Widget], geometry_manager, 'slaves', self)
 
-    pack_slaves = functools.partialmethod(_pack_or_grid_slaves, 'pack')
-    grid_slaves = functools.partialmethod(_pack_or_grid_slaves, 'grid')
+    pack_slaves = functools.partialmethod(_geometry_manager_slaves, 'pack')
+    grid_slaves = functools.partialmethod(_geometry_manager_slaves, 'grid')
+    place_slaves = functools.partialmethod(_geometry_manager_slaves, 'place')
 
     @property
     def grid_rows(self):
@@ -607,35 +608,48 @@ class BindingDict(collections.abc.Mapping):
 # TODO: "RELATIVE PLACEMENT" in grid(3tk)
 class ChildMixin:
 
-    def _pack_or_grid(self, geometry_manager, **kwargs):
+    def _geometry_manage(self, geometry_manager, **kwargs):
         args = []
         for name, value in kwargs.items():
             if name == 'in_':
                 name = 'in'
             args.append('-' + name)
             args.append(value)
+
+        # special case: tkinter does nothing (lol), pythotk would give a
+        # noob-unfriendly TclError otherwise
+        if geometry_manager == 'place' and not args:
+            raise TypeError(
+                "cannot call widget.place() without any arguments, "
+                "do e.g. widget.place(relx=0, rely=0) instead")
+
         self._call(None, geometry_manager, self.to_tcl(), *args)
 
-    def _pack_or_grid_forget(self, geometry_manager):
+    def _geometry_manager_forget(self, geometry_manager):
         self._call(None, geometry_manager, 'forget', self.to_tcl())
 
-    def _pack_or_grid_info(self, geometry_manager):
+    def _geometry_manager_info(self, geometry_manager):
         types = {
             '-in': Widget,
-
-            # padx and pady can be lists of 2 screen distances or just 1 screen
-            # distance, which is fine because a Tcl screen distance string
-            # behaves like a list of 1 item
-            '-padx': [tk.ScreenDistance],
-            '-pady': [tk.ScreenDistance],
-            '-ipadx': tk.ScreenDistance,
-            '-ipady': tk.ScreenDistance,
         }
+
+        if geometry_manager == 'pack' or geometry_manager == 'grid':
+            types.update({
+                # padx and pady can be lists of 2 screen distances or just 1
+                # screen distance, which is fine because a Tcl screen distance
+                # string
+                # behaves like a list of 1 item
+                '-padx': [tk.ScreenDistance],
+                '-pady': [tk.ScreenDistance],
+                '-ipadx': tk.ScreenDistance,
+                '-ipady': tk.ScreenDistance,
+            })
+
         if geometry_manager == 'pack':
             types.update({
                 '-expand': bool,
             })
-        if geometry_manager == 'grid':
+        elif geometry_manager == 'grid':
             types.update({
                 '-column': int,
                 '-columnspan': int,
@@ -643,13 +657,33 @@ class ChildMixin:
                 '-rowspan': int,
                 '-sticky': str,
             })
+        elif geometry_manager == 'place':
+            types.update({
+                '-anchor': str,
+                '-bordermode': str,
+                '-width': tk.ScreenDistance,
+                '-height': tk.ScreenDistance,
+                '-relheight': float,
+                '-relwidth': float,
+                '-relx': float,
+                '-rely': float,
+                '-x': tk.ScreenDistance,
+                '-y': tk.ScreenDistance,
+            })
+        else:
+            raise RuntimeError("oh no")     # pragma: no cover
 
         result = self._call(types, geometry_manager, 'info', self.to_tcl())
         return {key.lstrip('-'): value for key, value in result.items()}
 
-    pack = functools.partialmethod(_pack_or_grid, 'pack')
-    grid = functools.partialmethod(_pack_or_grid, 'grid')
-    pack_forget = functools.partialmethod(_pack_or_grid_forget, 'pack')
-    grid_forget = functools.partialmethod(_pack_or_grid_forget, 'grid')
-    pack_info = functools.partialmethod(_pack_or_grid_info, 'pack')
-    grid_info = functools.partialmethod(_pack_or_grid_info, 'grid')
+    pack = functools.partialmethod(_geometry_manage, 'pack')
+    grid = functools.partialmethod(_geometry_manage, 'grid')
+    place = functools.partialmethod(_geometry_manage, 'place')
+
+    pack_forget = functools.partialmethod(_geometry_manager_forget, 'pack')
+    grid_forget = functools.partialmethod(_geometry_manager_forget, 'grid')
+    place_forget = functools.partialmethod(_geometry_manager_forget, 'place')
+
+    pack_info = functools.partialmethod(_geometry_manager_info, 'pack')
+    grid_info = functools.partialmethod(_geometry_manager_info, 'grid')
+    place_info = functools.partialmethod(_geometry_manager_info, 'place')

@@ -3,12 +3,9 @@
 Geometry Managers: pack, grid, place
 ====================================
 
-Geometry managers are ways to add widgets inside other widgets.
-
-.. note::
-    Right now :man:`place(3tk)` is not supported, and you need to do
-    :ref:`Tcl calls <tcl-calls>` yourself if you want to use it. I know,
-    it sucks :(
+Geometry managers are ways to add widgets inside other widgets. For example,
+``pack`` is a geometry manager. This page contains more information about pack
+and two other geometry managers.
 
 
 Pack
@@ -206,3 +203,57 @@ Here is the reference:
 
     This calls ``grid slaves`` documented in :man:`grid(3tk)` with a ``-row``
     or ``-column`` option.
+
+
+Place
+-----
+
+This geometry manager is useful for placing things relatively. For example,
+this puts a button right in the middle of its parent widget::
+
+    button.place(relx=0.5, rely=0.5, anchor='center')
+
+Here ``relx`` and ``rely`` mean "relative x" and "relative y"; that is, values
+between 0 and 1. The ``anchor='center'`` says that the center of the *button*
+goes to the position given with ``relx`` and ``rely``.
+
+Place can be also used with absolute positions given in pixels:
+::
+
+    # 100 pixels down and 200 right from top left corner of the parent widget
+    button.place(x=100, y=200)
+
+Usually that's a **bad idea**. 100 pixels on your screen might look different
+than 100 pixels on someone else's screen if that other system happens to use
+bigger fonts or something else like that. However, placing with pixels can be
+useful when working with other things that use pixels. For example, if you
+:ref:`bind <binding>` some mouse stuff and the user clicks something, you get
+the mouse x and y coordinates in pixels.
+
+
+.. method:: pythotk.Widget.place(**kwargs)
+
+    See ``place configure`` in :man:`place(3tk)` for details. This is similar
+    to :meth:`~.Widget.pack`.
+
+.. method:: pythotk.Widget.place_forget()
+
+    See ``place forget`` in :man:`place(3tk)`.
+
+.. method:: pythotk.Widget.place_info()
+
+    Very similar to :meth:`~.Widget.pack_info` and :meth:`~.Widget.grid_info`.
+    The types of values are as follows:
+
+    * The value of ``'in'`` is a pythotk widget.
+    * The values of ``'width'``, ``'height'``, ``'x'`` and ``'y'`` are
+      :class:`.ScreenDistance` objects.
+    * The values of ``'relwidth'``, ``'relheight'``, ``'relx'`` and ``'rely'``
+      are floats.
+    * Other values are strings.
+
+    See also ``place info`` in :man:`place(3tk)`.
+
+.. method:: pythotk.Widget.place_slaves()
+
+    Returns a list of other :class:`Widgets <.Widget>` placed into the widget.

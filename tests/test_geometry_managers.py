@@ -91,3 +91,54 @@ def test_grid_row_and_column_objects(check_config_types):
         assert row_column == row_column
         assert row_column != 'toot'
         assert {row_column: 'woot'}[row_column] == 'woot'
+
+
+def test_place():
+    window = tk.Window()
+    button = tk.Button(window)
+    button.place(x=123, rely=0.5)
+
+    place_info = button.place_info()
+    assert place_info['anchor'] == 'nw'
+    assert place_info['bordermode'] == 'inside'
+    assert place_info['in'] is window
+    assert place_info['x'] == tk.ScreenDistance(123)
+    assert place_info['rely'] == 0.5
+
+    assert isinstance(place_info['relx'], float)
+    assert isinstance(place_info['rely'], float)
+    assert isinstance(place_info['x'], tk.ScreenDistance)
+    assert isinstance(place_info['y'], tk.ScreenDistance)
+
+    assert place_info['width'] is None
+    assert place_info['height'] is None
+    assert place_info['relwidth'] is None
+    assert place_info['relheight'] is None
+
+    button.place_forget()
+    assert button.place_info() == {}
+
+    button.place(**place_info)
+    assert button.place_info() == place_info
+    button.place_forget()
+
+    assert window.place_slaves() == []
+    label1 = tk.Label(window, 'label one')
+    label1.place(x=1)
+    label2 = tk.Label(window, 'label two')
+    label2.place(x=2)
+    assert set(window.place_slaves()) == {label1, label2}   # allow any order
+
+    frame = tk.Frame(window)
+    label2.place(in_=frame)
+    assert window.place_slaves() == [label1]
+    assert frame.place_slaves() == [label2]
+
+
+def test_place_special_error():
+    label = tk.Label(tk.Window())
+    with pytest.raises(TypeError) as error:
+        label.place()
+
+    assert str(error.value).startswith(
+        "cannot call widget.place() without any arguments, do e.g. ")
