@@ -198,19 +198,26 @@ you can set values of options in several ways:
   documented in :class:`.Label` docs.
 
 Sometimes the name of a widget option happens to be a reserved keyword in
-Python. For example, ``from`` is not a valid Python variable name because it's
-used in things like ``from my_module import some_function``:
+Python. For example, ``in`` is not a valid Python variable name because it's
+used in things like ``'hello' in 'hello world'``:
 
->>> from = 'lol'
+>>> in = 'lol'
 Traceback (most recent call last):
-  File "<stdin>", line 1
-    from = 'lol'
-         ^
+  ...
+SyntaxError: invalid syntax
+>>> label.pack(in=window)
+Traceback (most recent call last):
+  ...
 SyntaxError: invalid syntax
 
-Similarly, ``some_pythotk_thing(from=something)`` is invalid syntax. To avoid
-this problem, pythotk lets you do ``some_pythotk_thing(from_=something)``;
-``from_`` is a valid variable name in python, and it causes no trouble at all.
+To avoid this problem, you can use ``in_`` instead of ``in``, and pythotk will
+handle it correctly:
+
+>>> in_ = 'lol'
+>>> in_
+'lol'
+>>> label.pack(in_=window)
+
 Pythotk strips the last ``_`` before it does anything with the option.
 
 
