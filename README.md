@@ -28,7 +28,9 @@ Tk, and you should be already using it in tkinter. Ttk GUIs look a *lot* better
 than non-Ttk GUIs on most platforms. For example, this GUI has a Ttk button and
 a non-Ttk button. Guess which is which:
 
-![good and bad button](tk-ttk.png)
+[comment]: # (this must be a full url to make it work in pypi description)
+
+![good and bad button](https://github.com/Akuli/pythotk/raw/master/tk-ttk.png)
 
 The problem is that Tk's windows (in tkinter, `tkinter.Toplevel` and
 `tkinter.Tk`) are *not* Ttk widgets. If you add Ttk widgets into them, the GUI
