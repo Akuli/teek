@@ -1,12 +1,3 @@
-create_command
-delete_command
-on_quit
-update
-
-grid
-place
-
-
 make threading stuff faster, this is slow:
 
     import threading
