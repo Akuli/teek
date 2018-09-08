@@ -398,6 +398,22 @@ class Widget:
         """
         return self._call(Widget, 'winfo', 'toplevel', self)
 
+    # TODO: at least winfo_x, winfo_y, winfo_rootx, winfo_rooty
+
+    def winfo_width(self):
+        """Returns the width of the widget in pixels.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'width', self)
+
+    def winfo_height(self):
+        """Returns the height of the widget in pixels.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'height', self)
+
     def _geometry_manager_slaves(self, geometry_manager):
         return self._call([Widget], geometry_manager, 'slaves', self)
 
