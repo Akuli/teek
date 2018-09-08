@@ -258,9 +258,6 @@ print(timeout_id)       # prints 'after#0'... very useful, eh??
 if we_actually_dont_want_to_timeout():
     widget.after_cancel(timeout_id)
     print(timeout_id)   # still prints 'after#0'
-
-# for debugging, print(timeout_id) prints something like after#0, which is not
-# very useful at all
 ```
 
 **Pythotk:**
