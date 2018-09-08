@@ -19,4 +19,10 @@ These functions can be used for working with the event loop:
 
 .. autofunction:: pythotk.run
 .. autofunction:: pythotk.quit
+
+.. data:: pythotk.on_quit
+
+    This :class:`.Callback` runs with no arguments when :func:`.quit` is
+    called.
+
 .. autofunction:: pythotk.update
