@@ -291,11 +291,6 @@ use windows, replace `python3` with `py`.
     - `--cov=pythotk` runs the tests under coverage. Run
       `python3 -m coverage html` and open `htmlcov/index.html` to view the
       results. Coverage results from travis builds go to [coveralls].
-- `python3 -m pytest --cov=pythotk run --include='pythotk/*' -m pytest && coverage html` runs tests
-  under coverage and generates a coverage report to `htmlcov/index.html`. Open
-  it in a browser to view it. The tests run slower under coverage, so I like
-  to first run them without coverage and run again with coverage when they all
-  pass.
 - `cd docs` followed by `py -m sphinx . _build` builds documentation locally.
   You can view it by opening `docs/_build/index.html` in your browser.
   [readthedocs builds the docs] when you push to master, but it's best to make
