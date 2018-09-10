@@ -153,7 +153,13 @@ class Widget:
             mentioned in the documentation of those widgets.
     """
 
-    def __init__(self, widgetname, parent, **options):
+    _widget_name = None
+
+    def __init__(self, parent, **options):
+        if type(self)._widget_name is None:
+            raise TypeError("cannot create instances of %s directly, "
+                            "use one of its subclasses instead"
+                            % type(self).__name__)
         if parent is None:
             parentpath = ''
         else:
@@ -169,7 +175,7 @@ class Widget:
 
         # TODO: some config options can only be given when the widget is
         # created, add support for them
-        self._call(None, widgetname, self.to_tcl())
+        self._call(None, type(self)._widget_name, self.to_tcl())
         _widgets[self.to_tcl()] = self
 
         self.config = CgetConfigureConfigDict(
@@ -247,7 +253,7 @@ class Widget:
          lambda returntype, *args: self._call(returntype, 'bind', self, *args),
          self._command_list)
 
-        if widgetname.startswith('ttk::'):
+        if type(self)._widget_name.startswith('ttk::'):
             self.state = StateSet(self)
         else:
             self.state = None

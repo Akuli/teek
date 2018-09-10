@@ -35,6 +35,12 @@ def test_tkinter_hints():
         window.configure(whatever='blah')
 
 
+def test_creating_instance_of_wrong_class():
+    with pytest.raises(TypeError) as error:
+        tk.Widget(None)
+    assert "cannot create instances of Widget" in str(error.value)
+
+
 def test_destroy():
     window = tk.Window()
     label = tk.Label(window)

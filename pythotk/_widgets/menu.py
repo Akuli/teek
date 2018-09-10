@@ -233,9 +233,11 @@ d', added to a menu>
     about doing this accidentally.
     """
 
+    _widget_name = 'menu'
+
     def __init__(self, items=(), **kwargs):
         kwargs.setdefault('tearoff', False)
-        super().__init__('menu', None, **kwargs)
+        super().__init__(None, **kwargs)
         self.config._types.update({
             'selectcolor': tk.Color,
             'tearoff': bool,

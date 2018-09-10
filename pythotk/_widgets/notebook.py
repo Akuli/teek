@@ -148,8 +148,10 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     As usual, use :func:`super` when overriding.
     """
 
+    _widget_name = 'ttk::notebook'
+
     def __init__(self, parent, **kwargs):
-        super().__init__('ttk::notebook', parent, **kwargs)
+        super().__init__(parent, **kwargs)
 
         # keys are widgets, and values are NotebookTabs that can be garbage
         # collected when the widgets are garbage collected

@@ -163,6 +163,8 @@ class Toplevel(WmMixin, Widget):
         :func:`pythotk.quit`.
     """
 
+    _widget_name = 'toplevel'
+
     # allow passing title as a positional argument
     def __init__(self, title=None, **options):
         # toplevel(3tk): "[...] it must be the window identifier of a container
@@ -170,7 +172,7 @@ class Toplevel(WmMixin, Widget):
         if 'use' in options and isinstance(options['use'], int):
             options['use'] = hex(options['use'])
 
-        super().__init__('toplevel', None, **options)
+        super().__init__(None, **options)
 
         # "didn't bother" ones are more work than they are worth because nobody
         # will use them anyway
@@ -256,9 +258,11 @@ class Window(WmMixin, Widget):
         :attr:`~Toplevel.on_delete_window`.
     """
 
+    _widget_name = 'ttk::frame'
+
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
-        super().__init__('ttk::frame', self.toplevel)
+        super().__init__(self.toplevel)
         self.config = FallbackConfigDict(self.config, self.toplevel.config)
         ChildMixin.pack(self, fill='both', expand=True)
 

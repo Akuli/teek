@@ -27,8 +27,10 @@ class Button(ChildMixin, Widget):
     Manual page: :man:`ttk_button(3tk)`
     """
 
+    _widget_name = 'ttk::button'
+
     def __init__(self, parent, text='', command=None, **kwargs):
-        super().__init__('ttk::button', parent, text=text, **kwargs)
+        super().__init__(parent, text=text, **kwargs)
         self.config._types.update({
             'default': str,
         })
@@ -86,8 +88,10 @@ class Checkbutton(ChildMixin, Widget):
     Manual page: :man:`ttk_checkbutton(3tk)`
     """
 
+    _widget_name = 'ttk::checkbutton'
+
     def __init__(self, parent, text='', command=None, **kwargs):
-        super().__init__('ttk::checkbutton', parent, text=text, **kwargs)
+        super().__init__(parent, text=text, **kwargs)
         self.config._types.update({
             'onvalue': bool,
             'offvalue': bool,
@@ -131,8 +135,10 @@ class Entry(ChildMixin, Widget):
     Manual page: :man:`ttk_entry(3tk)`
     """
 
+    _widget_name = 'ttk::entry'
+
     def __init__(self, parent, text='', **kwargs):
-        super().__init__('ttk::entry', parent, **kwargs)
+        super().__init__(parent, **kwargs)
         self.config._types.update({
             #invalidcommand: ???,
             'show': str,
@@ -184,8 +190,10 @@ class Frame(ChildMixin, Widget):
     Manual page: :man:`ttk_frame(3tk)`
     """
 
+    _widget_name = 'ttk::frame'
+
     def __init__(self, parent, **options):
-        super().__init__('ttk::frame', parent, **options)
+        super().__init__(parent, **options)
         self.config._types.update({
             'padding': tk.ScreenDistance,
         })
@@ -201,8 +209,10 @@ class Label(ChildMixin, Widget):
     Manual page: :man:`ttk_label(3tk)`
     """
 
+    _widget_name = 'ttk::label'
+
     def __init__(self, parent, text='', **kwargs):
-        super().__init__('ttk::label', parent, text=text, **kwargs)
+        super().__init__(parent, text=text, **kwargs)
 
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
@@ -216,8 +226,10 @@ class LabelFrame(ChildMixin, Widget):
     Manual page: :man:`ttk_labelframe(3tk)`
     """
 
+    _widget_name = 'ttk::labelframe'
+
     def __init__(self, parent, text='', **kwargs):
-        super().__init__('ttk::labelframe', parent, text=text, **kwargs)
+        super().__init__(parent, text=text, **kwargs)
         self.config._types.update({
             'labelanchor': str,
             'labelwidget': Widget,
@@ -302,8 +314,10 @@ class Progressbar(ChildMixin, Widget):
     Manual page: :man:`ttk_progressbar(3tk)`
     """
 
+    _widget_name = 'ttk::progressbar'
+
     def __init__(self, parent, **kwargs):
-        super().__init__('ttk::progressbar', parent, **kwargs)
+        super().__init__(parent, **kwargs)
         self.config._types.update({
             'orient': str,
             'length': tk.ScreenDistance,    # undocumented but true
@@ -368,8 +382,10 @@ class Scrollbar(ChildMixin, Widget):
     Manual page: :man:`ttk_scrollbar(3tk)`
     """
 
+    _widget_name = 'ttk::scrollbar'
+
     def __init__(self, parent, **kwargs):
-        super().__init__('ttk::scrollbar', parent, **kwargs)
+        super().__init__(parent, **kwargs)
         self.config._special['command'] = self._create_scrolling_command
 
     # this runs when the user moves the scrollbar
@@ -427,8 +443,7 @@ class Separator(ChildMixin, Widget):
     """
     # TODO: link to pack docs
 
-    def __init__(self, parent, **options):
-        super().__init__('ttk::separator', parent, **options)
+    _widget_name = 'ttk::separator'
 
     def _repr_parts(self):
         return ['orient=' + repr(self.config['orient'])]

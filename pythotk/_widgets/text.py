@@ -239,8 +239,10 @@ class Text(ChildMixin, Widget):
         (see the manual page); otherwise, None is returned.
     """
 
+    _widget_name = 'text'
+
     def __init__(self, parent, **kwargs):
-        super().__init__('text', parent, **kwargs)
+        super().__init__(parent, **kwargs)
         self.config._types.update({
             'autoseparators': bool,
             'blockcursor': bool,
