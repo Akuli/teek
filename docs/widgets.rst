@@ -21,6 +21,8 @@ looking for, and ignore rest of this.
     :members:
 .. autoclass:: pythotk.Checkbutton
     :members:
+.. autoclass:: pythotk.Combobox
+    :members:
 .. autoclass:: pythotk.Entry
     :members:
 .. autoclass:: pythotk.Frame

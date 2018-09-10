@@ -76,12 +76,14 @@ def check_config_types():
     return checker
 
 
+# this is tested in test_widgets.py
 @pytest.fixture
 def all_widgets():
     window = tk.Window()
     return [
         tk.Button(window),
         tk.Checkbutton(window),
+        tk.Combobox(window),
         tk.Entry(window),
         tk.Frame(window),
         tk.Label(window),

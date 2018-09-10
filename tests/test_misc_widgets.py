@@ -215,3 +215,10 @@ def test_spinbox():
     $command
     ''' % spinbox.to_tcl())
     assert asd == ['boo', 'boo']
+
+
+def test_combobox():
+    combobox = tk.Combobox(tk.Window(), values=['a', 'b', 'c and d'])
+    assert combobox.config['values'] == ['a', 'b', 'c and d']
+    combobox.text = 'c and d'
+    assert combobox.text in combobox.config['values']

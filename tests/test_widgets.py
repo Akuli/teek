@@ -6,6 +6,30 @@ import re
 import pytest
 
 
+def _get_all_subclasses(claas):
+    for subclass in claas.__subclasses__():
+        yield subclass
+        yield from _get_all_subclasses(subclass)
+
+
+def test_all_widgets_fixture(all_widgets):
+    assert {type(widget) for widget in all_widgets} == {
+        claas for claas in _get_all_subclasses(tk.Widget)
+        if claas.__module__.startswith('pythotk.')
+    }
+
+
+def test_that_widget_names_dont_contain_horrible_mistakes(all_widgets):
+    for widget in all_widgets:
+        if isinstance(widget, tk.Window):
+            # it is weird, and it is supposed to be weird
+            continue
+
+        class_name = type(widget).__name__
+        tcl_command = widget._widget_name
+        assert class_name.lower() in tcl_command
+
+
 @contextlib.contextmanager
 def _tkinter_hint(bad, assigning):
     with pytest.raises(TypeError) as error:
