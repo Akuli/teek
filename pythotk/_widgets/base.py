@@ -1,6 +1,7 @@
 import collections.abc
 import contextlib
 import functools
+import keyword
 import operator
 import re
 
@@ -155,7 +156,7 @@ class Widget:
 
     _widget_name = None
 
-    def __init__(self, parent, **options):
+    def __init__(self, parent, **kwargs):
         if type(self)._widget_name is None:
             raise TypeError("cannot create instances of %s directly, "
                             "use one of its subclasses instead"
@@ -180,6 +181,28 @@ class Widget:
 
         self.config = CgetConfigureConfigDict(
             lambda returntype, *args: self._call(returntype, self, *args))
+        self._init_config()     # subclasses should override this and use super
+
+        # support kwargs like from_=1, because from=1 is invalid syntax
+        for invalid_syntax in keyword.kwlist:
+            if invalid_syntax + '_' in kwargs:
+                kwargs[invalid_syntax] = kwargs.pop(invalid_syntax + '_')
+
+        self.config.update(kwargs)
+
+        # command strings that are deleted when the widget is destroyed
+        self._command_list = []
+
+        self.bindings = BindingDict(    # BindingDict is defined below
+         lambda returntype, *args: self._call(returntype, 'bind', self, *args),
+         self._command_list)
+
+        if type(self)._widget_name.startswith('ttk::'):
+            self.state = StateSet(self)
+        else:
+            self.state = None
+
+    def _init_config(self):
         self.config._types.update({
             # ttk_widget(3tk)
             'class': str,
@@ -236,27 +259,14 @@ class Widget:
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
-            'height': tk.ScreenDistance,
+            'height': tk.ScreenDistance,  # FIXME: some widgets have int height
             'padding': tk.ScreenDistance,
             'state': str,
         })
+
         for option_name in ('xscrollcommand', 'yscrollcommand'):
             self.config._special[option_name] = functools.partial(
                 self._create_scroll_callback, option_name)
-
-        self.config.update(options)
-
-        # command strings that are deleted when the widget is destroyed
-        self._command_list = []
-
-        self.bindings = BindingDict(    # BindingDict is defined below
-         lambda returntype, *args: self._call(returntype, 'bind', self, *args),
-         self._command_list)
-
-        if type(self)._widget_name.startswith('ttk::'):
-            self.state = StateSet(self)
-        else:
-            self.state = None
 
     @classmethod
     def from_tcl(cls, path_string):

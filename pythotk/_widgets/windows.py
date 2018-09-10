@@ -173,6 +173,11 @@ class Toplevel(WmMixin, Widget):
             options['use'] = hex(options['use'])
 
         super().__init__(None, **options)
+        if title is not None:
+            self.title = title
+
+    def _init_config(self):
+        super()._init_config()
 
         # "didn't bother" ones are more work than they are worth because nobody
         # will use them anyway
@@ -184,8 +189,6 @@ class Toplevel(WmMixin, Widget):
             'use': int,
             'visual': str,      # didn't bother
         })
-        if title is not None:
-            self.title = title
 
     def _get_wm_widget(self):
         return self

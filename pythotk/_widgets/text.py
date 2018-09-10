@@ -245,6 +245,13 @@ class Text(ChildMixin, Widget):
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
+        self._TextIndex = type(
+            'TextIndex', (IndexBase,), {'_widget': self})
+        self._tag_objects = {}
+        self.marks = MarksDict(self)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'autoseparators': bool,
             'blockcursor': bool,
@@ -263,10 +270,6 @@ class Text(ChildMixin, Widget):
             'undo': bool,
             'wrap': str,
         })
-        self._TextIndex = type(
-            'TextIndex', (IndexBase,), {'_widget': self})
-        self._tag_objects = {}
-        self.marks = MarksDict(self)
 
     def _repr_parts(self):
         return ['contains %d lines of text' % self.end.line]

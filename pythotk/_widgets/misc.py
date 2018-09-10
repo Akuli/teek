@@ -31,13 +31,15 @@ class Button(ChildMixin, Widget):
 
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__(parent, text=text, **kwargs)
+        if command is not None:
+            self.config['command'].connect(command)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'default': str,
         })
         self.config._special['command'] = self._create_click_command
-
-        if command is not None:
-            self.config['command'].connect(command)
 
     def _create_click_command(self):
         result = tk.Callback()
@@ -92,15 +94,17 @@ class Checkbutton(ChildMixin, Widget):
 
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__(parent, text=text, **kwargs)
+        if command is not None:
+            self.config['command'].connect(command)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'onvalue': bool,
             'offvalue': bool,
             'variable': tk.BooleanVar,
         })
         self.config._special['command'] = self._create_check_command
-
-        if command is not None:
-            self.config['command'].connect(command)
 
     def _command_runner(self):
         self.config['command'].run(self.config['variable'].get())
@@ -139,16 +143,18 @@ class Entry(ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, **kwargs)
+        self._call(None, self, 'insert', 0, text)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
+            'exportselection': bool,
             #invalidcommand: ???,
             'show': str,
             'validate': str,
             #'validatecommand': ???,
             'width': int,       # NOT a screen distance
         })
-        self._call(None, self, 'insert', 0, text)
-
-        self.config._types['exportselection'] = bool
 
     def _repr_parts(self):
         return ['text=' + repr(self.text)]
@@ -201,9 +207,12 @@ class Spinbox(Entry):
     _widget_name = 'ttk::spinbox'
 
     def __init__(self, parent, *, command=None, **kwargs):
-        if 'from_' in kwargs:
-            kwargs['from'] = kwargs.pop('from_')
         super().__init__(parent, **kwargs)
+        if command is not None:
+            self.config['command'].connect(command)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'from': float,
             'to': float,
@@ -213,8 +222,6 @@ class Spinbox(Entry):
             'format': str,
         })
         self.config._special['command'] = self._create_spin_command
-        if command is not None:
-            self.config['command'].connect(command)
 
     def _create_spin_command(self):
         result = tk.Callback()
@@ -234,8 +241,8 @@ class Combobox(Entry):
     Manual page: :man:`ttk_combobox(3tk)`
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'values': [str],
         })
@@ -251,8 +258,8 @@ class Frame(ChildMixin, Widget):
 
     _widget_name = 'ttk::frame'
 
-    def __init__(self, parent, **options):
-        super().__init__(parent, **options)
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'padding': tk.ScreenDistance,
         })
@@ -289,6 +296,9 @@ class LabelFrame(ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, text=text, **kwargs)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'labelanchor': str,
             'labelwidget': Widget,
@@ -375,8 +385,8 @@ class Progressbar(ChildMixin, Widget):
 
     _widget_name = 'ttk::progressbar'
 
-    def __init__(self, parent, **kwargs):
-        super().__init__(parent, **kwargs)
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'orient': str,
             'length': tk.ScreenDistance,    # undocumented but true

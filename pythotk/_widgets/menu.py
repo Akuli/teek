@@ -240,14 +240,17 @@ d', added to a menu>
     def __init__(self, items=(), **kwargs):
         kwargs.setdefault('tearoff', False)
         super().__init__(None, **kwargs)
+        self._items = []
+        self.extend(items)
+
+    def _init_config(self):
+        super()._init_config()
         self.config._types.update({
             'selectcolor': tk.Color,
             'tearoff': bool,
             'title': str,
             'type': str,
         })
-        self._items = []
-        self.extend(items)
 
     def _repr_parts(self):
         return ['contains %d items' % len(self)]
