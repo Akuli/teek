@@ -38,6 +38,7 @@ class Button(ChildMixin, Widget):
         super()._init_config()
         self.config._types.update({
             'default': str,
+            'width': tk.ScreenDistance,
         })
         self.config._special['command'] = self._create_click_command
 
@@ -103,6 +104,7 @@ class Checkbutton(ChildMixin, Widget):
             'onvalue': bool,
             'offvalue': bool,
             'variable': tk.BooleanVar,
+            'width': tk.ScreenDistance,
         })
         self.config._special['command'] = self._create_check_command
 
@@ -244,6 +246,7 @@ class Combobox(Entry):
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
+            'height': int,
             'values': [str],
         })
 
@@ -261,7 +264,9 @@ class Frame(ChildMixin, Widget):
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
+            'height': tk.ScreenDistance,
             'padding': tk.ScreenDistance,
+            'width': tk.ScreenDistance,
         })
 
 
@@ -279,6 +284,12 @@ class Label(ChildMixin, Widget):
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, text=text, **kwargs)
+
+    def _init_config(self):
+        super()._init_config()
+        self.config._types.update({
+            'width': tk.ScreenDistance,
+        })
 
     def _repr_parts(self):
         return ['text=' + repr(self.config['text'])]
@@ -300,8 +311,10 @@ class LabelFrame(ChildMixin, Widget):
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
+            'height': tk.ScreenDistance,
             'labelanchor': str,
             'labelwidget': Widget,
+            'width': tk.ScreenDistance,
         })
 
     def _repr_parts(self):

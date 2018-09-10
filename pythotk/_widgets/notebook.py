@@ -159,6 +159,13 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         # collected when the widgets are garbage collected
         self._tab_objects = weakref.WeakKeyDictionary()
 
+    def _init_config(self):
+        super()._init_config()
+        self.config._types.update({
+            'width': int,
+            'height': int,
+        })
+
     def _get_tab_of_widget(self, widget):
         try:
             return self._tab_objects[widget]

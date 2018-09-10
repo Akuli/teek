@@ -184,10 +184,12 @@ class Toplevel(WmMixin, Widget):
         self.config._types.update({
             'colormap': str,    # 'new' or a widget name, didn't bother
             'container': bool,
+            'height': tk.ScreenDistance,
             'menu': tk.Menu,
             'screen': str,
             'use': int,
             'visual': str,      # didn't bother
+            'width': tk.ScreenDistance,
         })
 
     def _get_wm_widget(self):

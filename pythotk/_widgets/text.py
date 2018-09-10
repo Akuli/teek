@@ -256,6 +256,8 @@ class Text(ChildMixin, Widget):
             'autoseparators': bool,
             'blockcursor': bool,
             'endline': int,
+            # undocumented: height can also be a screen distance??
+            # probably a bug
             'height': int,
             'inactiveselectbackground': tk.Color,
             'insertunfocussed': str,
@@ -268,6 +270,7 @@ class Text(ChildMixin, Widget):
             'tabs': [str],
             'tabstyle': str,
             'undo': bool,
+            'width': int,
             'wrap': str,
         })
 

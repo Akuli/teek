@@ -203,12 +203,14 @@ class Widget:
             self.state = None
 
     def _init_config(self):
+        # width and height aren't here because they are integers for some
+        # widgets and ScreenDistances for others... and sometimes the manual
+        # pages don't say which, so i have checked them by hand
         self.config._types.update({
             # ttk_widget(3tk)
             'class': str,
             'cursor': str,
             'style': str,
-            'width': tk.ScreenDistance,
 
             # options(3tk)
             'activebackground': tk.Color,
@@ -259,7 +261,6 @@ class Widget:
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
-            'height': tk.ScreenDistance,  # FIXME: some widgets have int height
             'padding': tk.ScreenDistance,
             'state': str,
         })
