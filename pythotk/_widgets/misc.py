@@ -451,7 +451,11 @@ class Separator(ChildMixin, Widget):
 
 # TODO: command
 class Spinbox(Entry):
-    """An :class:`.Entry` with up and down buttons.
+    """An entry with up and down buttons.
+
+    This class inherits from :class:`.Entry`, so it has all the attributes and
+    methods of :class:`.Entry`, like :attr:`~.Entry.text` and
+    :attr:`~.Entry.cursor_pos`.
 
     The value of the ``'command'`` option is a :class:`.Callback` that is ran
     with no arguments. If a ``command`` keyword argument is given, it will be
