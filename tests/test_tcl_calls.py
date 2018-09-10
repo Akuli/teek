@@ -211,8 +211,8 @@ def test_weird_error(capfd):
     # TODO: why is stderr SOMETIMES non-empty??
     capfd.readouterr()
 
-    command = tk.create_command(print)
-    # the command is not deleted explicitly
+    tk.create_command(print)
+    # the command is intentionally not deleted
     tk.quit()
     tk.update()
     assert capfd.readouterr() == ('', '')
