@@ -207,7 +207,8 @@ def test_separator():
 
 def test_spinbox():
     asd = []
-    spinbox = tk.Spinbox(tk.Window(), command=(lambda: asd.append('boo')))
+    spinbox = tk.Spinbox(tk.Window(), from_=0, to=10,
+                         command=(lambda: asd.append('boo')))
     assert asd == []
     tk.tcl_eval(None, '''
     set command [%s cget -command]

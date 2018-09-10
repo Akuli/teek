@@ -201,7 +201,9 @@ class Spinbox(Entry):
     _widget_name = 'ttk::spinbox'
 
     def __init__(self, parent, *, command=None, **kwargs):
-        super().__init__(parent, kwargs)
+        if 'from_' in kwargs:
+            kwargs['from'] = kwargs.pop('from_')
+        super().__init__(parent, **kwargs)
         self.config._types.update({
             'from': float,
             'to': float,
