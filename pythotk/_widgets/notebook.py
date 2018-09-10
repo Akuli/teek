@@ -146,6 +146,8 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
       the ``insert()`` method of :class:`collections.abc.MutableSequence`.
 
     As usual, use :func:`super` when overriding.
+
+    Manual page: :man:`ttk_notebook(3tk)`
     """
 
     _widget_name = 'ttk::notebook'

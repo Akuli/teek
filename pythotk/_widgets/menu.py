@@ -231,6 +231,8 @@ d', added to a menu>
 
     If you don't know what :func:`.tcl_eval` does, you don't need to worry
     about doing this accidentally.
+
+    Manual page: :man:`menu(3tk)`
     """
 
     _widget_name = 'menu'

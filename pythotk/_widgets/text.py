@@ -187,6 +187,8 @@ class MarksDict(collections.abc.MutableMapping):
 class Text(ChildMixin, Widget):
     r"""This is the text widget.
 
+    Manual page: :man:`text(3tk)`
+
     .. attribute:: start
                    end
 

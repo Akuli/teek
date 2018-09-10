@@ -19,6 +19,14 @@ def test_all_widgets_fixture(all_widgets):
     }
 
 
+def test_manual_page_links_in_docstrings(all_widgets):
+    for claas in map(type, all_widgets):
+        if claas is not tk.Window:
+            text = ('Manual page: :man:`%s(3tk)`'
+                    % claas._widget_name.replace('::', '_'))
+            assert text in claas.__doc__
+
+
 def test_that_widget_names_dont_contain_horrible_mistakes(all_widgets):
     for widget in all_widgets:
         if isinstance(widget, tk.Window):
