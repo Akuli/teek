@@ -184,7 +184,6 @@ class Entry(ChildMixin, Widget):
         self._call(None, self, 'icursor', new_pos)
 
 
-# TODO: command
 class Spinbox(Entry):
     """An entry with up and down buttons.
 
@@ -210,7 +209,6 @@ class Spinbox(Entry):
             'values': [str],
             'wrap': bool,
             'format': str,
-            #'command': ???,
         })
         self.config._special['command'] = self._create_spin_command
         if command is not None:
