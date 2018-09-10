@@ -238,10 +238,12 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     def selected_tab(self):
         """This is the tab that the user is currently looking at.
 
-        You can set this to any other tab in the notebook to change the
-        currently selected tab.
+        This is ``None`` if there are no tabs in the notebook. You can set this
+        to any other tab in the notebook to change the currently selected tab.
         """
         widget = self._call(Widget, self, 'select')
+        if widget is None:
+            return None
 
         # return a tab object instead of a widget
         index = self._call([Widget], self, 'tabs').index(widget)

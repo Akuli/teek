@@ -129,6 +129,9 @@ def test_selected_tab():
     notebook.selected_tab = tab2    # intentionally repeated
     assert notebook.selected_tab is tab2
 
+    notebook.clear()
+    assert notebook.selected_tab is None
+
 
 def test_insert_errors():
     window = tk.Window()
