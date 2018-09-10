@@ -184,13 +184,8 @@ def test_bind_deletes_tcl_commands(handy_callback):
     assert command_string not in tk.tcl_call([str], 'info', 'commands')
 
 
-def test_config_types(check_config_types):
-    window = tk.Window()
-    widgets = [window, window.toplevel, tk.Frame(window), tk.Separator(window),
-               tk.Label(window), tk.Button(window), tk.Entry(window),
-               tk.LabelFrame(window), tk.Checkbutton(window),
-               tk.Scrollbar(window), tk.Menu(), tk.Progressbar(window)]
-    for widget in widgets:
+def test_config_types(check_config_types, all_widgets):
+    for widget in all_widgets:
         check_config_types(widget.config, type(widget).__name__)
 
 
@@ -208,8 +203,8 @@ def test_from_tcl():
 
 
 @pytest.mark.skipif(tk.TK_VERSION < (8, 6), reason="busy is new in Tk 8.6")
-def test_busy():
-    for widget in [tk.Frame(tk.Window()), tk.Window()]:
+def test_busy(all_widgets):
+    for widget in all_widgets:
         assert widget.busy_status() is False
         widget.busy_hold()
         assert widget.busy_status() is True

@@ -74,3 +74,24 @@ def check_config_types():
                   key, 'was guessed to be str')
 
     return checker
+
+
+@pytest.fixture
+def all_widgets():
+    window = tk.Window()
+    return [
+        tk.Button(window),
+        tk.Checkbutton(window),
+        tk.Entry(window),
+        tk.Frame(window),
+        tk.Label(window),
+        tk.LabelFrame(window),
+        tk.Notebook(window),
+        tk.Menu(),
+        tk.Progressbar(window),
+        tk.Scrollbar(window),
+        tk.Separator(window),
+        tk.Text(window),
+        tk.Toplevel(),
+        window,
+    ]
