@@ -183,10 +183,12 @@ def test_scrollbar(handy_callback):
     log = []
     scrollbar.config['command'].connect(lambda *args: log.append(args))
 
-    command_string = tk.tcl_call(str, scrollbar, 'cget', '-command')
-    tk.tcl_call(None, command_string, 'moveto', 1.2)
-    tk.tcl_call(None, command_string, 'scroll', 1, 'units')
-    tk.tcl_call(None, command_string, 'scroll', 2, 'pages')
+    tk.tcl_eval(None, '''
+    set command [%s cget -command]
+    $command moveto 1.2
+    $command scroll 1 units
+    $command scroll 2 pages
+    ''' % scrollbar.to_tcl())
     assert log == [
         ('moveto', 1.2),
         ('scroll', 1, 'units'),
