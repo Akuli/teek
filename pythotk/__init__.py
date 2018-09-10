@@ -31,8 +31,8 @@ class TclError(Exception):
 from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
 from pythotk._font import Font, NamedFont
 from pythotk._structures import (
-    Callback, on_quit, Color, Image, ScreenDistance,
-    TclVariable, StringVar, IntVar, FloatVar, BooleanVar)
+    Callback, Color, Image, ScreenDistance, TclVariable, StringVar, IntVar,
+    FloatVar, BooleanVar, before_quit, after_quit)
 from pythotk._tcl_calls import (
     tcl_call, tcl_eval, init_threads, create_command, delete_command,
     run, quit, update)

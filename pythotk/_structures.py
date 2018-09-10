@@ -93,9 +93,10 @@ class Callback:
                 break
 
 
-# this is here because it's used in many places, like most other things
+# these are here because they are used in many places, like most other things
 # in this file
-on_quit = Callback()
+before_quit = Callback()
+after_quit = Callback()
 
 
 class ConfigDict(collections.abc.MutableMapping):

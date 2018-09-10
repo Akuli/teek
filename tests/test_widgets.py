@@ -96,6 +96,14 @@ def test_destroy():
     assert str(error.value) == 'the widget has been destroyed'
 
 
+def test_destroy_event():
+    window = tk.Window()
+    asd = []
+    window.bind('<Destroy>', asd.append, event=True)
+    tk.quit()
+    assert len(asd) == 1
+
+
 def test_options():
     window = tk.Window()
 

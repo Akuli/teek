@@ -119,7 +119,7 @@ class _TclInterpreter:
                 'after', poll_interval_ms, 'pythotk_init_threads_queue_poller')
 
         self._app.createcommand(poller_tcl_command, poller)
-        tk.on_quit.connect(
+        tk.before_quit.connect(
             lambda: None if after_id is None else self._app.call(
                 'after', 'cancel', after_id))
 
@@ -241,9 +241,16 @@ def quit():
         raise RuntimeError("can only quit from main thread")
 
     if _interp is not None:
-        tk.on_quit.run()
+        tk.before_quit.run()
         _interp.call('destroy', '.')
+
+        # to avoid a weird errors, see test_weird_error in test_tcl_calls.py
+        for command in tk.tcl_call([str], 'info', 'commands'):
+            if command.startswith('pythotk_command_'):
+                delete_command(command)
+
         _interp = None
+        tk.after_quit.run()
 
 
 def run():

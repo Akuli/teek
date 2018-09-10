@@ -32,7 +32,7 @@ class _Timeout:
             nonlocal needs_cleanup
             needs_cleanup = False
 
-        tk.on_quit.connect(quit_callback)
+        tk.before_quit.connect(quit_callback)
 
         try:
             self._callback(*self._args, **self._kwargs)
@@ -41,7 +41,7 @@ class _Timeout:
             self._state = 'failed'
             raise e
         finally:
-            tk.on_quit.disconnect(quit_callback)
+            tk.before_quit.disconnect(quit_callback)
             if needs_cleanup:
                 tk.delete_command(self._tcl_command)
 

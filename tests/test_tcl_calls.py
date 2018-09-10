@@ -189,3 +189,22 @@ def test_create_command_arbitrary_args(capsys, handy_callback):
     assert not output
     assert errors.endswith(
         'TypeError: expected at least 2 arguments, got 1 arguments\n')
+
+
+def test_before_after_quit():
+    tk.tcl_eval(None, '')   # make sure that a Tcl interpreter is running
+
+    asd = []
+    tk.before_quit.connect(asd.append, args=['one'])
+    tk.Menu().bind('<Destroy>', (lambda: asd.append('two')))
+    tk.after_quit.connect(asd.append, args=['three'])
+    tk.quit()
+    assert asd == ['one', 'two', 'three']
+
+
+def test_weird_error(capfd):
+    command = tk.create_command(print)
+    # the command is not deleted explicitly
+    tk.quit()
+    tk.update()
+    assert capfd.readouterr() == ('', '')

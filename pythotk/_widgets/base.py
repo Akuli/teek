@@ -7,10 +7,10 @@ import re
 
 import pythotk as tk
 from pythotk._tcl_calls import counts, from_tcl, needs_main_thread
-from pythotk._structures import ConfigDict, CgetConfigureConfigDict, on_quit
+from pythotk._structures import ConfigDict, CgetConfigureConfigDict, after_quit
 
 _widgets = {}
-on_quit.connect(_widgets.clear)
+after_quit.connect(_widgets.clear)
 
 
 class StateSet(collections.abc.MutableSet):
@@ -368,6 +368,32 @@ class Widget:
         """Delete this widget and all child widgets.
 
         Manual page: :man:`destroy(3tk)`
+
+        .. note::
+            Don't override this in a subclass. In some cases, the widget is
+            destroyed without a call to this method.
+
+            >>> class BrokenFunnyLabel(tk.Label):
+            ...     def destroy(self):
+            ...         print("destroying")
+            ...         super().destroy()
+            ...
+            >>> BrokenFunnyLabel(tk.Window()).pack()
+            >>> tk.quit()
+            >>> # nothing was printed!
+
+            Use the ``<Destroy>`` event instead:
+
+            >>> class WorkingFunnyLabel(tk.Label):
+            ...     def __init__(self, *args, **kwargs):
+            ...         super().__init__(*args, **kwargs)
+            ...         self.bind('<Destroy>', self._destroy_callback)
+            ...     def _destroy_callback(self):
+            ...         print("destroying")
+            ...
+            >>> WorkingFunnyLabel(tk.Window()).pack()
+            >>> tk.quit()
+            destroying
         """
         for name in self._call([str], 'winfo', 'children', self):
             # allow overriding the destroy() method if the widget was
