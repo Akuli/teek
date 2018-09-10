@@ -203,6 +203,14 @@ def test_before_after_quit():
 
 
 def test_weird_error(capfd):
+    # make sure that previous tests don't mess up
+    tk.after_idle(tk.quit)
+    tk.run()
+
+    # ignore anything that ended up in the stderr because previous tests
+    # TODO: why is stderr SOMETIMES non-empty??
+    capfd.readouterr()
+
     command = tk.create_command(print)
     # the command is not deleted explicitly
     tk.quit()
