@@ -91,6 +91,7 @@ def all_widgets():
         tk.Progressbar(window),
         tk.Scrollbar(window),
         tk.Separator(window),
+        tk.Spinbox(window),
         tk.Text(window),
         tk.Toplevel(),
         window,

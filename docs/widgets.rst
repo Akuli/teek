@@ -46,6 +46,8 @@ looking for, and ignore rest of this.
     :members:
 .. autoclass:: pythotk.Separator
     :members:
+.. autoclass:: pythotk.Spinbox
+    :members:
 
 .. class:: pythotk.Text
     :noindex:

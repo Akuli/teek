@@ -41,7 +41,7 @@ from pythotk._widgets.base import Widget
 from pythotk._widgets.menu import Menu, MenuItem
 from pythotk._widgets.misc import (
     Button, Checkbutton, Entry, Frame, Label, LabelFrame, Progressbar,
-    Scrollbar, Separator)
+    Scrollbar, Separator, Spinbox)
 from pythotk._widgets.notebook import Notebook, NotebookTab
 from pythotk._widgets.text import Text
 from pythotk._widgets.windows import Window, Toplevel

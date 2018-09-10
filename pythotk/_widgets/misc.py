@@ -447,3 +447,39 @@ class Separator(ChildMixin, Widget):
 
     def _repr_parts(self):
         return ['orient=' + repr(self.config['orient'])]
+
+
+# TODO: command
+class Spinbox(Entry):
+    """An :class:`.Entry` with up and down buttons.
+
+    The value of the ``'command'`` option is a :class:`.Callback` that is ran
+    with no arguments. If a ``command`` keyword argument is given, it will be
+    connected to the callback automatically.
+
+    Manual page: :man:`ttk_spinbox(3tk)`
+    """
+
+    _widget_name = 'ttk::spinbox'
+
+    def __init__(self, parent, *, command=None, **kwargs):
+        super().__init__(parent, kwargs)
+        self.config._types.update({
+            'from': float,
+            'to': float,
+            'increment': float,
+            'values': [str],
+            'wrap': bool,
+            'format': str,
+            #'command': ???,
+        })
+        self.config._special['command'] = self._create_spin_command
+        if command is not None:
+            self.config['command'].connect(command)
+
+    def _create_spin_command(self):
+        result = tk.Callback()
+        command_string = tk.create_command(result.run)
+        self._command_list.append(command_string)
+        self._call(None, self, 'configure', '-command', command_string)
+        return result

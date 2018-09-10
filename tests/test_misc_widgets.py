@@ -201,3 +201,15 @@ def test_separator():
     assert vsep.config['orient'] == 'vertical'
     assert repr(hsep) == "<pythotk.Separator widget: orient='horizontal'>"
     assert repr(vsep) == "<pythotk.Separator widget: orient='vertical'>"
+
+
+def test_spinbox():
+    asd = []
+    spinbox = tk.Spinbox(tk.Window(), command=(lambda: asd.append('boo')))
+    assert asd == []
+    tk.tcl_eval(None, '''
+    set command [%s cget -command]
+    $command
+    $command
+    ''' % spinbox.to_tcl())
+    assert asd == ['boo', 'boo']
