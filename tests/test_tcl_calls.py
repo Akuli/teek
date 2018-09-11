@@ -1,4 +1,5 @@
 import collections.abc
+import platform
 
 import pytest
 
