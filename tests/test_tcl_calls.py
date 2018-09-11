@@ -202,6 +202,8 @@ def test_before_after_quit():
     assert asd == ['one', 'two', 'three']
 
 
+@pytest.mark.skipif(platform.python_implementation() == 'PyPy',
+                    reason="this test is fragile and stupid")
 def test_weird_error(capfd):
     # make sure that previous tests don't mess up
     tk.after_idle(tk.quit)
