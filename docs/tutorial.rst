@@ -50,16 +50,9 @@ installed, there are more details about this above). Then run this:
 
 .. code-block:: none
 
-    python3 -m pip install --user git+https://github.com/Akuli/pythotk
+    python3 -m pip install --user pythotk
 
 Use ``py`` instead of ``python3`` if you are on Windows.
-
-You need to have ``git`` installed for the above command. If you don't have
-git, you can use this command instead:
-
-.. code-block:: none
-
-    python3 -m pip install --user https://github.com/Akuli/pythotk/archive/master.zip
 
 
 Hello World!
