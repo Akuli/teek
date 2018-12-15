@@ -204,7 +204,8 @@ def test_before_after_quit():
 
 
 @pytest.mark.skipif(platform.python_implementation() == 'PyPy',
-                    reason="this test is fragile and stupid")
+                    reason=("this test is fragile and stupid, "
+                            "fails randomly in pypy, at least in travis"))
 def test_weird_error(capfd):
     # make sure that previous tests don't mess up
     tk.after_idle(tk.quit)
