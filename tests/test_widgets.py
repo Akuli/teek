@@ -1,9 +1,14 @@
 import collections.abc
 import contextlib
-import pythotk as tk
+import os
 import re
 
 import pytest
+
+import pythotk as tk
+
+
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 
 def _get_all_subclasses(claas):
@@ -36,6 +41,20 @@ def test_that_widget_names_dont_contain_horrible_mistakes(all_widgets):
         class_name = type(widget).__name__
         tcl_command = widget._widget_name
         assert class_name.lower() in tcl_command
+
+
+def test_basic_repr_stuff(monkeypatch):
+    monkeypatch.syspath_prepend(DATA_DIR)
+    import subclasser
+
+    window = tk.Window()
+    frame = tk.Frame(window)
+    label1 = tk.Label(window, text='a')
+    label2 = subclasser.LolLabel(window, text='b')
+
+    assert repr(label1) == "<pythotk.Label widget: text='a'>"
+    assert repr(label2) == "<subclasser.LolLabel widget: text='b'>"
+    assert repr(frame) == "<pythotk.Frame widget>"
 
 
 @contextlib.contextmanager
@@ -94,6 +113,15 @@ def test_destroy():
     with pytest.raises(RuntimeError) as error:
         label.config['text'] = 'lel'
     assert str(error.value) == 'the widget has been destroyed'
+
+
+def test_destroy_with_widget_not_created_in_pythotk():
+    window = tk.Window()
+    label_name = window.to_tcl() + '.asd'
+    tk.tcl_call(None, 'label', label_name)
+    assert tk.tcl_call(bool, 'winfo', 'exists', label_name)
+    window.destroy()    # should also destroy the label
+    assert not tk.tcl_call(bool, 'winfo', 'exists', label_name)
 
 
 def test_destroy_event():
@@ -316,6 +344,15 @@ def test_winfo_ismapped():
     frame.pack()
     tk.update()
     assert frame.winfo_ismapped() is True
+
+
+def test_winfo_width_height():
+    window = tk.Window()
+    frame = tk.Frame(window, width=123, height=456)
+    frame.pack()
+    tk.update()
+    assert frame.winfo_width() == 123
+    assert frame.winfo_height() == 456
 
 
 def test_state():

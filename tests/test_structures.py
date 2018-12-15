@@ -138,6 +138,10 @@ def test_screen_distances():
     pixel = tk.ScreenDistance(1)
     assert round(inch.fpixels / centimeter.fpixels, 2) == 2.54
 
+    assert repr(inch) == "ScreenDistance('1i')"
+    assert repr(centimeter) == "ScreenDistance('1c')"
+    assert repr(pixel) == "ScreenDistance('1')"
+
     assert inch.to_tcl() == '1i'
     assert centimeter.to_tcl() == '1c'
     assert pixel.to_tcl() == '1'

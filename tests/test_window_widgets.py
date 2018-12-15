@@ -1,5 +1,6 @@
 import platform
 import os
+import time
 
 import pytest
 
@@ -100,6 +101,18 @@ def test_geometry_changes():
     assert window.geometry() == (100, 200, 300, 400)
 
 
+@pytest.mark.slow
+def test_wait_window():
+    window = tk.Window()
+
+    start = time.time()
+    tk.after(500, window.destroy)
+    window.wait_window()
+    end = time.time()
+
+    assert end - start > 0.5
+
+
 # 'menu' is an option that Toplevel has and Frame doesn't have, so Window must
 # use its toplevel's menu option
 def test_window_menu_like_options_fallback_to_toplevel_options():
@@ -122,3 +135,6 @@ def test_window_menu_like_options_fallback_to_toplevel_options():
     assert toplevel.config['menu'] is menu
     with pytest.raises(KeyError):
         frame.config['menu']
+
+    window.config['width'] = 100
+    assert isinstance(window.config['width'], tk.ScreenDistance)

@@ -133,9 +133,16 @@ def test_labelframe():
 def test_progressbar():
     progress_bar = tk.Progressbar(tk.Window())
     assert progress_bar.config['value'] == 0
+    assert repr(progress_bar) == (
+        "<pythotk.Progressbar widget: "
+        "mode='determinate', value=0.0, maximum=100.0>")
 
-    # test that bouncy methods don't raise errors, they are tested better below
     progress_bar.config['mode'] = 'indeterminate'
+    assert repr(progress_bar) == (
+        "<pythotk.Progressbar widget: mode='indeterminate'>")
+
+    # test that bouncy methods don't raise errors, they are tested better but
+    # more slowly below
     progress_bar.start()
     progress_bar.stop()
 

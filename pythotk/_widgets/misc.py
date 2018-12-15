@@ -263,6 +263,8 @@ class Frame(ChildMixin, Widget):
 
     def _init_config(self):
         super()._init_config()
+
+        # if you change these, also change Window's types in windows.py
         self.config._types.update({
             'height': tk.ScreenDistance,
             'padding': tk.ScreenDistance,

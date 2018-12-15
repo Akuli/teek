@@ -85,7 +85,7 @@ class WmMixin:
         self._call(None, 'tkwait', 'window', self)
 
     # to be overrided
-    def _get_wm_widget(self):
+    def _get_wm_widget(self):   # pragma: no cover
         raise NotImplementedError
 
 
@@ -202,8 +202,8 @@ class FallbackConfigDict(ConfigDict):
     def __init__(self, main_config, fallback_config):
         super().__init__()
 
-        # these may avoid breaking something, but at least they avoid getting
-        # lots of warnings from check_config_types, see tests
+        # this doesn't need a ChainMap because self._types isn't changed
+        # after this
         self._types.update(main_config._types)
         self._types.update(fallback_config._types)
 
@@ -267,9 +267,18 @@ class Window(WmMixin, Widget):
 
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
-        super().__init__(self.toplevel)
+        super().__init__(self.toplevel)     # calls self._init_config()
+
         self.config = FallbackConfigDict(self.config, self.toplevel.config)
         ChildMixin.pack(self, fill='both', expand=True)
+
+    def _init_config(self):
+        # if you change these, also change Frame's types in misc.py
+        self.config._types.update({
+            'height': tk.ScreenDistance,
+            'padding': tk.ScreenDistance,
+            'width': tk.ScreenDistance,
+        })
 
     def _get_wm_widget(self):
         return self.toplevel

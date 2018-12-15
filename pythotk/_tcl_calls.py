@@ -463,14 +463,14 @@ def tcl_eval(returntype, code):
 
 
 # because there's no better place for this
-def update(*, idletasks=False):
+def update(*, idletasks_only=False):
     """Handles all pending events, and returns when they are all handled.
 
-    See :man:`update(3tcl)` for details. If ``idletasks=True`` is given, this
-    calls ``update idletasks``; otherwise, this calls ``update`` with no
+    See :man:`update(3tcl)` for details. If ``idletasks_only=True`` is given,
+    this calls ``update idletasks``; otherwise, this calls ``update`` with no
     arguments.
     """
-    if idletasks:
+    if idletasks_only:
         tcl_call(None, 'update', 'idletasks')
     else:
         tcl_call(None, 'update')

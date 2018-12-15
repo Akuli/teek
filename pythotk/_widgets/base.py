@@ -630,7 +630,7 @@ class BindingDict(collections.abc.Mapping):
             except (ValueError, tk.TclError) as e:
                 if string_value == '??':
                     value = None
-                else:
+                else:   # pragma: no cover
                     raise e
 
             setattr(event, attrib, value)
