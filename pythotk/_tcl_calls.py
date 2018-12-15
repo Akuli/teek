@@ -549,7 +549,7 @@ def create_command(func, arg_type_specs=(), *, extra_args_type=None):
             # basic_args + extra_args doesn't work because they are iterators
             return to_tcl(func(*itertools.chain(basic_args, extra_args)))
 
-        except Exception as e:
+        except Exception:
             traceback_blabla, rest = traceback.format_exc().split('\n', 1)
             print(traceback_blabla + '\n' + stack_info + rest,
                   end='', file=sys.stderr)

@@ -7,7 +7,7 @@ python:
   - nightly
   - "pypy3.5"
 install:
-  - pip install pytest pytest-cov python-coveralls flake8 sphinx
+  - pip install pytest pytest-cov python-coveralls flake8==3.5 sphinx
 script:
   - flake8 pythotk/ tests/ *.py
 
