@@ -540,8 +540,6 @@ et`.
 
 
 # these are from bind(3tk), Tk 8.5 and 8.6 support all of these
-# the ones marked "event(3tk)" use names listed in event(3tk), and "tkinter"
-# ones use same names as tkinter's event object attributes
 #
 # event(3tk) says that width and height are screen distances, but bind seems to
 # convert them to ints, so they are ints here
@@ -637,7 +635,7 @@ class BindingDict(collections.abc.Mapping):
 
             setattr(event, attrib, value)
 
-        callback.run(event)
+        return callback.run(event)
 
     def __getitem__(self, sequence):
         if sequence in self._callback_objects:
@@ -658,8 +656,11 @@ class BindingDict(collections.abc.Mapping):
         command = tk.create_command(runner, [str] * len(_BIND_SUBS))
         self._command_list.append(command)      # avoid memory leaks
 
-        self._call_bind(None, sequence, '+%s %s' % (
-            command, ' '.join(subs for subs, type_, name in _BIND_SUBS)))
+        subs_string = ' '.join(subs for subs, type_, name in _BIND_SUBS)
+        self._call_bind(
+            None, sequence, '+ if { [%s %s] eq {break} } { break }' % (
+                command, subs_string))
+
         self._callback_objects[sequence] = callback
         return callback
 

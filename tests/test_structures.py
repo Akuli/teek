@@ -14,7 +14,7 @@ def test_callbacks(capsys):
     cb.connect(result1.append)   # repeated intentionally
     cb.connect(result2.append)
 
-    cb.run('lol')
+    assert cb.run('lol') is None
     assert result1 == ['lol', 'lol']
     assert result2 == ['lol']
     result1.clear()
@@ -28,14 +28,14 @@ def test_callbacks(capsys):
     else:
         cb.disconnect(result1.append)
 
-    cb.run('wut')
+    assert cb.run('wut') is None
     assert result1 == result2 == ['wut']
     result1.clear()
     result2.clear()
 
     cb.disconnect(result1.append)
     cb.disconnect(result2.append)
-    cb.run('wat wat')
+    assert cb.run('wat wat') is None
     assert result1 == result2 == []
 
     with pytest.raises(ValueError):
@@ -46,11 +46,49 @@ def test_callbacks(capsys):
     def broken_callback(whatever):
         1 / 0
 
+    stuff = []
     cb.connect(broken_callback)
-    cb.run('wat')         # doesn't raise an error
+    cb.connect(stuff.append)
+    assert cb.run('wat') is None    # doesn't raise an error
+    assert not stuff                # running callbacks stopped because error
     output, errors = capsys.readouterr()
     assert not output
-    assert 'cb.connect(broken_callback)' in errors
+    assert '\n    cb.connect(broken_callback)\n' in errors
+
+
+def test_callback_break(capsys):
+    stuff = []
+
+    def non_breaking():
+        stuff.append('no break')
+
+    def breaking():
+        stuff.append('break')
+        return 'break'
+
+    def wat():
+        stuff.append('wat')
+        return 'wat'
+
+    cb = tk.Callback()
+    cb.connect(non_breaking)
+    cb.connect(breaking)
+    cb.connect(non_breaking)
+    assert cb.run() == 'break'
+    assert stuff == ['no break', 'break']
+    stuff.clear()
+
+    cb2 = tk.Callback()
+    cb2.connect(wat)
+    cb2.connect(non_breaking)
+    assert cb2.run() is None
+    assert stuff == ['wat']
+
+    output, errors = capsys.readouterr()
+    assert not output
+    assert '\n    cb2.connect(wat)\n' in errors
+    assert errors.endswith(
+        "\nValueError: expected None or 'break', got 'wat'\n")
 
 
 # most things are tested with doctests, but this is for testing corner cases

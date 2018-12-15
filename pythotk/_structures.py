@@ -38,6 +38,15 @@ class Callback:
         >>> c.connect(print, args=['hello'], kwargs={'sep': '-'})
         >>> c.run(1, 2)     # print(1, 2, 'hello', sep='-')
         1-2-hello
+
+        The callback may return ``None`` or ``'break'``. In the above example,
+        ``print`` returned ``None``. If the callback returns ``'break'``, two
+        things are done differently:
+
+        1. No more connected callbacks will be ran.
+        2. :meth:`.run` returns ``'break'``, so that the code that called
+           :meth:`.run` knows that one of the callbacks returned ``'break'``.
+           This is used in :ref:`bindings <binding-break>`.
         """
         # -1 is this method so -2 is what called this
         stack_info = traceback.format_stack()[-2]
@@ -82,15 +91,32 @@ class Callback:
         raise ValueError("not connected: %r" % (function,))
 
     def run(self, *args):
-        """Run the connected callbacks."""
+        """Run the connected callbacks.
+
+        If a callback returns ``'break'``, this returns ``'break'`` too without
+        running more callbacks. If all callbacks run without returning
+        ``'break'``, this returns ``None``. If a callback raises an exception,
+        a traceback is printed and ``None`` is returned.
+        """
         for func, extra_args, kwargs, stack_info in self._connections:
             try:
-                func(*(args + tuple(extra_args)), **kwargs)
+                result = func(*(args + tuple(extra_args)), **kwargs)
+                if result == 'break':
+                    return 'break'
+                elif result is not None:
+                    raise ValueError(
+                        "expected None or 'break', got " + repr(result))
             except Exception:
+                # it's important that this does NOT call sys.stderr.write
+                # directly because sys.stderr is None when running in windows
+                # with pythonw.exe, and print('blah', file=None) does nothing
+                # but None.write('blah\n') is an error
                 traceback_blabla, rest = traceback.format_exc().split('\n', 1)
                 print(traceback_blabla, file=sys.stderr)
                 print(stack_info + rest, end='', file=sys.stderr)
-                break
+                return None
+
+        return None
 
 
 # these are here because they are used in many places, like most other things

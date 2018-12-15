@@ -119,9 +119,12 @@ class _TclInterpreter:
                 'after', poll_interval_ms, 'pythotk_init_threads_queue_poller')
 
         self._app.createcommand(poller_tcl_command, poller)
-        tk.before_quit.connect(
-            lambda: None if after_id is None else self._app.call(
-                'after', 'cancel', after_id))
+
+        def quit_disconnecter():
+            if after_id is not None:
+                self._app.call('after', 'cancel', after_id)
+
+        tk.before_quit.connect(quit_disconnecter)
 
         poller()
         self._init_threads_called = True

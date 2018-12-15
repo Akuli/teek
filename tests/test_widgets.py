@@ -168,6 +168,17 @@ def test_bind(handy_callback):
     assert repr(widget.bindings) == '<a bindings object, behaves like a dict>'
 
 
+def test_bind_break():
+    events = []
+    widget = tk.Window()
+    widget.bind('<<Asd>>', (lambda: events.append('one')))
+    widget.bind('<<Asd>>', (lambda: [events.append('two'), 'break'][1]))  # lol
+    widget.bind('<<Asd>>', (lambda: events.append('three')))
+
+    tk.update()     # needed for virtual events to work
+    widget.event_generate('<<Asd>>')
+
+
 def test_event_objects():
     events = []
 
@@ -217,8 +228,9 @@ def test_event_objects():
 def test_bind_deletes_tcl_commands(handy_callback):
     widget = tk.Window()
     widget.bind('<Button-1>', print)
-    command_string = tk.tcl_call([str], 'bind', widget, '<Button-1>')[0]
-    assert command_string.startswith('pythotk_command_')
+    tcl_codes = tk.tcl_call(str, 'bind', widget, '<Button-1>')
+    command_string = re.search(r'pythotk_command_\d+', tcl_codes).group(0)
+
     assert command_string in tk.tcl_call([str], 'info', 'commands')
     widget.destroy()
     assert command_string not in tk.tcl_call([str], 'info', 'commands')

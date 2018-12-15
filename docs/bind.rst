@@ -35,6 +35,35 @@ time you move the mouse over the label. See :man:`bind(3tk)` for all possible
 strings you can pass to :meth:`~.Widget.bind`.
 
 
+.. _binding-break:
+
+Returning 'break'
+-----------------
+
+Pythotk lets you prevent the default action of a binding from happening. For
+example, clicking a :class:`.Text` widget focuses the widget and moves the
+mouse to the location that was clicked. In this example, ``on_click()``
+prevents this from happening by returning ``'break'``::
+
+    import pythotk as tk
+
+    window = tk.Window("Hello")
+
+    text = tk.Text(window)
+    text.pack()
+
+    def on_click():
+        print("clicked, returning 'break'")
+        return 'break'
+
+    text.bind('<Button-1>', on_click)
+
+    tk.run()
+
+Note that ``return 'break'`` also prevents other ``<Button-1>`` bindings from
+running. See :meth:`.Callback.connect` for more details.
+
+
 Event Objects
 -------------
 
