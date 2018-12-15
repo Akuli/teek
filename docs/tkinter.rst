@@ -91,6 +91,23 @@ supports ``LabelFrame`` only, but for some reason, ``tkinter/ttk.py`` has
 ``Labelframe`` in addition to ``LabelFrame``.
 
 
+Constants
+---------
+
+Tkinter has lots of constants like ``tkinter.BOTH``, but their values are just
+similar strings::
+
+    >>> import tkinter
+    >>> tkinter.BOTH
+    'both'
+
+This means that ``some_widget.pack(fill=tkinter.BOTH)`` does the same thing as
+``some_widget.pack(fill='both')``. Some programmers use constants like
+``tkinter.BOTH`` while others prefer to just write ``'both'``. I think these
+constants are dumb, which is why pythotk doesn't have them. Use strings like
+``'both'`` in pythotk.
+
+
 Run
 ---
 
