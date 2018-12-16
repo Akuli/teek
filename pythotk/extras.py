@@ -1,3 +1,5 @@
+import functools
+
 import pythotk as tk
 
 
@@ -90,3 +92,39 @@ def set_tooltip(widget, text):
         if not hasattr(widget, '_tooltip_manager'):
             widget._tooltip_manager = _TooltipManager(widget)
         widget._tooltip_manager.text = text
+
+
+# this is not called bind_tab to avoid confusing with:
+#   * \t characters
+#   * web browser tabs as in tk.Notebook
+def bind_tab_key(widget, callback, **bind_kwargs):
+    """A convenience function for binding Tab and Shift+Tab.
+
+    Use this function like this::
+
+        def on_tab(shifted):
+            if shifted:
+                print("Shift+Tab was pressed")
+            else:
+                print("Tab was pressed")
+
+        tk.extras.bind_tab_key(some_widget, on_tab)
+
+    Binding ``'<Tab>'`` works on all systems I've tried it on, but binding
+    ``'<Shift-Tab>'`` only works on Windows and Mac OSX. This function also
+    works on X11 (including Linux).
+
+    This function can also take any of the keyword arguments that
+    :meth:`pythotk.Widget.bind` takes. If you pass ``event=True``, the callback
+    will be called like ``callback(shifted, event)``; that is, the ``shifted``
+    bool is the first argument, and the event object is the second.
+    """
+    if tk.windowingsystem() == 'x11':
+        # even though the event keysym says Left, holding down the right
+        # shift and pressing tab also works :D
+        shift_tab = '<ISO_Left_Tab>'
+    else:
+        shift_tab = '<Shift-Tab>'   # pragma: no cover
+
+    widget.bind('<Tab>', functools.partial(callback, False), **bind_kwargs)
+    widget.bind(shift_tab, functools.partial(callback, True), **bind_kwargs)

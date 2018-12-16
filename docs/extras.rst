@@ -10,3 +10,4 @@ special; you can just ``import pythotk as tk`` as usual, and then use e.g.
 ``tk.extras.set_tooltip``.
 
 .. autofunction:: pythotk.extras.set_tooltip
+.. autofunction:: pythotk.extras.bind_tab_key
