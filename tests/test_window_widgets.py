@@ -101,6 +101,17 @@ def test_geometry_changes():
     assert window.geometry() == (100, 200, 300, 400)
 
 
+def test_transient():
+    window1 = tk.Window()
+    window2 = tk.Window()
+    toplevel = tk.Toplevel()
+
+    window1.transient = window2
+    assert window1.transient is window2.toplevel
+    window1.transient = toplevel
+    assert window1.transient is toplevel
+
+
 @pytest.mark.slow
 def test_wait_window():
     window = tk.Window()

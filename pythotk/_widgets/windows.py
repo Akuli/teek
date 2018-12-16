@@ -53,6 +53,15 @@ class WmMixin:
     def wm_state(self, state):
         self._call(None, 'wm', 'state', self._get_wm_widget(), state)
 
+    @property
+    def transient(self):
+        return self._call(tk.Widget, 'wm', 'transient', self._get_wm_widget())
+
+    @transient.setter
+    def transient(self, widget):
+        self._call(None, 'wm', 'transient', self._get_wm_widget(),
+                   widget._get_wm_widget())
+
     def geometry(self, width=None, height=None, x=None, y=None):
         if (width is None) ^ (height is None):
             raise TypeError("specify both width and height, or neither")
@@ -129,6 +138,7 @@ class Toplevel(WmMixin, Widget):
 
     .. attribute:: title
                    wm_state
+                   transient
     .. method:: geometry(width=None, height=None, x=None, y=None)
                 withdraw()
                 iconify()
@@ -139,8 +149,14 @@ class Toplevel(WmMixin, Widget):
         the pythotk attribute is ``wm_state`` to make it explicit that it is
         the wm state, not some other state.
 
-        ``title`` and ``wm_state`` are strings, and they can be set like
-        ``my_toplevel.title = "Hello"``.
+        All of the attributes are settable, so you can do e.g.
+        ``my_toplevel.title = "lol"``. ``title`` and ``wm_state`` are strings,
+        and ``transient`` is a widget.
+
+        .. note::
+            If ``transient`` is set to a :class:`.Window`, looking it up won't
+            give back that same window; instead, it gives the
+            :attr:`~.Window.toplevel` of the window.
 
     .. method:: wait_window()
 
