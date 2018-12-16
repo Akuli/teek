@@ -43,6 +43,26 @@ def test_that_widget_names_dont_contain_horrible_mistakes(all_widgets):
         assert class_name.lower() in tcl_command
 
 
+def test_tk_class_names(all_widgets):
+    for widget in all_widgets:
+        if not isinstance(widget, tk.Window):
+            winfo_result = tk.tcl_call(str, 'winfo', 'class', widget)
+            assert winfo_result == type(widget).tk_class_name
+
+    # special cases
+    assert tk.Widget.tk_class_name is None
+    assert tk.Window.tk_class_name is None
+
+    class LolWidget(tk.Widget):
+        pass
+
+    class LolLabel(tk.Label):
+        pass
+
+    assert LolWidget.tk_class_name is None
+    assert LolLabel.tk_class_name == 'TLabel'
+
+
 def test_basic_repr_stuff(monkeypatch):
     monkeypatch.syspath_prepend(DATA_DIR)
     import subclasser
@@ -194,6 +214,46 @@ def test_bind(handy_callback):
     assert widget.bindings['<3>'] is widget.bindings['<Button-3>']
 
     assert repr(widget.bindings) == '<a bindings object, behaves like a dict>'
+
+
+def test_bind_class(handy_callback):
+    @handy_callback
+    def class_callback():
+        pass
+
+    @handy_callback
+    def all_callback():
+        pass
+
+    tk.Text.bind_class('<<Lol>>', class_callback)
+    tk.Widget.bind_class('<<Lol>>', all_callback)
+
+    text = tk.Text(tk.Window())
+    text.pack()
+    tk.update()     # make sure that virtual events work
+    text.event_generate('<<Lol>>')
+
+    assert class_callback.ran_once()
+    assert all_callback.ran_once()
+
+    class FunnyWidget(tk.Widget):
+        pass
+
+    with pytest.raises(AttributeError) as error:
+        text.class_bindings
+
+    assert str(error.value) == (
+        "the class_bindings attribute must be used like Text.class_bindings, "
+        "not like some_text_instance.class_bindings")
+
+    with pytest.raises(AttributeError) as error2:
+        FunnyWidget.class_bindings
+
+    with pytest.raises(AttributeError) as error3:
+        FunnyWidget.bind_class('<<Lol>>', print)
+
+    assert str(error2.value) == str(error3.value) == (
+        "FunnyWidget cannot be used with class_bindings and bind_class()")
 
 
 def test_bind_break():

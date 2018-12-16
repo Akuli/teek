@@ -10,7 +10,30 @@ from pythotk._tcl_calls import counts, from_tcl, needs_main_thread
 from pythotk._structures import ConfigDict, CgetConfigureConfigDict, after_quit
 
 _widgets = {}
+_class_bindings = {}
 after_quit.connect(_widgets.clear)
+after_quit.connect(_class_bindings.clear)
+
+
+# like what you would expect to get for combining @classmethod and @property,
+# but doesn't do any magic with assigning, only getting
+class _ClassProperty:
+
+    def __init__(self, getter):
+        assert isinstance(getter.__name__, str)
+        self._getter = getter
+
+    def __get__(self, instance_or_none, claas):
+        if instance_or_none is None:
+            return self._getter(claas)
+
+        attribute = self._getter.__name__
+        classname = claas.__name__
+        raise AttributeError(
+            "the %s attribute must be used like %s.%s, "
+            "not like some_%s_instance.%s"
+            % (attribute, classname, attribute,
+               classname.lower(), attribute))
 
 
 class StateSet(collections.abc.MutableSet):
@@ -152,9 +175,39 @@ class Widget:
             about it in :ref:`the pythotk tutorial <tcl-tk-tkinter-pythotk>`.
             Most pythotk widgets are ttk widgets, but some aren't, and that's
             mentioned in the documentation of those widgets.
+
+    .. attribute:: tk_class_name
+
+        Tk's class name of the widget class, as a string.
+
+        This is a class attribute, but it can be accessed from instances as
+        well:
+
+        >>> text = tk.Text(tk.Window())
+        >>> text.tk_class_name
+        'Text'
+        >>> tk.Text.tk_class_name
+        'Text'
+
+        Note that Tk's class names are sometimes different from the names of
+        Python classes, and this attribute can also be None in some special
+        cases.
+
+        >>> tk.Label.tk_class_name
+        'TLabel'
+        >>> class AsdLabel(tk.Label):
+        ...     pass
+        ...
+        >>> AsdLabel.tk_class_name
+        'TLabel'
+        >>> print(tk.Window.tk_class_name)
+        None
+        >>> print(tk.Widget.tk_class_name)
+        None
     """
 
     _widget_name = None
+    tk_class_name = None
 
     def __init__(self, parent, **kwargs):
         if type(self)._widget_name is None:
@@ -391,6 +444,35 @@ class Widget:
 
         self._call(None, 'destroy', self)
         del _widgets[self.to_tcl()]
+
+    @_ClassProperty
+    def class_bindings(cls):
+        if cls is Widget:
+            assert cls.tk_class_name is None
+            bindtag = 'all'
+        elif cls.tk_class_name is not None:
+            bindtag = cls.tk_class_name
+        else:
+            raise AttributeError(
+                "%s cannot be used with class_bindings and bind_class()"
+                % cls.__name__)
+
+        try:
+            return _class_bindings[bindtag]
+        except KeyError:
+            def call_bind(returntype, *args):
+                return tk.tcl_call(returntype, 'bind', bindtag, *args)
+
+            # all commands are deleted when the interpreter shuts down, and the
+            # binding dict created here should be alive until then, so it's
+            # fine to pass a new empty list for command list
+            bindings = BindingDict(call_bind, [])
+            _class_bindings[bindtag] = bindings
+            return bindings
+
+    @classmethod
+    def bind_class(cls, *args, **kwargs):
+        return cls.class_bindings._convenience_bind(*args, **kwargs)
 
     def winfo_children(self):
         """Returns a list of child widgets that this widget has.

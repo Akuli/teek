@@ -236,6 +236,7 @@ d', added to a menu>
     """
 
     _widget_name = 'menu'
+    tk_class_name = 'Menu'
 
     def __init__(self, items=(), **kwargs):
         kwargs.setdefault('tearoff', False)

@@ -202,7 +202,7 @@ It also does that with bindings.
     and looking up those strings from a widget's ``bindings`` is guaranteed
     to give the same :class:`.Callback` object.
 
-.. method:: pythotk.Widget.bind
+.. method:: pythotk.Widget.bind(sequence, func, *, event=False)
 
     For convenience, ``widget.bind(sequence, func, event=True)`` does
     ``widget.bindings[sequence].connect(func)``. Note that this does not
@@ -213,6 +213,36 @@ It also does that with bindings.
     If ``event=True`` is not given, ``widget.bindings[sequence]`` is
     connected to a new function that calls ``func`` with no arguments,
     ignoring the event object.
+
+
+Class Bindings
+--------------
+
+Sometimes it's useful to bind things so that all instances of a pythotk class
+get bound.
+
+.. attribute:: pythotk.Widget.class_bindings
+.. method:: pythotk.Widget.bind_class(sequence, func, *, event=False)
+
+    These are like :attr:`~.Widget.bindings` and :meth:`~.Widget.bind`, but for
+    binding all instances of a class. Call ``pythotk.Widget.bind_class()`` to
+    bind all widgets in the whole program, or e.g. ``pythotk.Text.bind_class()``
+    to bind all text widgets. This works both for widgets that have been
+    already created and for widgets that will be created after the
+    ``bind_class()`` call.
+
+    .. note::
+        This does not work well for classes that inherit from pythotk's widget
+        classes. For example, if you have a class like this...
+        ::
+
+            class MyText(tk.Text):
+                pass
+
+        ...then ``MyText.bind_class`` and ``MyText.class_bindings`` are no
+        different from ``tk.Text.bind_class`` and ``tk.Text.class_bindings``.
+        This is because ``class_bindings`` and ``bind_class()`` use the
+        :attr:`~.Widget.tk_class_name` attribute.
 
 
 .. _virtual-event:

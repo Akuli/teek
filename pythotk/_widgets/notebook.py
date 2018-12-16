@@ -156,6 +156,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     """
 
     _widget_name = 'ttk::notebook'
+    tk_class_name = 'TNotebook'
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)

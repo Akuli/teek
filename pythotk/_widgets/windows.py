@@ -164,6 +164,7 @@ class Toplevel(WmMixin, Widget):
     """
 
     _widget_name = 'toplevel'
+    tk_class_name = 'Toplevel'
 
     # allow passing title as a positional argument
     def __init__(self, title=None, **options):
@@ -264,6 +265,7 @@ class Window(WmMixin, Widget):
     """
 
     _widget_name = 'ttk::frame'
+    tk_class_name = None
 
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)

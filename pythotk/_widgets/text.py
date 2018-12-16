@@ -242,6 +242,7 @@ class Text(ChildMixin, Widget):
     """
 
     _widget_name = 'text'
+    tk_class_name = 'Text'
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)

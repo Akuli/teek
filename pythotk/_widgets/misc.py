@@ -28,6 +28,7 @@ class Button(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::button'
+    tk_class_name = 'TButton'
 
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__(parent, text=text, **kwargs)
@@ -92,6 +93,7 @@ class Checkbutton(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::checkbutton'
+    tk_class_name = 'TCheckbutton'
 
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__(parent, text=text, **kwargs)
@@ -142,6 +144,7 @@ class Entry(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::entry'
+    tk_class_name = 'TEntry'
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, **kwargs)
@@ -207,6 +210,7 @@ class Spinbox(Entry):
     """
 
     _widget_name = 'ttk::spinbox'
+    tk_class_name = 'TSpinbox'
 
     def __init__(self, parent, *, command=None, **kwargs):
         super().__init__(parent, **kwargs)
@@ -243,14 +247,15 @@ class Combobox(Entry):
     Manual page: :man:`ttk_combobox(3tk)`
     """
 
+    _widget_name = 'ttk::combobox'
+    tk_class_name = 'TCombobox'
+
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
             'height': int,
             'values': [str],
         })
-
-    _widget_name = 'ttk::combobox'
 
 
 class Frame(ChildMixin, Widget):
@@ -260,6 +265,7 @@ class Frame(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::frame'
+    tk_class_name = 'TFrame'
 
     def _init_config(self):
         super()._init_config()
@@ -283,6 +289,7 @@ class Label(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::label'
+    tk_class_name = 'TLabel'
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, text=text, **kwargs)
@@ -306,6 +313,7 @@ class LabelFrame(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::labelframe'
+    tk_class_name = 'TLabelframe'
 
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, text=text, **kwargs)
@@ -399,6 +407,7 @@ class Progressbar(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::progressbar'
+    tk_class_name = 'TProgressbar'
 
     def _init_config(self):
         super()._init_config()
@@ -467,6 +476,7 @@ class Scrollbar(ChildMixin, Widget):
     """
 
     _widget_name = 'ttk::scrollbar'
+    tk_class_name = 'TScrollbar'
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
@@ -528,6 +538,7 @@ class Separator(ChildMixin, Widget):
     # TODO: link to pack docs
 
     _widget_name = 'ttk::separator'
+    tk_class_name = 'TSeparator'
 
     def _repr_parts(self):
         return ['orient=' + repr(self.config['orient'])]
