@@ -271,7 +271,7 @@ class Widget:
 
     @classmethod
     def from_tcl(cls, path_string):
-        """Creates a widget from a Tcl path names.
+        """Creates a widget from a Tcl path name.
 
         In Tcl, widgets are represented as commands, and doing something to the
         widget invokes the command. Use this method if you know the Tcl command
