@@ -35,6 +35,7 @@ def test_basic_stuff():
     assert (text.start.forward(chars=2, lines=1).back(chars=2, lines=1) ==
             text.start)
     assert text.start.forward(chars=100) == text.end
+    assert text.Index(1000, 1000) == text.end
 
     assert text.start.wordend() == (1, 3)               # after 'lol'
     assert text.start.wordend().linestart() == text.start
@@ -50,6 +51,12 @@ def test_basic_stuff():
             text.start.forward(chars=1) <
             text.start.forward(lines=1) <
             text.start.forward(chars=1, lines=1))
+
+
+def test_text_index_from_tcl():
+    text = tk.Text(tk.Window())
+    text.insert(text.end, 'lol')
+    assert tk.tcl_eval(text.Index, 'return -level 0 1000.1000') == text.end
 
 
 # see text(3tk) with different tk versions

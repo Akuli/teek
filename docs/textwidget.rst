@@ -69,10 +69,10 @@ TextIndex(line=1, column=0)
           ...
 
     ...but it's just as common to start column numbering at 0, just like string
-    indices.
+    indexing in general.
 
     Avoid working with 0-based line numbers if you can. That way your pythotk
-    code will be simpler and less confusing.
+    code will probably be simpler and less confusing.
 
 The text indices can do everything that namedtuples can do.
 
@@ -114,6 +114,15 @@ TextIndex(line=2, column=9)
 >>> print(text.get(text.start, text.end))
 hello
 some text
+
+The text index class can be accessed as ``some_text_widget.Index``:
+
+>>> text.Index(1, 0)
+TextIndex(line=1, column=0)
+>>> isinstance('lol', text.Index)
+False
+
+The text indexes are also valid :ref:`type specifications <type-spec>`.
 
 Text indices have the following attributes and methods:
 
@@ -168,7 +177,7 @@ edits the text widget's content:
 >>> text.replace(text.start, text.end, "hello world")
 >>> text.get(text.start, text.end)
 'hello world'
->>> before_w = text.index(1, 6)
+>>> before_w = text.Index(1, 6)
 >>> before_w
 TextIndex(line=1, column=6)
 >>> text.get(before_w, text.end)
@@ -184,7 +193,7 @@ TextIndex(line=1, column=6)
 We can solve this problem by adding a **mark**:
 
 >>> text.replace(text.start, text.end, "hello world")
->>> text.marks['before_w'] = text.index(1, 6)
+>>> text.marks['before_w'] = text.Index(1, 6)
 >>> text.get(text.marks['before_w'], text.end)
 'world'
 >>> text.replace(text.start, text.start.forward(chars=5), 'hi')
