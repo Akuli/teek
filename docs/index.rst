@@ -37,6 +37,7 @@ covered in the tutorial.
     dialog
     misc-objs
     platform-info
+    extras
 
 
 Understanding pythotk

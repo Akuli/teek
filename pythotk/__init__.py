@@ -45,4 +45,4 @@ from pythotk._widgets.misc import (
 from pythotk._widgets.notebook import Notebook, NotebookTab
 from pythotk._widgets.text import Text
 from pythotk._widgets.windows import Window, Toplevel
-from pythotk import dialog
+from pythotk import dialog, extras
