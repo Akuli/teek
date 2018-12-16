@@ -274,6 +274,16 @@ class Window(WmMixin, Widget):
         self.config = FallbackConfigDict(self.config, self.toplevel.config)
         ChildMixin.pack(self, fill='both', expand=True)
 
+    def destroy(self):
+        """Destroys the :attr:`.toplevel` and the frame in it.
+
+        This overrides :meth:`.Widget.destroy`.
+        """
+        self.toplevel.destroy()
+
+    def _destroy_recurser(self):
+        super().destroy()
+
     def _init_config(self):
         # if you change these, also change Frame's types in misc.py
         self.config._types.update({

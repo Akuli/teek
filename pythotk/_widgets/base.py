@@ -434,7 +434,7 @@ class Widget:
             # allow overriding the destroy() method if the widget was
             # created by pythotk
             if name in _widgets:
-                _widgets[name].destroy()
+                _widgets[name]._destroy_recurser()
             else:
                 self._call(None, 'destroy', name)
 
@@ -444,6 +444,11 @@ class Widget:
 
         self._call(None, 'destroy', self)
         del _widgets[self.to_tcl()]
+
+    # can be overrided when .destroy() in .destroy() would cause infinite
+    # recursion, see Window in windows.py
+    def _destroy_recurser(self):
+        self.destroy()
 
     @_ClassProperty
     def class_bindings(cls):
