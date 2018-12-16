@@ -179,6 +179,8 @@ need to import anything special in order to use the dialog functions;
 ``tk.dialog.open_file()``.
 
 
+.. _tkinter-binding:
+
 Binding
 -------
 

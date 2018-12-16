@@ -202,7 +202,17 @@ It also does that with bindings.
     and looking up those strings from a widget's ``bindings`` is guaranteed
     to give the same :class:`.Callback` object.
 
-.. automethod:: pythotk.Widget.bind
+.. method:: pythotk.Widget.bind
+
+    For convenience, ``widget.bind(sequence, func, event=True)`` does
+    ``widget.bindings[sequence].connect(func)``. Note that this does not
+    discard old bindings, so calling this repeatedly will result in multiple
+    functions being bound at the same time (unlike in tkinter, see
+    :ref:`tkinter-binding` in the tkinter porting tutorial).
+
+    If ``event=True`` is not given, ``widget.bindings[sequence]`` is
+    connected to a new function that calls ``func`` with no arguments,
+    ignoring the event object.
 
 
 .. _virtual-event:

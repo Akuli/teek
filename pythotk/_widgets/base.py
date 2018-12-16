@@ -196,6 +196,7 @@ class Widget:
         self.bindings = BindingDict(    # BindingDict is defined below
          lambda returntype, *args: self._call(returntype, 'bind', self, *args),
          self._command_list)
+        self.bind = self.bindings._convenience_bind
 
         if type(self)._widget_name.startswith('ttk::'):
             self.state = StateSet(self)
@@ -333,25 +334,6 @@ class Widget:
     cget = _tkinter_hint("widget.config['option']", "widget.cget('option')")
     configure = _tkinter_hint("widget.config['option'] = value",
                               "widget.configure(option=value)")
-
-    def bind(self, sequence, func, *, event=False):
-        """
-        For convenience, ``widget.bind(sequence, func, event=True)`` does
-        ``widget.bindings[sequence].connect(func)``.
-
-        If ``event=True`` is not given, ``widget.bindings[sequence]`` is
-        connected to a new function that calls ``func`` with no arguments,
-        ignoring the event object.
-
-        .. note::
-            In tkinter, ``widget.bind(sequence, func)`` discards all old
-            bindings, and if you want to bind multiple functions to the same
-            sequence, you need to specifically tell it to not discard anything.
-            I have no idea why tkinter does that. Pythotk keeps the old
-            bindings because the :class:`.Callback` does that.
-        """
-        eventy_func = func if event else (lambda event: func())
-        self.bindings[sequence].connect(eventy_func)
 
     # like _tcl_calls.tcl_call, but with better error handling
     @needs_main_thread
@@ -663,6 +645,10 @@ class BindingDict(collections.abc.Mapping):
 
         self._callback_objects[sequence] = callback
         return callback
+
+    # any_widget.bind is set to this
+    def _convenience_bind(self, sequence, func, *, event=False):
+        self[sequence].connect(func if event else (lambda event: func()))
 
 
 # TODO: "RELATIVE PLACEMENT" in grid(3tk)
