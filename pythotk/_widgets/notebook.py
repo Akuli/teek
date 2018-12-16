@@ -144,6 +144,11 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
       notebook. The ``insert`` method is called every time when a new tab is
       added with any method. Make sure that your override is compatible with
       the ``insert()`` method of :class:`collections.abc.MutableSequence`.
+    * Bind to ``<<NotebookTabChanged>>`` if you want to customize what happens
+      when a different tab is selected. That runs when the user changes a tab
+      or the tab is changed with the :attr:`.selected_tab` property.
+      ``<<NotebookTabChanged>>`` is documented in the ``VIRTUAL EVENTS``
+      section of :man:`ttk_notebook(3tk)`.
 
     As usual, use :func:`super` when overriding.
 
