@@ -184,8 +184,7 @@ Text indices have the following attributes and methods:
 .. tip::
     Text indices are usually namedtuples, but methods that take text indices as
     arguments (e.g. :meth:`~.Text.insert`) can also take regular
-    ``(line, column)`` tuples. You can use :meth:`~.Text.index` to create new
-    text index namedtuples from line and column numbers.
+    ``(line, column)`` tuples.
 
 
 .. _textwidget-marks:
