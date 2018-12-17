@@ -119,6 +119,10 @@ def test_destroy():
     button = tk.Button(frame)
     widgets = [window, label, button]
 
+    command = tk.create_command(print, str)
+    label.command_list.append(command)
+    assert tk.tcl_call([str], 'info', 'commands', command) == [command]
+
     assert window.winfo_children() == [label, frame]
     assert frame.winfo_children() == [button]
 
@@ -129,6 +133,8 @@ def test_destroy():
     for widget in widgets:
         assert not widget.winfo_exists()
         assert repr(widget).startswith('<destroyed ')
+
+    assert tk.tcl_call([str], 'info', 'commands', command) == []
 
     with pytest.raises(RuntimeError) as error:
         label.config['text'] = 'lel'
