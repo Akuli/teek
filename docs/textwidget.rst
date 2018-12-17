@@ -122,7 +122,7 @@ TextIndex(line=1, column=0)
 >>> isinstance('lol', text.Index)
 False
 
-The text indexes are also valid :ref:`type specifications <type-spec>`.
+The ``Index`` classes are also valid :ref:`type specifications <type-spec>`.
 
 Text indices have the following attributes and methods:
 
