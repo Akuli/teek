@@ -3,11 +3,23 @@ import base64
 import collections.abc
 import functools
 import itertools
+import os
 import sys
 import traceback
 
 import pythotk as tk
 from pythotk._tcl_calls import needs_main_thread
+
+
+def _is_from_pythotk(traceback_frame_summary):
+    try:
+        filename = traceback_frame_summary.filename
+    except AttributeError:
+        # python 3.4 or older, the frame summary is a tuple
+        filename = traceback_frame_summary[0]
+
+    pythotk_prefix = os.path.normcase(tk.__path__[0]).rstrip(os.sep) + os.sep
+    return filename.startswith(pythotk_prefix)
 
 
 class Callback:
@@ -48,8 +60,13 @@ class Callback:
            :meth:`.run` knows that one of the callbacks returned ``'break'``.
            This is used in :ref:`bindings <binding-break>`.
         """
-        # -1 is this method so -2 is what called this
-        stack_info = traceback.format_stack()[-2]
+        stack = traceback.extract_stack()
+
+        # skip some pythotk implementation details, they are too verbose
+        while stack and _is_from_pythotk(stack[-1]):
+            del stack[-1]
+
+        stack_info = ''.join(traceback.format_list(stack))
 
         if kwargs is None:
             kwargs = {}
