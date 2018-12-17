@@ -38,21 +38,26 @@ def test_eq_hash():
 
 
 def test_write_trace(handy_callback):
-    @handy_callback
-    def tracer(value):
-        assert value == [1, 2, 3]
-
     var = IntListVar()
+
+    @handy_callback
+    def tracer(arg):
+        assert arg is var
+
     assert var.write_trace is var.write_trace
     var.write_trace.connect(tracer)
     var.set([1, 2, 3])
     assert tracer.ran_once()
 
+    # nothing in write trace must break if this is done, only get() breaks
+    var.set('osiadjfoaisdj')
+
 
 def test_creating_var_objects_from_name():
     asd = []
     var = tk.StringVar()
-    var.write_trace.connect(asd.append)
+    var.write_trace.connect(lambda junk: asd.append(var.get()))
+
     var.set('a')
     tk.StringVar(name=var.to_tcl()).set('b')
     tk.StringVar.from_tcl(var.to_tcl()).set('c')

@@ -445,15 +445,15 @@ class TclVariable:
         """
         A :class:`.Callback` that runs when the value of the variable changes.
 
-        The connected functions will be called with one argument, the new
-        value. This is implemented with ``trace add variable``, documented in
+        The connected functions will be called with one argument, the variable
+        object. This is implemented with ``trace add variable``, documented in
         :man:`trace(3tcl)`.
         """
         if self._write_trace is None:
             self._write_trace = Callback()
 
             def runner(*junk):
-                self._write_trace.run(self.get())
+                self._write_trace.run(self)
 
             command = tk.create_command(runner, [str, str, str])
             tk.tcl_call(None, 'trace', 'add', 'variable',
