@@ -130,6 +130,8 @@ TextIndex(line=1, column=0)
 >>> isinstance('lol', text.TextIndex)
 False
 
+.. TODO: should maybe say something about difference between "1.1" and "1.0 + 1 char" here?
+
 The ``TextIndex`` classes are also valid :ref:`type specifications <type-spec>`.
 
 Text indices have the following attributes and methods:

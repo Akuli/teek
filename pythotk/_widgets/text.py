@@ -1,5 +1,6 @@
 import collections.abc
 import functools
+import re
 
 import pythotk as tk
 from pythotk._structures import CgetConfigureConfigDict
@@ -18,10 +19,17 @@ class IndexBase(collections.namedtuple('TextIndex', 'line column')):
     @classmethod
     @needs_main_thread
     def from_tcl(cls, string):
-        # the returned index may be out of bounds
-        string = cls._widget._call(str, cls._widget, 'index', string)
-        return super(IndexBase, cls).__new__(
-            cls, *map(int, string.split('.')))
+        # the returned index may be out of bounds ONLY IF it doesn't contain
+        # anything more fancy than 'line.column'
+        if re.fullmatch(r'(\d+)\.(\d+)', string) is None:
+            string = cls._widget._call(str, cls._widget, 'index', string)
+
+            # hide the invisible newline that tk wants to have at the end
+            tk_fake_end = cls._widget._call(str, cls._widget, 'index', 'end')
+            if string == tk_fake_end:
+                return cls._widget.end
+
+        return cls(*map(int, string.split('.')))
 
     @needs_main_thread
     def between_start_end(self):

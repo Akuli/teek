@@ -14,8 +14,10 @@ def test_between_start_end():
     assert tuple(text.TextIndex(-10, -10).between_start_end()) == (1, 0)
     assert tuple(text.TextIndex(10, 10).between_start_end()) == (1, 3)
 
-    # from_tcl must NOT call between_start_end()
-    assert tk.tcl_eval(text.TextIndex, 'return -level 0 1000.1000') > text.end
+    # from_tcl must NOT call between_start_end() whenever that's avoidable, but
+    # sometimes it isn't
+    assert text.TextIndex.from_tcl('100.100') == (100, 100)
+    assert text.TextIndex.from_tcl('100.100 + 1 char') == text.end
 
 
 def test_basic_stuff():
