@@ -101,6 +101,10 @@ def test_tags():
         tag.remove()
         assert tag.ranges() == []
 
+        tag.add((1, 4), (1, 8))
+        tag.remove((0, 0), (100, 200))
+        assert tag.ranges() == []
+
     # all tags must have the same options
     option_frozensets = set()
     for tag in text.get_all_tags():
