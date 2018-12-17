@@ -204,6 +204,14 @@ class Widget:
         None
         >>> print(tk.Widget.tk_class_name)
         None
+
+    .. attribute:: command_list
+
+        A list of command strings from :func:`.create_command`.
+
+        Append a command to this if you want the command to be deleted with
+        :func:`.delete_command` when the widget is destroyed (with e.g.
+        :meth:`.destroy`).
     """
 
     _widget_name = None
@@ -244,11 +252,11 @@ class Widget:
         self.config.update(kwargs)
 
         # command strings that are deleted when the widget is destroyed
-        self._command_list = []
+        self.command_list = []
 
         self.bindings = BindingDict(    # BindingDict is defined below
          lambda returntype, *args: self._call(returntype, 'bind', self, *args),
-         self._command_list)
+         self.command_list)
         self.bind = self.bindings._convenience_bind
 
         if type(self)._widget_name.startswith('ttk::'):
@@ -378,7 +386,7 @@ class Widget:
     def _create_scroll_callback(self, option_name):
         result = tk.Callback()
         command_string = tk.create_command(result.run, [float, float])
-        self._command_list.append(command_string)
+        self.command_list.append(command_string)
         self._call(None, self, 'configure', '-' + option_name, command_string)
         return result
 
@@ -438,9 +446,9 @@ class Widget:
             else:
                 self._call(None, 'destroy', name)
 
-        for command in self._command_list:
+        for command in self.command_list:
             tk.delete_command(command)
-        self._command_list.clear()      # why not
+        self.command_list.clear()      # why not
 
         self._call(None, 'destroy', self)
         del _widgets[self.to_tcl()]
@@ -675,7 +683,7 @@ class BindingDict(collections.abc.Mapping):
     # consistent with that
     def __init__(self, bind_caller, command_list):
         self._call_bind = bind_caller
-        self._command_list = command_list
+        self.command_list = command_list
         self._callback_objects = {}     # {sequence: callback}
 
     def __repr__(self):
@@ -723,7 +731,7 @@ class BindingDict(collections.abc.Mapping):
         callback = tk.Callback()
         runner = functools.partial(self._callback_runner, callback)
         command = tk.create_command(runner, [str] * len(_BIND_SUBS))
-        self._command_list.append(command)      # avoid memory leaks
+        self.command_list.append(command)      # avoid memory leaks
 
         subs_string = ' '.join(subs for subs, type_, name in _BIND_SUBS)
         self._call_bind(

@@ -46,7 +46,7 @@ class Button(ChildMixin, Widget):
     def _create_click_command(self):
         result = tk.Callback()
         command_string = tk.create_command(result.run)
-        self._command_list.append(command_string)
+        self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
 
@@ -116,7 +116,7 @@ class Checkbutton(ChildMixin, Widget):
     def _create_check_command(self):
         result = tk.Callback()
         command_string = tk.create_command(self._command_runner)
-        self._command_list.append(command_string)
+        self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
 
@@ -232,7 +232,7 @@ class Spinbox(Entry):
     def _create_spin_command(self):
         result = tk.Callback()
         command_string = tk.create_command(result.run)
-        self._command_list.append(command_string)
+        self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
 
@@ -500,7 +500,7 @@ class Scrollbar(ChildMixin, Widget):
         result = tk.Callback()
         command_string = tk.create_command(
             self._command_runner, extra_args_type=str)
-        self._command_list.append(command_string)
+        self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
 

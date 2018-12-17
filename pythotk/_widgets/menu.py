@@ -163,7 +163,7 @@ class MenuItem:
         command_string = tk.create_command(result.run)
         tk.tcl_call(None, self._menu, 'entryconfigure', self._index,
                     '-command', command_string)
-        self._menu._command_list.append(command_string)
+        self._menu.command_list.append(command_string)
         return result
 
 
