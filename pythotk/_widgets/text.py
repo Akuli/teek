@@ -9,12 +9,8 @@ from pythotk._widgets.base import Widget, ChildMixin
 
 # a new subclass of IndexBase is created for each text widget, and inheriting
 # from namedtuple makes comparing the text indexes work nicely
-class IndexBase(collections.namedtuple('Index', 'line column')):
+class IndexBase(collections.namedtuple('TextIndex', 'line column')):
     _widget = None
-
-    @needs_main_thread
-    def __new__(cls, start, end):
-        return cls.from_tcl('%d.%d' % (start, end))
 
     def to_tcl(self):
         return '%d.%d' % self       # lol, magicz
@@ -22,28 +18,30 @@ class IndexBase(collections.namedtuple('Index', 'line column')):
     @classmethod
     @needs_main_thread
     def from_tcl(cls, string):
-        # tk text widgets have an implicit and invisible newline character
-        # at the end of them, and i always ignore it everywhere by using
-        # 'end - 1 char' instead of 'end'
+        # the returned index may be out of bounds
         string = cls._widget._call(str, cls._widget, 'index', string)
-        after_stupid_newline = cls._widget._call(
-            str, cls._widget, 'index', 'end')
-
-        if string == after_stupid_newline:
-            return cls._widget.end
         return super(IndexBase, cls).__new__(
             cls, *map(int, string.split('.')))
+
+    @needs_main_thread
+    def between_start_end(self):
+        if self < self._widget.start:
+            return self._widget.start
+        if self > self._widget.end:
+            return self._widget.end
+        return self
 
     def forward(self, *, chars=0, indices=0, lines=0):
         result = '%s %+d lines %+d chars %+d indices' % (
             self.to_tcl(), lines, chars, indices)
-        return type(self).from_tcl(result)
+        return type(self).from_tcl(result).between_start_end()
 
     def back(self, *, chars=0, indices=0, lines=0):
         return self.forward(chars=-chars, indices=-indices, lines=-lines)
 
     def _apply_suffix(self, suffix):
-        return type(self).from_tcl('%s %s' % (self.to_tcl(), suffix))
+        return type(self).from_tcl(
+            '%s %s' % (self.to_tcl(), suffix)).between_start_end()
 
     linestart = functools.partialmethod(_apply_suffix, 'linestart')
     lineend = functools.partialmethod(_apply_suffix, 'lineend')
@@ -110,8 +108,8 @@ class Tag(CgetConfigureConfigDict):
 
     @needs_main_thread
     def add(self, index1, index2):
-        index1 = self._widget.Index(*index1)
-        index2 = self._widget.Index(*index2)
+        index1 = self._widget.TextIndex(*index1).between_start_end()
+        index2 = self._widget.TextIndex(*index2).between_start_end()
         return self._call_tag_subcommand(None, 'add', index1, index2)
 
     # TODO: bind
@@ -122,29 +120,28 @@ class Tag(CgetConfigureConfigDict):
     # TODO: tests
     @needs_main_thread
     def _prevrange_or_nextrange(self, prev_or_next, index1, index2=None):
-        index1 = self._widget.Index(*index1)
+        index1 = self._widget.TextIndex(*index1).between_start_end()
         if index2 is None:
             index2 = {'prev': self._widget.start,
                       'next': self._widget.end}[prev_or_next]
         else:
-            index2 = self._widget.Index(*index2)
+            index2 = self._widget.TextIndex(*index2).between_start_end()
 
-        strings = self._call_tag_subcommand(
-            [str], prev_or_next + 'range', index1, index2)
-        if not strings:
-            # the tcl command returned '', no ranges found
+        results = self._call_tag_subcommand(
+            [self._widget.TextIndex], prev_or_next + 'range', index1, index2)
+        if not results:
+            # the tcl command returned "", no ranges found
             return None
 
-        string1, string2 = strings
-        return (self._widget.Index.from_tcl(string1),
-                self._widget.Index.from_tcl(string2))
+        index1, index2 = results
+        return (index1.between_start_end(), index2.between_start_end())
 
     prevrange = functools.partialmethod(_prevrange_or_nextrange, 'prev')
     nextrange = functools.partialmethod(_prevrange_or_nextrange, 'next')
 
     @needs_main_thread
     def ranges(self):
-        flat_pairs = map(self._widget.Index.from_tcl,
+        flat_pairs = map(self._widget.TextIndex.from_tcl,
                          self._call_tag_subcommand([str], 'ranges'))
 
         # magic to convert a flat iterator to pairs: a,b,c,d --> (a,b), (c,d)
@@ -152,9 +149,16 @@ class Tag(CgetConfigureConfigDict):
 
     @needs_main_thread
     def remove(self, index1=None, index2=None):
-        widget = self._widget       # because pep8 line length
-        index1 = widget.start if index1 is None else widget.Index(*index1)
-        index2 = widget.end if index2 is None else widget.Index(*index2)
+        if index1 is None:
+            index1 = self._widget.start
+        else:
+            index1 = self._widget.TextIndex(*index1).between_start_end()
+
+        if index2 is None:
+            index2 = self._widget.end
+        else:
+            index2 = self._widget.TextIndex(*index2).between_start_end()
+
         self._call_tag_subcommand(None, 'remove', index1, index2)
 
 
@@ -174,7 +178,7 @@ class MarksDict(collections.abc.MutableMapping):
 
     @needs_main_thread
     def __setitem__(self, name, index):
-        index = self._widget.Index(*index)
+        index = self._widget.TextIndex(*index).between_start_end()
         self._widget._call(None, self._widget, 'mark', 'set', name, index)
 
     @needs_main_thread
@@ -182,8 +186,9 @@ class MarksDict(collections.abc.MutableMapping):
         if name not in self._get_name_list():
             raise KeyError(name)
 
-        index_string = self._widget._call(str, self._widget, 'index', name)
-        return self._widget.Index.from_tcl(index_string)
+        result = self._widget._call(
+            self._widget.TextIndex, self._widget, 'index', name)
+        return result.between_start_end()
 
     def __delitem__(self, name):
         self._widget._call(None, self._widget, 'mark', 'unset', name)
@@ -197,8 +202,8 @@ class Text(ChildMixin, Widget):
     .. attribute:: start
                    end
 
-        :ref:`Index objects <textwidget-index>` that represents the start and
-        end of the text.
+        :ref:`TextIndex objects <textwidget-index>` that represents the start
+        and end of the text.
 
         .. tip::
             Use ``textwidget.end.line`` to count the number of lines of text
@@ -251,7 +256,7 @@ class Text(ChildMixin, Widget):
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
-        self.Index = type(     # creates a new subclass of IndexBase
+        self.TextIndex = type(     # creates a new subclass of IndexBase
             'TextIndex', (IndexBase,), {'_widget': self})
         self._tag_objects = {}
         self.marks = MarksDict(self)
@@ -300,17 +305,17 @@ class Text(ChildMixin, Widget):
         """
         args = [self, 'tag', 'names']
         if index is not None:
-            args.append(self.Index(*index))
+            args.append(self.TextIndex(*index).between_start_end())
         return [self.get_tag(name) for name in self._call([str], *args)]
 
     @property
     def start(self):
-        return self.Index(1, 0)
+        return self.TextIndex(1, 0)
 
     @property
     def end(self):
         index_string = self._call(str, self, 'index', 'end - 1 char')
-        return self.Index(*map(int, index_string.split('.')))
+        return self.TextIndex(*map(int, index_string.split('.')))
 
     @needs_main_thread
     def get(self, index1=None, index2=None):
@@ -319,8 +324,16 @@ class Text(ChildMixin, Widget):
         If the indexes are not given, they default to the beginning and end of
         the text widget, respectively.
         """
-        index1 = self.start if index1 is None else self.Index(*index1)
-        index2 = self.end if index2 is None else self.Index(*index2)
+        if index1 is None:
+            index1 = self.start
+        else:
+            index1 = self.TextIndex(*index1).between_start_end()
+
+        if index2 is None:
+            index2 = self.end
+        else:
+            index2 = self.TextIndex(*index2).between_start_end()
+
         return self._call(str, self, 'get', index1, index2)
 
     @needs_main_thread
@@ -330,13 +343,14 @@ class Text(ChildMixin, Widget):
         The ``tag_list`` can be any iterable of tag name strings or tag
         objects.
         """
-        index = self.Index(*index)
+        index = self.TextIndex(*index).between_start_end()
         self._call(None, self, 'insert', index, text, tag_list)
 
     @needs_main_thread
     def replace(self, index1, index2, new_text, tag_list=()):
         """See :man:`text(3tk)` and :meth:`insert`."""
-        index1, index2 = self.Index(*index1), self.Index(*index2)
+        index1 = self.TextIndex(*index1).between_start_end()
+        index2 = self.TextIndex(*index2).between_start_end()
         self._call(None, self, 'replace', index1, index2, new_text, tag_list)
 
     def _xview_or_yview(self, xview_or_yview, *args):

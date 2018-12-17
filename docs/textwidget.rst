@@ -40,8 +40,8 @@ using a monospace font. It lets you edit the text.
 
 .. _textwidget-index:
 
-Index Objects
--------------
+TextIndex Objects
+-----------------
 
 ..  this uses :any:`namedtuple` instead of :func:`namedtuple` because any
     shows it as "namedtuple", not "namedtuple()"
@@ -111,18 +111,26 @@ False
 >>> text.insert(text.end, '\nsome text')    # now there are 2 lines of text
 >>> text.end
 TextIndex(line=2, column=9)
->>> print(text.get(text.start, text.end))
-hello
-some text
+>>> text.get(text.start, text.end)
+'hello\nsome text'
 
-The text index class can be accessed as ``some_text_widget.Index``:
+The indexes may be out of bounds, but that does not create errors:
 
->>> text.Index(1, 0)
+>>> text.TextIndex(1000, 1000)
+TextIndex(line=1000, column=1000)
+>>> text.get(text.start, text.TextIndex(1000, 1000))
+'hello\nsome text'
+>>> text.TextIndex(1000, 1000).between_start_end()
+TextIndex(line=2, column=9)
+
+The text index class can be accessed as ``some_text_widget.TextIndex``:
+
+>>> text.TextIndex(1, 0)
 TextIndex(line=1, column=0)
->>> isinstance('lol', text.Index)
+>>> isinstance('lol', text.TextIndex)
 False
 
-The ``Index`` classes are also valid :ref:`type specifications <type-spec>`.
+The ``TextIndex`` classes are also valid :ref:`type specifications <type-spec>`.
 
 Text indices have the following attributes and methods:
 
@@ -139,6 +147,10 @@ Text indices have the following attributes and methods:
     TextIndex(line=1, column=3)
     >>> text.start.forward(chars=7)       # goes over a newline character
     TextIndex(line=2, column=1)
+
+    The returned indexes are always converted to be between :attr:`.start` and
+    :attr:`.end` with :meth:`.between_start_end`:
+
     >>> text.start.forward(chars=1000)    # won't go past end of text widget
     TextIndex(line=2, column=9)
 
@@ -154,9 +166,18 @@ Text indices have the following attributes and methods:
     These return new text indices. Search for e.g. ``linestart`` in
     :man:`text(3tk)` for details.
 
-.. method:: some_text_index.to_tcl()
+.. method:: some_text_index.between_start_end()
 
-    Returns a ``'line.column'`` string. See :ref:`to-tcl`.
+    If the text index is before :attr:`.start` or after :attr:`.end`, this
+    returns :attr:`.start` or :attr:`.end`, respectively. Otherwise the text
+    index is returned as is.
+
+    >>> text.TextIndex(1000, 1000)
+    TextIndex(line=1000, column=1000)
+    >>> text.TextIndex(1000, 1000).between_start_end()
+    TextIndex(line=2, column=9)
+    >>> text.end
+    TextIndex(line=2, column=9)
 
 .. tip::
     Text indices are usually namedtuples, but methods that take text indices as
@@ -177,7 +198,7 @@ edits the text widget's content:
 >>> text.replace(text.start, text.end, "hello world")
 >>> text.get(text.start, text.end)
 'hello world'
->>> before_w = text.Index(1, 6)
+>>> before_w = text.TextIndex(1, 6)
 >>> before_w
 TextIndex(line=1, column=6)
 >>> text.get(before_w, text.end)
@@ -193,7 +214,7 @@ TextIndex(line=1, column=6)
 We can solve this problem by adding a **mark**:
 
 >>> text.replace(text.start, text.end, "hello world")
->>> text.marks['before_w'] = text.Index(1, 6)
+>>> text.marks['before_w'] = text.TextIndex(1, 6)
 >>> text.get(text.marks['before_w'], text.end)
 'world'
 >>> text.replace(text.start, text.start.forward(chars=5), 'hi')
