@@ -64,6 +64,21 @@ def test_list_like_behaviour():
     assert list(notebook) == [tab5, tab2, tab3, tab4]
 
 
+def test_moves_only():
+    notebook = tk.Notebook(tk.Window())
+    tab1 = tk.NotebookTab(tk.Label(notebook, text="1"), text="One")
+    tab2 = tk.NotebookTab(tk.Label(notebook, text="2"), text="Two")
+    notebook.extend([tab1, tab2])
+    tab1.config['text'] = 'wut1'
+    tab2.config['text'] = 'wut2'
+
+    notebook.insert(1, notebook[0])
+    assert tab1.config['text'] == 'wut1'
+    assert tab2.config['text'] == 'wut2'
+    assert list(notebook) != [tab1, tab2]
+    assert list(notebook) == [tab2, tab1]
+
+
 def test_slicing_not_supported_error():
     notebook = tk.Notebook(tk.Window())
     catcher = pytest.raises(TypeError,

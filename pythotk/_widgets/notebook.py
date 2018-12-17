@@ -131,6 +131,21 @@ class NotebookTab:
 class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     """This is the notebook widget.
 
+    If you try to add a tab that is already in the notebook, that tab will be
+    moved. For example:
+
+    >>> notebook = tk.Notebook(tk.Window())
+    >>> tab1 = tk.NotebookTab(tk.Label(notebook, text="1"), text="One")
+    >>> tab2 = tk.NotebookTab(tk.Label(notebook, text="2"), text="Two")
+    >>> notebook.extend([tab1, tab2])
+    >>> list(notebook)      # doctest: +NORMALIZE_WHITESPACE
+    [NotebookTab(<pythotk.Label widget: text='1'>, text='One'),
+     NotebookTab(<pythotk.Label widget: text='2'>, text='Two')]
+    >>> notebook.append(notebook[0])
+    >>> list(notebook)      # doctest: +NORMALIZE_WHITESPACE
+    [NotebookTab(<pythotk.Label widget: text='2'>, text='Two'),
+     NotebookTab(<pythotk.Label widget: text='1'>, text='One')]
+
     For doing advanced magic, you can create a new class that inherits from
     :class:`.Notebook`. Here are some facts that can be useful when deciding
     which methods to override:
@@ -143,7 +158,9 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     * Override ``insert()`` if you want to customize adding new tabs to the
       notebook. The ``insert`` method is called every time when a new tab is
       added with any method. Make sure that your override is compatible with
-      the ``insert()`` method of :class:`collections.abc.MutableSequence`.
+      the ``insert()`` method of :class:`collections.abc.MutableSequence`, and
+      make sure that only the order of the tabs changes if the new tab is
+      already in the notebook.
     * Bind to ``<<NotebookTabChanged>>`` if you want to customize what happens
       when a different tab is selected. That runs when the user changes a tab
       or the tab is changed with the :attr:`.selected_tab` property.
@@ -231,8 +248,10 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         if index == len(self):
             index = 'end'
 
+        moving_only = (tab in self)
         self._call(None, self, 'insert', index, tab.widget)
-        tab.config.update(tab._initial_options)
+        if not moving_only:
+            tab.config.update(tab._initial_options)
 
     @needs_main_thread
     def move(self, tab, new_index):
@@ -269,3 +288,14 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     @selected_tab.setter
     def selected_tab(self, tab):
         self._call(None, self, 'select', tab.widget)
+
+    def append_and_select(self, tab):
+        """A convenient way to add a tab to the notebook and select it.
+
+        ``notebook.append_and_select(tab)`` is equivalent to::
+
+            notebook.append(tab)
+            notebook.selected_tab = tab
+        """
+        self.append(tab)
+        self.selected_tab = tab
