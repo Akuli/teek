@@ -50,6 +50,7 @@ def test_initial_options():
     with pytest.raises(RuntimeError):
         tab.config['text']
 
+    assert tab.initial_options == {}
     tab.initial_options['text'] = 'lol'
     notebook.append(tab)
     assert tab.config['text'] == 'lol'
