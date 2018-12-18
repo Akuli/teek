@@ -361,6 +361,12 @@ class Text(ChildMixin, Widget):
         index2 = self.TextIndex(*index2).between_start_end()
         self._call(None, self, 'replace', index1, index2, new_text, tag_list)
 
+    def delete(self, index1, index2):
+        """See :man:`text(3tk)` and :meth:`insert`."""
+        index1 = self.TextIndex(*index1).between_start_end()
+        index2 = self.TextIndex(*index2).between_start_end()
+        self._call(None, self, 'delete', index1, index2)
+
     def _xview_or_yview(self, xview_or_yview, *args):
         if not args:
             return self._call((float, float), self, xview_or_yview)

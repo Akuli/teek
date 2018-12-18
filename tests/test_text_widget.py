@@ -67,6 +67,13 @@ def test_basic_stuff():
             text.start.forward(chars=1, lines=1))
 
 
+def test_delete():
+    text = tk.Text(tk.Window())
+    text.insert(text.end, 'wat batman')
+    text.delete((1, 1), text.end.back(chars=5))
+    assert text.get(text.start, text.end) == 'watman'
+
+
 # see text(3tk) with different tk versions
 def test_config_types(check_config_types):
     text = tk.Text(tk.Window())
