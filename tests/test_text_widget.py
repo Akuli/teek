@@ -155,6 +155,15 @@ def test_tags():
     assert {tag.name for tag in text.get_all_tags((1, 6))} == tag_names
 
 
+def test_tag_bind():
+    # i can't think of a better way to test this
+    tag = tk.Text(tk.Window()).get_tag('asd')
+    tag.bind('<Button-1>', print, event=True)
+    tag.bindings['<1>'].disconnect(print)
+    with pytest.raises(ValueError):
+        tag.bindings['<1>'].disconnect(print)
+
+
 def test_marks():
     text = tk.Text(tk.Window())
     assert text.marks.keys() == {'insert', 'current'}

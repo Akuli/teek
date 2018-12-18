@@ -5,7 +5,7 @@ import re
 import pythotk as tk
 from pythotk._structures import CgetConfigureConfigDict
 from pythotk._tcl_calls import needs_main_thread
-from pythotk._widgets.base import Widget, ChildMixin
+from pythotk._widgets.base import BindingDict, ChildMixin, Widget
 
 
 # a new subclass of IndexBase is created for each text widget, and inheriting
@@ -95,6 +95,9 @@ class Tag(CgetConfigureConfigDict):
             'wrap': str,
         })
 
+        self.bindings = BindingDict(self._call_bind, widget.command_list)
+        self.bind = self.bindings._convenience_bind
+
     def __repr__(self):
         return '<Text widget tag %r>' % self.name
 
@@ -105,6 +108,9 @@ class Tag(CgetConfigureConfigDict):
     def _call_tag_subcommand(self, returntype, subcommand, *args):
         return self._widget._call(
             returntype, self._widget, 'tag', subcommand, self, *args)
+
+    def _call_bind(self, returntype, *args):
+        return self._call_tag_subcommand(returntype, 'bind', *args)
 
     def __eq__(self, other):
         if not isinstance(other, Tag):

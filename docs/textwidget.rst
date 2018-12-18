@@ -318,6 +318,11 @@ Tag objects have these attributes and methods. Search for ``pathName tag`` in
     These return the previous or next ``(start_index, end_index)`` pair. See
     :meth:`ranges` and :man:`text(3tk)`.
 
+.. method:: some_tag.bind(sequence, func, *, event=False)
+.. attribute:: some_tag.bindings
+
+    These allow you to do tag-specific :ref:`bindings <binding>`.
+
 
 Text Widget Methods and Attributes
 ----------------------------------
