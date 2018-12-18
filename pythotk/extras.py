@@ -31,6 +31,10 @@ class _TooltipManager:
             self.got_mouse = True
             tk.after(1000, self.show)
 
+            # these are important, it's possible to enter without mouse move
+            self.mousex = event.rootx
+            self.mousey = event.rooty
+
     def leave(self, event):
         if event.widget is self.widget:
             self.destroy_tipwindow()

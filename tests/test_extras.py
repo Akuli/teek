@@ -1,5 +1,5 @@
 import time
-from types import SimpleNamespace
+import types
 
 import pytest
 import pythotk as tk
@@ -29,23 +29,29 @@ def test_set_tooltip():
     tk.extras.set_tooltip(window, 'lol')
     assert window._tooltip_manager.text == 'lol'
 
+    N = types.SimpleNamespace   # because pep8 line length
+
     assert not window._tooltip_manager.got_mouse
-    window._tooltip_manager.enter(SimpleNamespace(widget=window))
+    window._tooltip_manager.enter(N(widget=window, rootx=123, rooty=456))
     assert window._tooltip_manager.got_mouse
-    window._tooltip_manager.motion(SimpleNamespace(rootx=123, rooty=456))
     assert window._tooltip_manager.mousex == 123
     assert window._tooltip_manager.mousey == 456
+
+    window._tooltip_manager.motion(N(rootx=789, rooty=101112))
+    assert window._tooltip_manager.got_mouse
+    assert window._tooltip_manager.mousex == 789
+    assert window._tooltip_manager.mousey == 101112
 
     run_event_loop(1.1)
     assert window._tooltip_manager.tipwindow is not None
     assert window._tooltip_manager.got_mouse
-    window._tooltip_manager.leave(SimpleNamespace(widget=window))
+    window._tooltip_manager.leave(N(widget=window))
     assert not window._tooltip_manager.got_mouse
     assert window._tooltip_manager.tipwindow is None
 
     # what happens if the window gets destroyed before it's supposed to show?
-    window._tooltip_manager.enter(SimpleNamespace(widget=window))
-    window._tooltip_manager.leave(SimpleNamespace(widget=window))
+    window._tooltip_manager.enter(N(widget=window, rootx=1, rooty=2))
+    window._tooltip_manager.leave(N(widget=window))
     assert window._tooltip_manager.tipwindow is None
     run_event_loop(1.1)
     assert window._tooltip_manager.tipwindow is None
