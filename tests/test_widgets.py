@@ -421,6 +421,34 @@ def test_winfo_width_height():
     assert frame.winfo_height() == 456
 
 
+def test_focus():
+    widget = tk.Window()
+
+    # no good way to actually test this, so let's just make sure it's calls the
+    # correct command
+    tk.tcl_eval(None, 'rename focus real_focus')
+    try:
+        log = []
+        tk.tcl_eval(None, '''
+        proc focus {args} {
+            %s $args
+        }
+        ''' % tk.create_command(log.append, [str]))
+        widget.focus()
+        widget.focus(force=True)
+        assert log == [
+            widget.to_tcl(),
+            '-force %s' % widget.to_tcl(),
+        ]
+    finally:
+        tk.tcl_eval(None, '''
+        catch {
+            rename focus {}
+        }
+        rename real_focus focus
+        ''')
+
+
 def test_state():
     assert tk.Menu().state is None
     assert tk.Toplevel().state is None

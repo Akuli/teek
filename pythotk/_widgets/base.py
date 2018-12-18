@@ -534,6 +534,16 @@ class Widget:
         """
         return self._call(int, 'winfo', 'height', self)
 
+    def focus(self, *, force=False):
+        """Focuses the widget with :man:`focus(3tk)`.
+
+        If ``force=True`` is given, the ``-force`` option is used.
+        """
+        if force:
+            self._call(None, 'focus', '-force', self)
+        else:
+            self._call(None, 'focus', self)
+
     def _geometry_manager_slaves(self, geometry_manager):
         return self._call([Widget], geometry_manager, 'slaves', self)
 
