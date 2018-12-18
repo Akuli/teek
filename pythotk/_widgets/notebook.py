@@ -79,12 +79,20 @@ class NotebookTab:
 
         Similar to the ``config`` attribute that widgets have. The available
         options are documented as ``TAB OPTIONS`` in :man:`ttk_notebook(3tk)`.
+        Attempting to use this raises :exc:`RuntimeError` if the tab hasn't
+        been added to the notebook yet.
 
     .. attribute:: widget
 
         This attribute and initialization argument is the widget in the tab. It
         should be a child widget of the notebook. Use ``tab.widget.parent`` to
         access the :class:`.Notebook` that the tab belongs to.
+
+    .. attribute:: initial_options
+
+        A dict of keyword arguments passed to NotebookTab. When the tab is
+        added to the notebook for the first time, :attr:`.config` is updated
+        from this dict.
     """
 
     def __init__(self, widget, **kwargs):
@@ -99,14 +107,14 @@ class NotebookTab:
 
         self.widget = widget
         self.config = TabConfigDict(self)
-        self._initial_options = kwargs
+        self.initial_options = kwargs
 
         # if anything above failed for whatever reason, this tab object is
         # broken, and in that case this doesn't run, which is good
         widget.parent._tab_objects[widget] = self
 
     def __repr__(self):
-        item_reprs = ['%s=%r' % pair for pair in self._initial_options.items()]
+        item_reprs = ['%s=%r' % pair for pair in self.initial_options.items()]
         return '%s(%s)' % (
             type(self).__name__,
             ', '.join([repr(self.widget)] + item_reprs))
@@ -272,7 +280,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         moving_only = (tab in self)
         self._call(None, self, 'insert', index, tab.widget)
         if not moving_only:
-            tab.config.update(tab._initial_options)
+            tab.config.update(tab.initial_options)
 
     @needs_main_thread
     def move(self, tab, new_index):

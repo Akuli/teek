@@ -41,6 +41,20 @@ def test_tab_object_caching():
     assert notebook.get_tab_by_widget(tab1.widget) is tab1
 
 
+def test_initial_options():
+    notebook = tk.Notebook(tk.Window())
+    tab = tk.NotebookTab(tk.Label(notebook))
+
+    with pytest.raises(RuntimeError):
+        tab.config['text'] = 'lol'
+    with pytest.raises(RuntimeError):
+        tab.config['text']
+
+    tab.initial_options['text'] = 'lol'
+    notebook.append(tab)
+    assert tab.config['text'] == 'lol'
+
+
 def test_get_tab_by_widget_error():
     notebook = tk.Notebook(tk.Window())
     with pytest.raises(ValueError) as error:
