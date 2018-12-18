@@ -107,7 +107,9 @@ class NotebookTab:
 
     def __repr__(self):
         item_reprs = ['%s=%r' % pair for pair in self._initial_options.items()]
-        return 'NotebookTab(%s)' % ', '.join([repr(self.widget)] + item_reprs)
+        return '%s(%s)' % (
+            type(self).__name__,
+            ', '.join([repr(self.widget)] + item_reprs))
 
     def _check_in_notebook(self):
         if self not in self.widget.parent:
@@ -189,12 +191,29 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
             'height': int,
         })
 
-    def _get_tab_of_widget(self, widget):
+    def get_tab_by_widget(self, widget):
+        """Finds a :class:`.Tab` object by the :attr:`~.Tab.widget` attribute.
+
+        If there is no tab with the given widget, a new tab is created.
+
+        >>> notebook = tk.Notebook(tk.Window())
+        >>> label = tk.Label(notebook, text='lol')
+        >>> tab = tk.NotebookTab(label)
+        >>> notebook.append(tab)
+        >>> tab
+        NotebookTab(<pythotk.Label widget: text='lol'>)
+        >>> notebook.get_tab_by_widget(label)
+        NotebookTab(<pythotk.Label widget: text='lol'>)
+        """
         try:
             return self._tab_objects[widget]
         except KeyError:
-            # can happen if the tab was added with a Tcl call
-            assert widget.parent is self
+            if widget.parent is not self:
+                raise ValueError(
+                    "expected a widget with the notebook as its parent, "
+                    "got " + repr(widget))
+
+            # this can happen if the tab was added with a Tcl call
             return NotebookTab(widget)  # adds the new tab to self._tab_objects
 
     def _repr_parts(self):
@@ -211,7 +230,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         # there seems to be no way to get a widget by index without getting a
         # list of all widgets
         widgets = self._call([Widget], self, 'tabs')
-        return self._get_tab_of_widget(widgets[index])
+        return self.get_tab_by_widget(widgets[index])
 
     @needs_main_thread
     def __setitem__(self, index, tab):
@@ -292,7 +311,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     def append_and_select(self, tab):
         """A convenient way to add a tab to the notebook and select it.
 
-        ``notebook.append_and_select(tab)`` is equivalent to::
+        ``notebook.append_and_select(tab)`` is same as::
 
             notebook.append(tab)
             notebook.selected_tab = tab

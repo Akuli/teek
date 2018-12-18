@@ -3,12 +3,19 @@ import pytest
 import pythotk as tk
 
 
+class LolTab(tk.NotebookTab):
+    pass
+
+
 def test_reprs():
     notebook = tk.Notebook(tk.Window())
 
     label = tk.Label(notebook, "asd")
-    tab = tk.NotebookTab(label, text='toot toot')
-    assert repr(tab) == "NotebookTab(" + repr(label) + ", text='toot toot')"
+    label2 = tk.Label(notebook, "asdasd")
+    tab = tk.NotebookTab(label, text='toot')
+    tab2 = LolTab(label2, text='toot toot')
+    assert repr(tab) == "NotebookTab(" + repr(label) + ", text='toot')"
+    assert repr(tab2) == "LolTab(" + repr(label2) + ", text='toot toot')"
 
     assert repr(notebook) == '<pythotk.Notebook widget: contains 0 tabs>'
     notebook.append(tab)
@@ -31,6 +38,17 @@ def test_tab_object_caching():
     tab1 = tk.NotebookTab(tk.Label(notebook, "asd"))
     notebook.append(tab1)
     assert notebook[0] is tab1
+    assert notebook.get_tab_by_widget(tab1.widget) is tab1
+
+
+def test_get_tab_by_widget_error():
+    notebook = tk.Notebook(tk.Window())
+    with pytest.raises(ValueError) as error:
+        notebook.get_tab_by_widget(tk.Label(tk.Window(), text='lol'))
+
+    assert str(error.value) == (
+        "expected a widget with the notebook as its parent, "
+        "got <pythotk.Label widget: text='lol'>")
 
 
 def test_insert_with_different_indexes():
@@ -196,3 +214,4 @@ def test_tab_added_with_tcl_call_so_notebooktab_object_is_created_automagic():
 
     # looking up notebook[0] should create a new NotebookTab object
     assert isinstance(notebook[0], tk.NotebookTab)
+    assert notebook[0] is notebook[0]   # and it should be "cached" now
