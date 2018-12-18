@@ -158,6 +158,25 @@ def test_destroy_event():
     assert len(asd) == 1
 
 
+# the bug was: Widget.destroy() destroyed the widget after deleting
+# command_list commands, but <Destroy> binding had a command_list command
+def test_destroy_event_bug(handy_callback):
+    for gonna_update_in_between in [True, False]:
+        frame = tk.Frame(tk.Window())
+
+        @handy_callback
+        def on_destroy():
+            pass
+
+        frame.bind('<Destroy>', on_destroy)
+        if gonna_update_in_between:
+            tk.update()
+
+        frame.destroy()
+        assert on_destroy.ran_once()
+        tk.update()
+
+
 def test_options():
     window = tk.Window()
 

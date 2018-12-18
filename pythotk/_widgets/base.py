@@ -446,12 +446,16 @@ class Widget:
             else:
                 self._call(None, 'destroy', name)
 
+        # this must be BEFORE deleting command_list commands because <Destroy>
+        # bindings may need command_list stuff
+        self._call(None, 'destroy', self)
+
+        # this is here because now the widget is basically useless
+        del _widgets[self.to_tcl()]
+
         for command in self.command_list:
             tk.delete_command(command)
         self.command_list.clear()      # why not
-
-        self._call(None, 'destroy', self)
-        del _widgets[self.to_tcl()]
 
     # can be overrided when .destroy() in .destroy() would cause infinite
     # recursion, see Window in windows.py
