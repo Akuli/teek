@@ -34,6 +34,11 @@ If you change ``'<Button-1>'`` to ``'<Motion>'``, ``'hello'`` is printed every
 time you move the mouse over the label. See :man:`bind(3tk)` for all possible
 strings you can pass to :meth:`~.Widget.bind`.
 
+.. tip::
+    If you want to bind to all widgets in ``window``, you can use
+    ``window.toplevel.bind()``. See :class:`.Window` documentation for more
+    information about ``window.toplevel``.
+
 
 .. _binding-break:
 

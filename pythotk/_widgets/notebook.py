@@ -192,7 +192,9 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         })
 
     def get_tab_by_widget(self, widget):
-        """Finds a :class:`.Tab` object by the :attr:`~.Tab.widget` attribute.
+        """
+        Finds a :class:`.NotebookTab` object by the
+        :attr:`~.NotebookTab.widget` attribute.
 
         If there is no tab with the given widget, a new tab is created.
 
