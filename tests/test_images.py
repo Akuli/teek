@@ -86,6 +86,18 @@ def test_delete_and_all_images():
     assert set(tk.Image.get_all_images()) == old_images
 
 
+def test_repr():
+    image = tk.Image(file=SMILEY_PATH)
+    assert repr(image) == '<Image: from %s, 32x32>' % repr(SMILEY_PATH)
+    image.delete()
+    assert repr(image) == '<Image: from %s, deleted>' % repr(SMILEY_PATH)
+
+    image2 = tk.Image(width=123, height=456)
+    assert repr(image2) == '<Image: 123x456>'
+    image2.delete()
+    assert repr(image2) == '<Image: deleted>'
+
+
 def test_in_use():
     image = tk.Image(file=SMILEY_PATH)
     assert image.in_use() is False

@@ -602,6 +602,12 @@ class Image:
     def __init__(self, **kwargs):
         if 'data' in kwargs:
             kwargs['data'] = base64.b64encode(kwargs['data']).decode('ascii')
+
+        if 'file' in kwargs:
+            self._repr_info = 'from %r, ' % (kwargs['file'],)
+        else:
+            self._repr_info = ''
+
         name = tk.tcl_call(str, 'image', 'create', 'photo', *_options(kwargs))
         self._init_from_name(name)
 
@@ -632,6 +638,13 @@ class Image:
     def to_tcl(self):
         """Returns the Tk name of the image as a string."""
         return self._name
+
+    def __repr__(self):
+        try:
+            size = '%dx%d' % (self.width, self.height)
+        except tk.TclError:
+            size = 'deleted'
+        return '<%s: %s%s>' % (type(self).__name__, self._repr_info, size)
 
     def __eq__(self, other):
         if not isinstance(other, Image):
