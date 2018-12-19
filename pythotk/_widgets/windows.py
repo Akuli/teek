@@ -63,6 +63,10 @@ class WmMixin:
                    widget._get_wm_widget())
 
     def geometry(self, width=None, height=None, x=None, y=None):
+        if isinstance(width, str):    # for tkinter users
+            raise TypeError("use widget.geometry(width, height) instead of "
+                            "widget.geometry(string)")
+
         if (width is None) ^ (height is None):
             raise TypeError("specify both width and height, or neither")
         if (x is None) ^ (y is None):

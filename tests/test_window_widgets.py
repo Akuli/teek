@@ -82,6 +82,13 @@ def test_geometry():
         assert str(error.value) == 'specify both %s and %s, or neither' % pair
 
 
+def test_geometry_tkinter_error():
+    window = tk.Window()
+    with pytest.raises(TypeError) as error:
+        window.geometry('200x300')
+    assert "use widget.geometry(width, height)" in str(error.value)
+
+
 @pytest.mark.skipif(platform.system() == "Windows",
                     reason=("actual windows window manager behavior"
                             "is different than the test expects"))
