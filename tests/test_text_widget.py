@@ -82,6 +82,19 @@ def test_delete():
     assert text.get(text.start, text.end) == 'watman'
 
 
+def test_see():
+    text = tk.Text(tk.Window())
+    for i in range(1, 1000):
+        text.insert(text.end, 'toot %d\n' % i)
+
+    tk.update()
+    yview1 = text.yview()
+    text.see(text.end)
+    tk.update()
+    yview2 = text.yview()
+    assert max(yview1) < 0.5 and min(yview2) > 0.5
+
+
 # see text(3tk) with different tk versions
 def test_config_types(check_config_types):
     text = tk.Text(tk.Window())

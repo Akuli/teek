@@ -379,6 +379,13 @@ class Text(ChildMixin, Widget):
         self._call(None, self, 'delete',
                    self._get_index_obj(index1), self._get_index_obj(index2))
 
+    def see(self, index):
+        """Scroll so that an index is visible.
+
+        See :man:`text(3tk)` for details.
+        """
+        self._call(None, self, 'see', self._get_index_obj(index))
+
     def _xview_or_yview(self, xview_or_yview, *args):
         if not args:
             return self._call((float, float), self, xview_or_yview)
