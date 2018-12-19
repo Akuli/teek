@@ -180,7 +180,10 @@ class Toplevel(WmMixin, Widget):
         :man:`wm(3tk)`.
 
         By default, ``some_window.on_delete_window`` is connected to
-        :func:`pythotk.quit`.
+        :func:`pythotk.quit`. If you don't want that, you can disconnect it::
+
+            toplevel_or_window.on_delete_window.disconnect(tk.quit)
+            toplevel_or_window.on_delete_window.connect(something_fun)
     """
 
     _widget_name = 'toplevel'

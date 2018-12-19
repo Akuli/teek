@@ -91,6 +91,21 @@ supports ``LabelFrame`` only, but for some reason, ``tkinter/ttk.py`` has
 ``Labelframe`` in addition to ``LabelFrame``.
 
 
+Quitting
+--------
+
+In tkinter, destroying the root window destroys the whole GUI and usually the
+program terminates soon after that. In pythotk, destroying a window doesn't
+quit the GUI, so instead of ``root.destroy()`` you need :func:`pythotk.quit`.
+
+Closing a pythotk window calls ``root.destroy()``. If you don't want that
+(which is probably the case if the tkinter code uses ``tkinter.Toplevel``), you
+can disconnect it and connect it to some other callback function::
+
+    window.on_delete_window.disconnect(tk.quit)
+    window.on_delete_window.connect(something_else)
+
+
 Constants
 ---------
 
