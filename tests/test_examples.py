@@ -15,7 +15,7 @@ def _create_test_function(filename):
     def func(monkeypatch):
         with monkeypatch.context() as monkey:
             monkey.setattr(pythotk, 'run', (lambda: None))
-            exec(code, {})
+            exec(code, {'__file__': os.path.join(EXAMPLES_DIR, filename)})
 
         # make sure that nothing breaks if the real .run() is called
         pythotk.update()

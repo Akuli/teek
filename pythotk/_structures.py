@@ -567,6 +567,11 @@ def _options(kwargs):
 class Image:
     """Represents a Tk photo image.
 
+    If you want to display an image to the user, use :class:`.Label` with its
+    ``image`` option::
+
+        label = tk.Label(some_widget, image=tk.Image(file="path/to/pic.gif"))
+
     Image objects are wrappers for things documented in :man:`image(3tk)` and
     :man:`photo(3tk)`. They are mutable, so you can e.g. set a label's image to
     an image object and then later change that image object; the label will
