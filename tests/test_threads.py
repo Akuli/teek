@@ -9,6 +9,25 @@ import pythotk as tk
 
 
 @pytest.mark.slow
+def test_make_thread_safe(handy_callback, deinit_threads):
+    @tk.make_thread_safe
+    @handy_callback
+    def thread_target():
+        assert threading.current_thread() is threading.main_thread()
+
+    tk.init_threads()
+    thread = threading.Thread(target=thread_target)
+    thread.start()
+
+    # make_thread_safe needs tk.run to work
+    tk.after(500, tk.quit)
+    tk.run()
+
+    assert not thread.is_alive()
+    assert thread_target.ran_once()
+
+
+@pytest.mark.slow
 def test_basic_stuff(deinit_threads, handy_callback):
     tk.init_threads()
     text = tk.Text(tk.Window())

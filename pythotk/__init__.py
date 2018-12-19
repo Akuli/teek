@@ -34,8 +34,8 @@ from pythotk._structures import (
     Callback, Color, Image, ScreenDistance, TclVariable, StringVar, IntVar,
     FloatVar, BooleanVar, before_quit, after_quit)
 from pythotk._tcl_calls import (
-    tcl_call, tcl_eval, init_threads, create_command, delete_command,
-    run, quit, update)
+    tcl_call, tcl_eval, create_command, delete_command, run, quit, update,
+    init_threads, make_thread_safe)
 from pythotk._timeouts import after, after_idle
 from pythotk._widgets.base import Widget
 from pythotk._widgets.menu import Menu, MenuItem

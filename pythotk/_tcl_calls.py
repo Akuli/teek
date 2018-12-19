@@ -290,40 +290,48 @@ def init_threads(poll_interval_ms=50):
     _get_interp().init_threads()
 
 
-def needs_main_thread(func):
-    """Functions decorated with this run in the main thread.
+def make_thread_safe(func):
+    """A decorator that makes a function safe to be called from any thread.
 
-    If the function is invoked from a different thread than the main thread,
-    the queue stuff is used for running it in the main thread.
+    Functions decorated with this always run in the event loop, and therefore
+    in the main thread.
 
-    If you have many functions decorated with this, let's say ``func1``,
-    ``func2`` and ``func3``, **this code is bad**::
-
-        def func123():
-            func1()
-            func2()
-            func3()
-
-    If called from a thread different from the main thread, ``func123()`` will
-    add a separate item to the queue for each of the three functions. If you
-    do this instead...
+    Most of the time you don't need to use this yourself; pythotk uses this a
+    lot internally, so most pythotk things are already thread safe. However, if
+    you have code like this...
     ::
 
-        @needs_main_thread
-        def func123():
+        def bad_func123():
             func1()
             func2()
             func3()
 
-    ...there will be only 1 item in the queue for every ``func123()`` call
-    because ``func1()``, ``func2()`` and ``func3()`` will already be invoked
-    from the main thread, and they don't need the queue stuff anymore. This
-    makes things a lot faster when the function is called from a thread.
+    ...where ``func1``, ``func2`` and ``func3`` do pythotk things and you need
+    to call ``func123`` from a thread, it's best to decorate ``func123``::
 
-    This is why pythotk functions that do multiple Tcl calls should be
-    decorated with this decorator. Note that :func:`.tcl_call` and
-    :func:`.tcl_eval` are also decorated with this, so decorating functions
-    that use them is purely an optimization.
+        @tk.make_thread_safe
+        def good_func123():
+            func1()
+            func2()
+            func3()
+
+    This may make ``func123`` noticably faster. If a function decorated with
+    ``make_thread_safe()`` is called from some other thread than the main
+    thread, it needs to communicate between the main thread and pythotk's event
+    loop, which is slow. However, with ``good_func123``, there isn't much
+    communication to do: the other thread needs to tell the main thread to run
+    the function, and later the main thread tells the other thread that the
+    function has finished running. The ``bad_func123`` function does this 3
+    times, once in each line of code.
+
+    .. note::
+        Functions decorated with ``make_thread_safe()`` must not block because
+        they are ran in the event loop. In other words, this code is bad,
+        because it will freeze the GUI for about 5 seconds::
+
+            @tk.make_thread_safe
+            def do_stuff():
+                time.sleep(5)
     """
     @functools.wraps(func)
     def safe(*args, **kwargs):
@@ -476,7 +484,7 @@ def update(*, idletasks_only=False):
 
 
 # TODO: maybe some magic that uses type hints for this?
-@needs_main_thread
+@make_thread_safe
 def create_command(func, arg_type_specs=(), *, extra_args_type=None):
     """Create a Tcl command that calls ``func``.
 
@@ -559,7 +567,7 @@ def create_command(func, arg_type_specs=(), *, extra_args_type=None):
     return name
 
 
-@needs_main_thread
+@make_thread_safe
 def delete_command(name):
     """Delete a Tcl command by name.
 

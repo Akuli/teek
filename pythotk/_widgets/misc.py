@@ -1,5 +1,5 @@
 import pythotk as tk
-from pythotk._tcl_calls import from_tcl, needs_main_thread
+from pythotk._tcl_calls import from_tcl, make_thread_safe
 from pythotk._widgets.base import Widget, ChildMixin
 
 
@@ -174,7 +174,7 @@ class Entry(ChildMixin, Widget):
         return self._call(str, self, 'get')
 
     @text.setter
-    @needs_main_thread
+    @make_thread_safe
     def text(self, new_text):
         self._call(None, self, 'delete', 0, 'end')
         self._call(None, self, 'insert', 0, new_text)

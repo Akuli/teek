@@ -1,5 +1,5 @@
 import pythotk as tk
-from pythotk._tcl_calls import needs_main_thread
+from pythotk._tcl_calls import make_thread_safe
 
 
 # there's no after_info because i don't see how it would be useful in
@@ -45,7 +45,7 @@ class _Timeout:
             if needs_cleanup:
                 tk.delete_command(self._tcl_command)
 
-    @needs_main_thread
+    @make_thread_safe
     def cancel(self):
         """Prevent this timeout from running as scheduled.
 
@@ -59,7 +59,7 @@ class _Timeout:
         tk.delete_command(self._tcl_command)
 
 
-@needs_main_thread
+@make_thread_safe
 def after(ms, callback, args=(), kwargs=None):
     """Run ``callback(*args, **kwargs)`` after waiting for the given time.
 
@@ -71,7 +71,7 @@ def after(ms, callback, args=(), kwargs=None):
     return _Timeout(ms, callback, args, kwargs)
 
 
-@needs_main_thread
+@make_thread_safe
 def after_idle(callback, args=(), kwargs=None):
     """Like :func:`after`, but runs the timeout as soon as possible."""
     return _Timeout('idle', callback, args, kwargs)

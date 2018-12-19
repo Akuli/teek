@@ -224,6 +224,10 @@ Pythotk's ``init_threads()`` does the hard things for you:
 
 .. autofunction:: pythotk.init_threads
 
+If you use ``init_threads()``, you can also use this decorator:
+
+.. autofunction:: pythotk.make_thread_safe
+
 
 Letting the user know that something is happening
 -------------------------------------------------

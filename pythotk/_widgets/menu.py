@@ -2,7 +2,7 @@ import collections.abc
 
 import pythotk as tk
 from pythotk._structures import CgetConfigureConfigDict
-from pythotk._tcl_calls import needs_main_thread
+from pythotk._tcl_calls import make_thread_safe
 from pythotk._widgets.base import Widget
 
 
@@ -150,7 +150,7 @@ class MenuItem:
         if self._menu is None:
             raise RuntimeError("the MenuItem hasn't been added to a Menu yet")
 
-    @needs_main_thread
+    @make_thread_safe
     def _config_entrycommand_caller(self, returntype, subcommand, *args):
         assert subcommand in {'cget', 'configure'}
         self._check_in_menu()
@@ -256,13 +256,13 @@ d', added to a menu>
     def _repr_parts(self):
         return ['contains %d items' % len(self)]
 
-    @needs_main_thread
+    @make_thread_safe
     def __getitem__(self, index):
         if isinstance(index, slice):
             raise TypeError("slicing a Menu widget is not supported")
         return self._items[index]
 
-    @needs_main_thread
+    @make_thread_safe
     def __delitem__(self, index):
         if isinstance(index, slice):
             raise TypeError("slicing a Menu widget is not supported")
@@ -276,7 +276,7 @@ d', added to a menu>
         for index in range(index, len(self._items)):
             self._items[index]._index = index
 
-    @needs_main_thread
+    @make_thread_safe
     def __setitem__(self, index, value):
         if isinstance(index, slice):
             raise TypeError("slicing a Menu widget is not supported")
@@ -288,11 +288,11 @@ d', added to a menu>
         del self[index]
         self.insert(index, value)
 
-    @needs_main_thread
+    @make_thread_safe
     def __len__(self):
         return len(self._items)
 
-    @needs_main_thread
+    @make_thread_safe
     def insert(self, index, item: MenuItem):
         if not isinstance(item, MenuItem):
             # TODO: test that tuples are handled correctly here because that

@@ -4,7 +4,7 @@ import re
 
 import pythotk as tk
 from pythotk._structures import CgetConfigureConfigDict
-from pythotk._tcl_calls import needs_main_thread
+from pythotk._tcl_calls import make_thread_safe
 from pythotk._widgets.base import BindingDict, ChildMixin, Widget
 
 
@@ -17,7 +17,7 @@ class IndexBase(collections.namedtuple('TextIndex', 'line column')):
         return '%d.%d' % self       # lol, magicz
 
     @classmethod
-    @needs_main_thread
+    @make_thread_safe
     def from_tcl(cls, string):
         # the returned index may be out of bounds ONLY IF it doesn't contain
         # anything more fancy than 'line.column'
@@ -31,7 +31,7 @@ class IndexBase(collections.namedtuple('TextIndex', 'line column')):
 
         return cls(*map(int, string.split('.')))
 
-    @needs_main_thread
+    @make_thread_safe
     def between_start_end(self):
         if self < self._widget.start:
             return self._widget.start
@@ -120,7 +120,7 @@ class Tag(CgetConfigureConfigDict):
     def __hash__(self):
         return hash(self.name)
 
-    @needs_main_thread
+    @make_thread_safe
     def add(self, index1, index2):
         index1 = self._widget._get_index_obj(index1)
         index2 = self._widget._get_index_obj(index2)
@@ -132,7 +132,7 @@ class Tag(CgetConfigureConfigDict):
         self._call_tag_subcommand(None, 'delete')
 
     # TODO: tests
-    @needs_main_thread
+    @make_thread_safe
     def _prevrange_or_nextrange(self, prev_or_next, index1, index2=None):
         index1 = self._widget._get_index_obj(index1)
         if index2 is None:
@@ -153,7 +153,7 @@ class Tag(CgetConfigureConfigDict):
     prevrange = functools.partialmethod(_prevrange_or_nextrange, 'prev')
     nextrange = functools.partialmethod(_prevrange_or_nextrange, 'next')
 
-    @needs_main_thread
+    @make_thread_safe
     def ranges(self):
         flat_pairs = map(self._widget.TextIndex.from_tcl,
                          self._call_tag_subcommand([str], 'ranges'))
@@ -161,7 +161,7 @@ class Tag(CgetConfigureConfigDict):
         # magic to convert a flat iterator to pairs: a,b,c,d --> (a,b), (c,d)
         return list(zip(flat_pairs, flat_pairs))
 
-    @needs_main_thread
+    @make_thread_safe
     def remove(self, index1=None, index2=None):
         if index1 is None:
             index1 = self._widget.start
@@ -190,12 +190,12 @@ class MarksDict(collections.abc.MutableMapping):
     def __len__(self):
         return len(self._get_name_list())
 
-    @needs_main_thread
+    @make_thread_safe
     def __setitem__(self, name, index):
         index = self._widget._get_index_obj(index)
         self._widget._call(None, self._widget, 'mark', 'set', name, index)
 
-    @needs_main_thread
+    @make_thread_safe
     def __getitem__(self, name):
         if name not in self._get_name_list():
             raise KeyError(name)
@@ -319,7 +319,7 @@ class Text(ChildMixin, Widget):
             self._tag_objects[name] = tag
             return tag
 
-    @needs_main_thread
+    @make_thread_safe
     def get_all_tags(self, index=None):
         """Return all tags as tag objects.
 
@@ -339,7 +339,7 @@ class Text(ChildMixin, Widget):
         index_string = self._call(str, self, 'index', 'end - 1 char')
         return self.TextIndex(*map(int, index_string.split('.')))
 
-    @needs_main_thread
+    @make_thread_safe
     def get(self, index1=None, index2=None):
         """Return text in the widget.
 
@@ -358,7 +358,7 @@ class Text(ChildMixin, Widget):
 
         return self._call(str, self, 'get', index1, index2)
 
-    @needs_main_thread
+    @make_thread_safe
     def insert(self, index, text, tag_list=()):
         """Add text to the widget.
 
@@ -368,7 +368,7 @@ class Text(ChildMixin, Widget):
         index = self._get_index_obj(index)
         self._call(None, self, 'insert', index, text, tag_list)
 
-    @needs_main_thread
+    @make_thread_safe
     def replace(self, index1, index2, new_text, tag_list=()):
         """See :man:`text(3tk)` and :meth:`insert`."""
         self._call(None, self, 'replace', self._get_index_obj(index1),

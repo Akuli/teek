@@ -6,7 +6,7 @@ import operator
 import re
 
 import pythotk as tk
-from pythotk._tcl_calls import counts, from_tcl, needs_main_thread
+from pythotk._tcl_calls import counts, from_tcl, make_thread_safe
 from pythotk._structures import ConfigDict, CgetConfigureConfigDict, after_quit
 
 _widgets = {}
@@ -397,7 +397,7 @@ class Widget:
                               "widget.configure(option=value)")
 
     # like _tcl_calls.tcl_call, but with better error handling
-    @needs_main_thread
+    @make_thread_safe
     def _call(self, *args, **kwargs):
         try:
             return tk.tcl_call(*args, **kwargs)

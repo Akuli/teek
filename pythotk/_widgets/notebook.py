@@ -3,7 +3,7 @@ import weakref
 
 import pythotk as tk
 from pythotk._structures import ConfigDict
-from pythotk._tcl_calls import needs_main_thread
+from pythotk._tcl_calls import make_thread_safe
 from pythotk._widgets.base import ChildMixin, Widget
 
 
@@ -232,7 +232,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     def __len__(self):
         return self._call(int, self, 'index', 'end')
 
-    @needs_main_thread
+    @make_thread_safe
     def __getitem__(self, index):
         if isinstance(index, slice):
             raise TypeError("slicing a Notebook is not supported")
@@ -242,12 +242,12 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         widgets = self._call([Widget], self, 'tabs')
         return self.get_tab_by_widget(widgets[index])
 
-    @needs_main_thread
+    @make_thread_safe
     def __setitem__(self, index, tab):
         del self[index]
         self.insert(index, tab)
 
-    @needs_main_thread
+    @make_thread_safe
     def __delitem__(self, index):
         self._call(None, self, 'forget', self[index].widget)
 
@@ -256,7 +256,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     # want because MutableSequence's docstring:
     #   * doesn't explain the details
     #   * is not good RST
-    @needs_main_thread
+    @make_thread_safe
     def insert(self, index, tab):
         """"""
         if not isinstance(tab, NotebookTab):
@@ -282,7 +282,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         if not moving_only:
             tab.config.update(tab.initial_options)
 
-    @needs_main_thread
+    @make_thread_safe
     def move(self, tab, new_index):
         """
         Move a tab so that after calling this, ``self[new_index]`` is ``tab``.
@@ -299,7 +299,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         self._call(None, self, 'insert', new_index, tab.widget)
 
     @property
-    @needs_main_thread
+    @make_thread_safe
     def selected_tab(self):
         """This is the tab that the user is currently looking at.
 

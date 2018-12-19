@@ -8,7 +8,7 @@ import sys
 import traceback
 
 import pythotk as tk
-from pythotk._tcl_calls import needs_main_thread
+from pythotk._tcl_calls import make_thread_safe
 
 
 def _is_from_pythotk(traceback_frame_summary):
@@ -190,7 +190,7 @@ class ConfigDict(collections.abc.MutableMapping):
 
     # the type of value is not checked with self._types because python is
     # dynamically typed
-    @needs_main_thread
+    @make_thread_safe
     def __setitem__(self, option, value):
         self._check_option(option)
         if option in self._special:
@@ -202,7 +202,7 @@ class ConfigDict(collections.abc.MutableMapping):
 
         self._set(option, value)
 
-    @needs_main_thread
+    @make_thread_safe
     def __getitem__(self, option):
         self._check_option(option)
 
