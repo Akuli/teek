@@ -133,7 +133,7 @@ class NotebookTab:
         self.widget.parent._call(None, self.widget.parent, 'hide', self.widget)
 
     def unhide(self):
-        """Undoe a :meth:`hide` call."""
+        """Undo a :meth:`hide` call."""
         self._check_in_notebook()
         self.widget.parent._call(None, self.widget.parent, 'add', self.widget)
 
