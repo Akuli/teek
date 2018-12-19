@@ -111,6 +111,22 @@ def test_eval_and_call(handy_commands):
     assert not BrokenFromTcl.oh_no
 
 
+# this was a fun bug: tkinter returns tuples for some things, and the
+# empty tuple was handled differently for some reason, but the only way
+# to get tkinter to return an empty tuple i found is tk_getSaveFile when
+# cancel is pressed (or the esc key, which is what this code simulates)
+@pytest.mark.slow
+def test_empty_tuple_bug():
+    # after half a second, press escape in the widget of the dialog that
+    # happens to be focused
+    tk.after(500, lambda: tk.tcl_eval(None, "event generate [focus] <Escape>"))
+
+    # do the dialog, tkinter should return an empty tuple which should be
+    # converted to an empty string
+    result = tk.tcl_call(str, 'tk_getSaveFile')     # this threw an error
+    assert result == ''
+
+
 def test_create_command(capsys):
     def working_func():
         # no type checking is done, this turns into a dict below

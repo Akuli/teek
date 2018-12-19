@@ -167,13 +167,12 @@ class _TclInterpreter:
         if isinstance(from_underscore_tkinter, _tkinter.Tcl_Obj):
             return from_underscore_tkinter.string
 
-        # it's probably a tuple because _tkinter returns tuples when tcl
-        # represents something as a list internally, this forces tcl to
+        # it's probably a tuple, i think because _tkinter returns tuples when
+        # tcl represents something as a list internally, this forces tcl to
         # represent it as a string instead
-        concatted = self.call_thread_safely(
-            self._app.call, ['concat', 'junk', from_underscore_tkinter])
-        junk, result = concatted.split(maxsplit=1)
-        assert junk == 'junk'
+        result = self.call_thread_safely(
+            self._app.call, ['format', '%s', from_underscore_tkinter])
+        assert isinstance(result, str)
         return result
 
     @raise_pythotk_tclerror
