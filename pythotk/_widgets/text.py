@@ -122,8 +122,8 @@ class Tag(CgetConfigureConfigDict):
 
     @needs_main_thread
     def add(self, index1, index2):
-        index1 = self._widget.TextIndex(*index1).between_start_end()
-        index2 = self._widget.TextIndex(*index2).between_start_end()
+        index1 = self._widget._get_index_obj(index1)
+        index2 = self._widget._get_index_obj(index2)
         return self._call_tag_subcommand(None, 'add', index1, index2)
 
     # TODO: bind
@@ -134,12 +134,12 @@ class Tag(CgetConfigureConfigDict):
     # TODO: tests
     @needs_main_thread
     def _prevrange_or_nextrange(self, prev_or_next, index1, index2=None):
-        index1 = self._widget.TextIndex(*index1).between_start_end()
+        index1 = self._widget._get_index_obj(index1)
         if index2 is None:
             index2 = {'prev': self._widget.start,
                       'next': self._widget.end}[prev_or_next]
         else:
-            index2 = self._widget.TextIndex(*index2).between_start_end()
+            index2 = self._widget._get_index_obj(index2)
 
         results = self._call_tag_subcommand(
             [self._widget.TextIndex], prev_or_next + 'range', index1, index2)
@@ -166,12 +166,12 @@ class Tag(CgetConfigureConfigDict):
         if index1 is None:
             index1 = self._widget.start
         else:
-            index1 = self._widget.TextIndex(*index1).between_start_end()
+            index1 = self._widget._get_index_obj(index1)
 
         if index2 is None:
             index2 = self._widget.end
         else:
-            index2 = self._widget.TextIndex(*index2).between_start_end()
+            index2 = self._widget._get_index_obj(index2)
 
         self._call_tag_subcommand(None, 'remove', index1, index2)
 
@@ -192,7 +192,7 @@ class MarksDict(collections.abc.MutableMapping):
 
     @needs_main_thread
     def __setitem__(self, name, index):
-        index = self._widget.TextIndex(*index).between_start_end()
+        index = self._widget._get_index_obj(index)
         self._widget._call(None, self._widget, 'mark', 'set', name, index)
 
     @needs_main_thread
@@ -302,6 +302,14 @@ class Text(ChildMixin, Widget):
     def _repr_parts(self):
         return ['contains %d lines of text' % self.end.line]
 
+    def _get_index_obj(self, index):
+        if isinstance(index, str):
+            raise TypeError(
+                "string indexes are not supported, use (line, column) int "
+                "tuples or TextIndex objects instead")
+
+        return self.TextIndex(*index).between_start_end()
+
     def get_tag(self, name):
         """Return a tag object by name, creating a new one if needed."""
         try:
@@ -319,7 +327,7 @@ class Text(ChildMixin, Widget):
         """
         args = [self, 'tag', 'names']
         if index is not None:
-            args.append(self.TextIndex(*index).between_start_end())
+            args.append(self._get_index_obj(index))
         return [self.get_tag(name) for name in self._call([str], *args)]
 
     @property
@@ -341,12 +349,12 @@ class Text(ChildMixin, Widget):
         if index1 is None:
             index1 = self.start
         else:
-            index1 = self.TextIndex(*index1).between_start_end()
+            index1 = self._get_index_obj(index1)
 
         if index2 is None:
             index2 = self.end
         else:
-            index2 = self.TextIndex(*index2).between_start_end()
+            index2 = self._get_index_obj(index2)
 
         return self._call(str, self, 'get', index1, index2)
 
@@ -357,21 +365,19 @@ class Text(ChildMixin, Widget):
         The ``tag_list`` can be any iterable of tag name strings or tag
         objects.
         """
-        index = self.TextIndex(*index).between_start_end()
+        index = self._get_index_obj(index)
         self._call(None, self, 'insert', index, text, tag_list)
 
     @needs_main_thread
     def replace(self, index1, index2, new_text, tag_list=()):
         """See :man:`text(3tk)` and :meth:`insert`."""
-        index1 = self.TextIndex(*index1).between_start_end()
-        index2 = self.TextIndex(*index2).between_start_end()
-        self._call(None, self, 'replace', index1, index2, new_text, tag_list)
+        self._call(None, self, 'replace', self._get_index_obj(index1),
+                   self._get_index_obj(index2), new_text, tag_list)
 
     def delete(self, index1, index2):
         """See :man:`text(3tk)` and :meth:`insert`."""
-        index1 = self.TextIndex(*index1).between_start_end()
-        index2 = self.TextIndex(*index2).between_start_end()
-        self._call(None, self, 'delete', index1, index2)
+        self._call(None, self, 'delete',
+                   self._get_index_obj(index1), self._get_index_obj(index2))
 
     def _xview_or_yview(self, xview_or_yview, *args):
         if not args:

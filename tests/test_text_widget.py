@@ -67,6 +67,14 @@ def test_basic_stuff():
             text.start.forward(chars=1, lines=1))
 
 
+def test_tkinter_index_string_error():
+    text = tk.Text(tk.Window())
+    with pytest.raises(TypeError) as error:
+        text.get('1.0', 'end')
+    assert "use (line, column) int tuples or TextIndex objects" in str(
+        error.value)    # lol pep8 line length
+
+
 def test_delete():
     text = tk.Text(tk.Window())
     text.insert(text.end, 'wat batman')
