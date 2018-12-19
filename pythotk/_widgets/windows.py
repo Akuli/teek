@@ -3,6 +3,7 @@ import re
 
 import pythotk as tk
 from pythotk._structures import ConfigDict
+from pythotk._tcl_calls import make_thread_safe
 from pythotk._widgets.base import ChildMixin, Widget
 
 
@@ -11,6 +12,7 @@ Geometry = collections.namedtuple('Geometry', 'width height x y')
 
 class WmMixin:
 
+    @make_thread_safe
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -62,6 +64,7 @@ class WmMixin:
         self._call(None, 'wm', 'transient', self._get_wm_widget(),
                    widget._get_wm_widget())
 
+    @make_thread_safe
     def geometry(self, width=None, height=None, x=None, y=None):
         if isinstance(width, str):    # for tkinter users
             raise TypeError("use widget.geometry(width, height) instead of "
@@ -189,7 +192,8 @@ class Toplevel(WmMixin, Widget):
     _widget_name = 'toplevel'
     tk_class_name = 'Toplevel'
 
-    # allow passing title as a positional argument
+    # this allows passing title as a positional argument
+    @make_thread_safe
     def __init__(self, title=None, **options):
         # toplevel(3tk): "[...] it must be the window identifier of a container
         # window, specified as a hexadecimal string [...]"
@@ -290,6 +294,7 @@ class Window(WmMixin, Widget):
     _widget_name = 'ttk::frame'
     tk_class_name = None
 
+    @make_thread_safe
     def __init__(self, *args, **kwargs):
         self.toplevel = Toplevel(*args, **kwargs)
         super().__init__(self.toplevel)     # calls self._init_config()

@@ -30,6 +30,7 @@ class Button(ChildMixin, Widget):
     _widget_name = 'ttk::button'
     tk_class_name = 'TButton'
 
+    @make_thread_safe
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__(parent, text=text, **kwargs)
         if command is not None:
@@ -95,6 +96,7 @@ class Checkbutton(ChildMixin, Widget):
     _widget_name = 'ttk::checkbutton'
     tk_class_name = 'TCheckbutton'
 
+    @make_thread_safe
     def __init__(self, parent, text='', command=None, **kwargs):
         super().__init__(parent, text=text, **kwargs)
         if command is not None:
@@ -146,6 +148,7 @@ class Entry(ChildMixin, Widget):
     _widget_name = 'ttk::entry'
     tk_class_name = 'TEntry'
 
+    @make_thread_safe
     def __init__(self, parent, text='', **kwargs):
         super().__init__(parent, **kwargs)
         self._call(None, self, 'insert', 0, text)
@@ -212,6 +215,7 @@ class Spinbox(Entry):
     _widget_name = 'ttk::spinbox'
     tk_class_name = 'TSpinbox'
 
+    @make_thread_safe
     def __init__(self, parent, *, command=None, **kwargs):
         super().__init__(parent, **kwargs)
         if command is not None:

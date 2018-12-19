@@ -217,6 +217,7 @@ class Widget:
     _widget_name = None
     tk_class_name = None
 
+    @make_thread_safe
     def __init__(self, parent, **kwargs):
         if type(self)._widget_name is None:
             raise TypeError("cannot create instances of %s directly, "
@@ -332,6 +333,7 @@ class Widget:
                 self._create_scroll_callback, option_name)
 
     @classmethod
+    @make_thread_safe
     def from_tcl(cls, path_string):
         """Creates a widget from a Tcl path name.
 
@@ -406,7 +408,7 @@ class Widget:
                 raise RuntimeError("the widget has been destroyed") from None
             raise err
 
-    # TODO: document overriding this
+    @make_thread_safe
     def destroy(self):
         """Delete this widget and all child widgets.
 
@@ -463,6 +465,7 @@ class Widget:
         self.destroy()
 
     @_ClassProperty
+    @make_thread_safe
     def class_bindings(cls):
         if cls is Widget:
             assert cls.tk_class_name is None
@@ -488,6 +491,7 @@ class Widget:
             return bindings
 
     @classmethod
+    @make_thread_safe
     def bind_class(cls, *args, **kwargs):
         return cls.class_bindings._convenience_bind(*args, **kwargs)
 

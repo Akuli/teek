@@ -95,6 +95,7 @@ class NotebookTab:
         from this dict.
     """
 
+    @make_thread_safe
     def __init__(self, widget, **kwargs):
         if not isinstance(widget.parent, Notebook):
             raise ValueError("widgets of NotebookTabs must be child widgets "
@@ -318,6 +319,7 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     def selected_tab(self, tab):
         self._call(None, self, 'select', tab.widget)
 
+    @make_thread_safe
     def append_and_select(self, tab):
         """A convenient way to add a tab to the notebook and select it.
 

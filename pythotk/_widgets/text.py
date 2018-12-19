@@ -131,7 +131,6 @@ class Tag(CgetConfigureConfigDict):
     def delete(self):
         self._call_tag_subcommand(None, 'delete')
 
-    # TODO: tests
     @make_thread_safe
     def _prevrange_or_nextrange(self, prev_or_next, index1, index2=None):
         index1 = self._widget._get_index_obj(index1)
@@ -310,6 +309,7 @@ class Text(ChildMixin, Widget):
 
         return self.TextIndex(*index).between_start_end()
 
+    @make_thread_safe
     def get_tag(self, name):
         """Return a tag object by name, creating a new one if needed."""
         try:
