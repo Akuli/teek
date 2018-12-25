@@ -323,6 +323,33 @@ Tag objects have these attributes and methods. Search for ``pathName tag`` in
 
     These allow you to do tag-specific :ref:`bindings <binding>`.
 
+.. method:: some_tag.lower(other_tag=None)
+            some_tag.raise_(other_tag=None)
+
+    These call ``tag lower`` and ``tag raise`` documented in :man:`text(3tk)`.
+    The raise method is called ``raise_`` instead of ``raise`` because
+    ``raise`` is not a valid method name in Python.
+
+    For example, if you have code like this...
+    ::
+
+        import pythotk as tk
+
+        text = tk.Text(tk.Window())
+        text.pack()
+
+        red_tag = text.get_tag('red')
+        blue_tag = text.get_tag('blue')
+        red_tag['foreground'] = 'red'
+        blue_tag['foreground'] = 'blue'
+
+        text.insert(text.start, 'asdasdasd', [red_tag, blue_tag])
+
+    ...then the asdasdasd text has two tags that specify different foreground
+    colors. If you want red asdasdasd, the red tag should be above the blue
+    tag, so you need to do ``red_tag.raise_(blue_tag)`` or
+    ``blue_tag.lower(red_tag)``.
+
 
 Text Widget Methods and Attributes
 ----------------------------------

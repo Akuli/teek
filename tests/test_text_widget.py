@@ -182,6 +182,18 @@ def test_tag_creating_bug():
     assert a in text.get_all_tags()
 
 
+def test_tag_lower_raise():
+    text = tk.Text(tk.Window())
+    a = text.get_tag('a')
+    b = text.get_tag('b')
+
+    # i don't know what else to do than test that nothing errors
+    a.lower(b)
+    a.raise_(b)
+    a.lower()
+    a.raise_()
+
+
 def test_tag_bind():
     # i can't think of a better way to test this
     tag = tk.Text(tk.Window()).get_tag('asd')

@@ -174,6 +174,16 @@ class Tag(CgetConfigureConfigDict):
 
         self._call_tag_subcommand(None, 'remove', index1, index2)
 
+    @make_thread_safe
+    def _lower_or_raise(self, lower_or_raise, other_tag=None):
+        if other_tag is None:
+            self._call_tag_subcommand(None, lower_or_raise)
+        else:
+            self._call_tag_subcommand(None, lower_or_raise, other_tag)
+
+    lower = functools.partialmethod(_lower_or_raise, 'lower')
+    raise_ = functools.partialmethod(_lower_or_raise, 'raise')
+
 
 class MarksDict(collections.abc.MutableMapping):
 
