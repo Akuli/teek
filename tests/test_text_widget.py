@@ -176,6 +176,12 @@ def test_tags():
     assert {tag.name for tag in text.get_all_tags((1, 6))} == tag_names
 
 
+def test_tag_creating_bug():
+    text = tk.Text(tk.Window())
+    a = text.get_tag('a')
+    assert a in text.get_all_tags()
+
+
 def test_tag_bind():
     # i can't think of a better way to test this
     tag = tk.Text(tk.Window()).get_tag('asd')

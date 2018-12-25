@@ -316,6 +316,11 @@ class Text(ChildMixin, Widget):
             return self._tag_objects[name]
         except KeyError:
             tag = Tag(self, name)
+
+            # this actually creates the tag so that it shows up in
+            # get_all_tags()
+            self._call(None, self, 'tag', 'configure', name)
+
             self._tag_objects[name] = tag
             return tag
 
