@@ -526,21 +526,61 @@ class Widget:
         """
         return self._call(Widget, 'winfo', 'toplevel', self)
 
-    # TODO: at least winfo_x, winfo_y, winfo_rootx, winfo_rooty
-
     def winfo_width(self):
-        """Returns the width of the widget in pixels.
+        """Calls ``winfo width``. Returns an integer.
 
         Manual page: :man:`winfo(3tk)`
         """
         return self._call(int, 'winfo', 'width', self)
 
     def winfo_height(self):
-        """Returns the height of the widget in pixels.
+        """Calls ``winfo height``. Returns an integer.
 
         Manual page: :man:`winfo(3tk)`
         """
         return self._call(int, 'winfo', 'height', self)
+
+    def winfo_reqwidth(self):
+        """Calls ``winfo reqwidth``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'reqwidth', self)
+
+    def winfo_reqheight(self):
+        """Calls ``winfo reqheight``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'reqheight', self)
+
+    def winfo_x(self):
+        """Calls ``winfo x``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'x', self)
+
+    def winfo_y(self):
+        """Calls ``winfo y``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'y', self)
+
+    def winfo_rootx(self):
+        """Calls ``winfo rootx``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'rootx', self)
+
+    def winfo_rooty(self):
+        """Calls ``winfo rooty``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'rooty', self)
 
     def focus(self, *, force=False):
         """Focuses the widget with :man:`focus(3tk)`.

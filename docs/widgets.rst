@@ -15,7 +15,7 @@ looking for, and ignore rest of this.
     menu
 
 .. autoclass:: pythotk.Widget
-    :members: from_tcl, to_tcl, destroy, winfo_exists, winfo_children, winfo_toplevel, winfo_width, winfo_height, focus
+    :members: from_tcl, to_tcl, destroy, focus, winfo_exists, winfo_children, winfo_toplevel, winfo_width, winfo_height, winfo_reqwidth, winfo_reqheight, winfo_x, winfo_y, winfo_rootx, winfo_rooty
 
 .. autoclass:: pythotk.Button
     :members:

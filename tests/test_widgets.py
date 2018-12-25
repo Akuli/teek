@@ -431,13 +431,50 @@ def test_winfo_ismapped():
     assert frame.winfo_ismapped() is True
 
 
-def test_winfo_width_height():
+def test_winfo_x_y_rootx_rooty_width_height_reqwidth_reqheight():
+    # layout in the window looks like this:
+    #     ________
+    #    |        |
+    #    |        |
+    #    |        |
+    #    |        |456px
+    #    |        |
+    #    |        |
+    #    |________|___
+    #      123px  | a |
+    #             `---'
     window = tk.Window()
-    frame = tk.Frame(window, width=123, height=456)
-    frame.pack()
+    spacer = tk.Frame(window, width=123, height=456)
+    spacer.grid(row=1, column=1)
+    label = tk.Label(window, text='a')
+    label.grid(row=2, column=2)
+    window.geometry(100, 200)
     tk.update()
-    assert frame.winfo_width() == 123
-    assert frame.winfo_height() == 456
+
+    assert window.toplevel.winfo_x() == window.toplevel.winfo_rootx()
+    assert window.toplevel.winfo_y() == window.toplevel.winfo_rooty()
+    assert window.toplevel.winfo_width() == 100
+    assert window.toplevel.winfo_height() == 200
+    assert window.toplevel.winfo_reqwidth() > 123
+    assert window.toplevel.winfo_reqheight() > 456
+
+    assert spacer.winfo_x() == 0
+    assert spacer.winfo_y() == 0
+    assert spacer.winfo_rootx() == window.toplevel.winfo_x()
+    assert spacer.winfo_rooty() == window.toplevel.winfo_y()
+    assert spacer.winfo_width() == 123
+    assert spacer.winfo_height() == 456
+    assert spacer.winfo_reqwidth() == 123
+    assert spacer.winfo_reqheight() == 456
+
+    assert label.winfo_x() == 123
+    assert label.winfo_y() == 456
+    assert label.winfo_rootx() == window.toplevel.winfo_x() + 123
+    assert label.winfo_rooty() == window.toplevel.winfo_y() + 456
+    assert label.winfo_width() > 0
+    assert label.winfo_height() > 0
+    assert label.winfo_reqwidth() > 0
+    assert label.winfo_reqheight() > 0
 
 
 def test_focus():
