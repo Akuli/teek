@@ -2,7 +2,9 @@ import time
 import types
 
 import pytest
+
 import pythotk as tk
+from pythotk.extras import cross_platform, tooltips
 
 
 def run_event_loop(for_how_long):
@@ -17,16 +19,16 @@ def test_set_tooltip():
     window = tk.Window()
     assert not hasattr(window, '_tooltip_manager')
 
-    tk.extras.set_tooltip(window, None)
+    tooltips.set_tooltip(window, None)
     assert not hasattr(window, '_tooltip_manager')
 
-    tk.extras.set_tooltip(window, 'Boo')
+    tooltips.set_tooltip(window, 'Boo')
     assert window._tooltip_manager.text == 'Boo'
 
-    tk.extras.set_tooltip(window, None)
+    tooltips.set_tooltip(window, None)
     assert window._tooltip_manager.text is None
 
-    tk.extras.set_tooltip(window, 'lol')
+    tooltips.set_tooltip(window, 'lol')
     assert window._tooltip_manager.text == 'lol'
 
     N = types.SimpleNamespace   # because pep8 line length
@@ -68,8 +70,8 @@ def test_bind_tab_key():
         what_happened.append((2, shifted))
 
     widget = tk.Window()
-    tk.extras.bind_tab_key(widget, callback1)
-    tk.extras.bind_tab_key(widget, callback2, event=True)
+    cross_platform.bind_tab_key(widget, callback1)
+    cross_platform.bind_tab_key(widget, callback2, event=True)
 
     # might be nice to trigger a warning when attempting to use <Shift-Tab>
     # on x11

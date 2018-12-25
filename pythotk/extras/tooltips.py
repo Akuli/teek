@@ -1,5 +1,3 @@
-import functools
-
 import pythotk as tk
 
 
@@ -75,19 +73,12 @@ class _TooltipManager:
 
 
 def set_tooltip(widget, text):
-    """A simple tooltip implementation with pythotk.
+    """Create tooltips for a widget.
 
     After calling ``set_tooltip(some_widget, "hello")``, "hello" will be
     displayed in a small window when the user moves the mouse over the
     widget and waits for a small period of time. Do
     ``set_tooltip(some_widget, None)`` to get rid of a tooltip.
-
-    If you have read some of IDLE's source code (if you haven't, that's
-    good; IDLE's source code is ugly), you might be wondering what this
-    thing has to do with ``idlelib/tooltip.py``. Don't worry, I didn't
-    copy/paste any code from idlelib and I didn't read idlelib while I
-    wrote the tooltip code! Idlelib is awful and I don't want to use
-    anything from it in my projects.
     """
     if text is None:
         if hasattr(widget, '_tooltip_manager'):
@@ -96,39 +87,3 @@ def set_tooltip(widget, text):
         if not hasattr(widget, '_tooltip_manager'):
             widget._tooltip_manager = _TooltipManager(widget)
         widget._tooltip_manager.text = text
-
-
-# this is not called bind_tab to avoid confusing with:
-#   * \t characters
-#   * web browser tabs as in tk.Notebook
-def bind_tab_key(widget, callback, **bind_kwargs):
-    """A convenience function for binding Tab and Shift+Tab.
-
-    Use this function like this::
-
-        def on_tab(shifted):
-            if shifted:
-                print("Shift+Tab was pressed")
-            else:
-                print("Tab was pressed")
-
-        tk.extras.bind_tab_key(some_widget, on_tab)
-
-    Binding ``'<Tab>'`` works on all systems I've tried it on, but binding
-    ``'<Shift-Tab>'`` only works on Windows and Mac OSX. This function also
-    works on X11 (including Linux).
-
-    This function can also take any of the keyword arguments that
-    :meth:`pythotk.Widget.bind` takes. If you pass ``event=True``, the callback
-    will be called like ``callback(shifted, event)``; that is, the ``shifted``
-    bool is the first argument, and the event object is the second.
-    """
-    if tk.windowingsystem() == 'x11':
-        # even though the event keysym says Left, holding down the right
-        # shift and pressing tab also works :D
-        shift_tab = '<ISO_Left_Tab>'
-    else:
-        shift_tab = '<Shift-Tab>'   # pragma: no cover
-
-    widget.bind('<Tab>', functools.partial(callback, False), **bind_kwargs)
-    widget.bind(shift_tab, functools.partial(callback, True), **bind_kwargs)
