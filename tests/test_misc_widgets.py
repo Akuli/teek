@@ -166,25 +166,15 @@ def test_progressbar_bouncing():
     tk.run()
 
 
-def test_scrollbar(handy_callback):
+def test_scrollbar(fake_command, handy_callback):
     scrollbar = tk.Scrollbar(tk.Window())
     assert scrollbar.get() == (0.0, 1.0)
 
     # testing the set method isn't as easy as you might think because get()
     # doesn't return the newly set arguments after calling set()
-    @handy_callback
-    def asd(*args):
-        assert args == ('set', '1.2', '3.4')
-
-    asd_command = tk.create_command(asd, extra_args_type=str)
-    tk.tcl_call(None, 'rename', scrollbar.to_tcl(), 'real_scrollbar')
-    tk.tcl_call(None, 'rename', asd_command, scrollbar.to_tcl())
-    try:
+    with fake_command(scrollbar.to_tcl()) as called:
         scrollbar.set(1.2, 3.4)
-        assert asd.ran_once()
-    finally:
-        tk.delete_command(scrollbar.to_tcl())
-        tk.tcl_call(None, 'rename', 'real_scrollbar', scrollbar.to_tcl())
+        assert called == [['set', '1.2', '3.4']]
 
     # this tests the code that runs when the user scrolls the scrollbar
     log = []

@@ -477,32 +477,16 @@ def test_winfo_x_y_rootx_rooty_width_height_reqwidth_reqheight():
     assert label.winfo_reqheight() > 0
 
 
-def test_focus():
+def test_focus(fake_command):
     widget = tk.Window()
 
-    # no good way to actually test this, so let's just make sure it's calls the
-    # correct command
-    tk.tcl_eval(None, 'rename focus real_focus')
-    try:
-        log = []
-        tk.tcl_eval(None, '''
-        proc focus {args} {
-            %s $args
-        }
-        ''' % tk.create_command(log.append, [str]))
+    with fake_command('focus') as called:
         widget.focus()
         widget.focus(force=True)
-        assert log == [
-            widget.to_tcl(),
-            '-force %s' % widget.to_tcl(),
+        assert called == [
+            [widget.to_tcl()],
+            ['-force', widget.to_tcl()],
         ]
-    finally:
-        tk.tcl_eval(None, '''
-        catch {
-            rename focus {}
-        }
-        rename real_focus focus
-        ''')
 
 
 def test_state():

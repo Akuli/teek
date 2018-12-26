@@ -219,25 +219,10 @@ def test_before_after_quit():
     assert asd == ['one', 'two', 'three']
 
 
-def test_update_idletasks(handy_callback):
-    @handy_callback
-    def fake_update(arg):
-        assert arg == 'idletasks'
-
-    fake_update_command = tk.create_command(fake_update, [str])
-
-    tk.tcl_call(None, 'rename', 'update', 'real_update')
-    try:
-        tk.tcl_call(None, 'rename', fake_update_command, 'update')
+def test_update_idletasks(fake_command):
+    with fake_command('update') as called:
         tk.update(idletasks_only=True)
-    finally:
-        try:
-            tk.delete_command('update')
-        except tk.TclError:
-            pass
-        tk.tcl_call(None, 'rename', 'real_update', 'update')
-
-    assert fake_update.ran_once()
+        assert called == [['idletasks']]
 
 
 @pytest.mark.skipif(platform.python_implementation() == 'PyPy',

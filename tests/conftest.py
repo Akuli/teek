@@ -1,3 +1,5 @@
+import contextlib
+
 import pytest
 
 import pythotk as tk
@@ -98,3 +100,29 @@ def all_widgets():
         tk.Toplevel(),
         window,
     ]
+
+
+@pytest.fixture
+def fake_command():
+    @contextlib.contextmanager
+    def faker(name, return_value=None):
+        called = []
+
+        def command_func(*args):
+            called.append(list(args))
+            return return_value
+
+        fake = tk.create_command(command_func, [], extra_args_type=str)
+
+        tk.tcl_call(None, 'rename', name, name + '_real')
+        try:
+            tk.tcl_call(None, 'rename', fake, name)
+            yield called
+        finally:
+            try:
+                tk.delete_command(name)
+            except tk.TclError:
+                pass
+            tk.tcl_call(None, 'rename', name + '_real', name)
+
+    return faker

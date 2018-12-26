@@ -129,29 +129,19 @@ def test_minsize_maxsize():
     assert window.maxsize == (56, 78)
 
 
-def test_iconphoto():
+def test_iconphoto(fake_command):
     image1 = tk.Image(file=SMILEY_PATH)
     image2 = image1.copy()
 
     widget = tk.Toplevel()
-    called = []
-    fake_widget_command = tk.create_command(
-        (lambda *args: called.append(['wm'] + list(args))), [],
-        extra_args_type=str)
 
-    tk.tcl_call(None, 'rename', 'wm', 'actual_wm')
-    tk.tcl_call(None, 'rename', fake_widget_command, 'wm')
-    try:
+    with fake_command('wm') as called:
         widget.iconphoto(image1)
         widget.iconphoto(image1, image2)
-    finally:
-        tk.delete_command('wm')
-        tk.tcl_call(None, 'rename', 'actual_wm', 'wm')
-
-    assert called == [
-        ['wm', 'iconphoto', widget.to_tcl(), image1.to_tcl()],
-        ['wm', 'iconphoto', widget.to_tcl(), image1.to_tcl(), image2.to_tcl()],
-    ]
+        assert called == [
+            ['iconphoto', widget.to_tcl(), image1.to_tcl()],
+            ['iconphoto', widget.to_tcl(), image1.to_tcl(), image2.to_tcl()],
+        ]
 
 
 def test_transient():
