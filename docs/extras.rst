@@ -47,3 +47,22 @@ doesn't work on Linux and you need a different binding instead. This extra
 module contains utilities for dealing with things like that.
 
 .. autofunction:: bind_tab_key
+
+
+.. module:: pythotk.extras.more_dialogs
+
+more_dialogs
+------------
+
+This is useful when :mod:`pythotk.dialog` is not enough.
+
+All of the functions take these arguments:
+
+* ``title`` will be the title of the dialog.
+* ``text`` will be displayed in a label above the text entry or spinbox.
+* ``initial_value`` will be added to the entry or spinbox before the user
+  changes it.
+* ``parent`` is a window widget that the dialog will be displayed on top of.
+
+.. autofunction:: ask_string
+.. autofunction:: ask_integer
