@@ -12,10 +12,16 @@ def _create_test_function(filename):
     with open(os.path.join(EXAMPLES_DIR, filename), 'r') as file:
         code = file.read()
 
-    def func(monkeypatch):
+    def func(monkeypatch, handy_callback):
+        @handy_callback
+        def fake_run():
+            pass
+
         with monkeypatch.context() as monkey:
-            monkey.setattr(pythotk, 'run', (lambda: None))
+            monkey.setattr(pythotk, 'run', fake_run)
             exec(code, {'__file__': os.path.join(EXAMPLES_DIR, filename)})
+
+        assert fake_run.ran_once()
 
         # make sure that nothing breaks if the real .run() is called
         pythotk.update()

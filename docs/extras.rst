@@ -66,3 +66,17 @@ All of the functions take these arguments:
 
 .. autofunction:: ask_string
 .. autofunction:: ask_integer
+
+
+.. module:: pythotk.extras.links
+
+links
+-----
+
+With this extra, you can insert web browser style links to
+:class:`~pythotk.Text` widgets. This is based on
+`this tutorial <http://effbot.org/zone/tkinter-text-hyperlink.htm>`_ that is
+almost as old as I am, but it's still usable.
+
+.. autofunction:: add_url_link
+.. autofunction:: add_function_link

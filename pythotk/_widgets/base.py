@@ -765,8 +765,19 @@ class BindingDict(collections.abc.Mapping):
             except (ValueError, tk.TclError) as e:
                 if string_value == '??':
                     value = None
+                elif attrib == 'sendevent':
+                    # this seems to be a bug in Tk, here's a minimal example:
+                    #
+                    #    label .lab -text "click this to do the bug"
+                    #    pack .lab
+                    #    bind .lab <Leave> { puts "leave: %E" }
+                    #    bind .lab <Button-1> { tk_messageBox }
+                    #
+                    # for me this prints "leave: 343089580", even though
+                    # bind(3tk) says that %E is 1 or 0
+                    value = None
                 else:   # pragma: no cover
-                    raise e
+                    raise e     # if this runs, there's a bug in pythotk
 
             setattr(event, attrib, value)
 
