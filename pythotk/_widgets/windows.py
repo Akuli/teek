@@ -88,6 +88,24 @@ class WmMixin:
             string = '%dx%d+%d+%d' % (width, height, x, y)
         self._call(None, 'wm', 'geometry', self._get_wm_widget(), string)
 
+    @property
+    def minsize(self):
+        return self._call((int, int), 'wm', 'minsize', self._get_wm_widget())
+
+    @minsize.setter
+    def minsize(self, size):
+        width, height = size
+        self._call(None, 'wm', 'minsize', self._get_wm_widget(), width, height)
+
+    @property
+    def maxsize(self):
+        return self._call((int, int), 'wm', 'maxsize', self._get_wm_widget())
+
+    @maxsize.setter
+    def maxsize(self, size):
+        width, height = size
+        self._call(None, 'wm', 'maxsize', self._get_wm_widget(), width, height)
+
     def withdraw(self):
         self._call(None, 'wm', 'withdraw', self._get_wm_widget())
 
@@ -146,6 +164,8 @@ class Toplevel(WmMixin, Widget):
     .. attribute:: title
                    wm_state
                    transient
+                   minsize
+                   maxsize
     .. method:: geometry(width=None, height=None, x=None, y=None)
                 withdraw()
                 iconify()
@@ -157,8 +177,11 @@ class Toplevel(WmMixin, Widget):
         the wm state, not some other state.
 
         All of the attributes are settable, so you can do e.g.
-        ``my_toplevel.title = "lol"``. ``title`` and ``wm_state`` are strings,
-        and ``transient`` is a widget.
+        ``my_toplevel.title = "lol"``. Here are the types of the attributes:
+
+        * ``title`` and ``wm_state`` are strings.
+        * ``transient`` is a widget.
+        * ``minsize`` and ``maxsize`` are tuples of two integers.
 
         .. note::
             If ``transient`` is set to a :class:`.Window`, looking it up won't

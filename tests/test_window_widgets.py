@@ -108,6 +108,23 @@ def test_geometry_changes():
     assert window.geometry() == (100, 200, 300, 400)
 
 
+def test_minsize_maxsize():
+    window = tk.Window()
+    assert isinstance(window.minsize, tuple)
+    assert isinstance(window.maxsize, tuple)
+    assert len(window.minsize) == 2
+    assert len(window.maxsize) == 2
+    assert window.minsize[0] == 1
+    assert window.minsize[1] == 1
+    assert window.maxsize[0] > 100
+    assert window.maxsize[1] > 100
+
+    window.minsize = (12, 34)
+    window.maxsize = (56, 78)
+    assert window.minsize == (12, 34)
+    assert window.maxsize == (56, 78)
+
+
 def test_transient():
     window1 = tk.Window()
     window2 = tk.Window()
