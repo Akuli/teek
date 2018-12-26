@@ -7,6 +7,10 @@ import pytest
 import pythotk as tk
 
 
+SMILEY_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'data', 'smiley.gif')
+
+
 def test_window():
     windows = [
         (tk.Window("hello hello"), "hello hello"),
@@ -123,6 +127,31 @@ def test_minsize_maxsize():
     window.maxsize = (56, 78)
     assert window.minsize == (12, 34)
     assert window.maxsize == (56, 78)
+
+
+def test_iconphoto():
+    image1 = tk.Image(file=SMILEY_PATH)
+    image2 = image1.copy()
+
+    widget = tk.Toplevel()
+    called = []
+    fake_widget_command = tk.create_command(
+        (lambda *args: called.append(['wm'] + list(args))), [],
+        extra_args_type=str)
+
+    tk.tcl_call(None, 'rename', 'wm', 'actual_wm')
+    tk.tcl_call(None, 'rename', fake_widget_command, 'wm')
+    try:
+        widget.iconphoto(image1)
+        widget.iconphoto(image1, image2)
+    finally:
+        tk.delete_command('wm')
+        tk.tcl_call(None, 'rename', 'actual_wm', 'wm')
+
+    assert called == [
+        ['wm', 'iconphoto', widget.to_tcl(), image1.to_tcl()],
+        ['wm', 'iconphoto', widget.to_tcl(), image1.to_tcl(), image2.to_tcl()],
+    ]
 
 
 def test_transient():

@@ -106,6 +106,9 @@ class WmMixin:
         width, height = size
         self._call(None, 'wm', 'maxsize', self._get_wm_widget(), width, height)
 
+    def iconphoto(self, *images):
+        self._call(None, 'wm', 'iconphoto', self._get_wm_widget(), *images)
+
     def withdraw(self):
         self._call(None, 'wm', 'withdraw', self._get_wm_widget())
 
@@ -161,13 +164,20 @@ class Toplevel(WmMixin, Widget):
 
         See also ``wm geometry`` in :man:`wm(3tk)`.
 
+    .. method:: iconphoto(*images, default=False)
+
+        Calls ``wm iconphoto`` documented in :man:`wm(3tk)`.
+
+        Positional arguments should be :class:`.Image` objects. If
+        ``default=True`` is given, the ``-default`` switch is used; otherwise
+        it isn't.
+
     .. attribute:: title
                    wm_state
                    transient
                    minsize
                    maxsize
-    .. method:: geometry(width=None, height=None, x=None, y=None)
-                withdraw()
+    .. method:: withdraw()
                 iconify()
                 deiconify()
 
