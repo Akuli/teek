@@ -35,6 +35,7 @@ Here is an example of a menu bar::
     ])
 
     window.geometry(300, 200)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 As you can see, :class:`.Menu` takes one argument, which is a list of
@@ -72,6 +73,7 @@ details about the binding stuff.
         window.bind('<Button-3>', on_right_click, event=True)
 
     window.geometry(300, 200)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 I found the Mac OSX specific code from here_.
@@ -166,6 +168,7 @@ Here is an example that demonstrates most things. See :class:`.StringVar` and
     ])
 
     window.geometry(300, 200)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 

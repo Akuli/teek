@@ -32,6 +32,7 @@ Hello World!
     text.pack()
     text.insert(text.start, 'Hello World!')
 
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 This program displays a window with a ``Hello World!`` text in it displayed
@@ -245,7 +246,6 @@ red ``Hello`` and a green ``World``::
 
     import pythotk as tk
 
-
     window = tk.Window("Text Widget Demo")
 
     text = tk.Text(window)
@@ -260,6 +260,7 @@ red ``Hello`` and a green ``World``::
     world_tag['foreground'] = tk.Color('green')
     world_tag.add(text.end.back(chars=len('world')), text.end)
 
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Each tag has a name which is mostly useful for debugging. If you want to create

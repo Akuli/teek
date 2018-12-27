@@ -34,4 +34,5 @@ class TimeoutDemo(tk.Frame):
 
 window = tk.Window()
 TimeoutDemo(window).pack()
+window.on_delete_window.connect(tk.quit)
 tk.run()

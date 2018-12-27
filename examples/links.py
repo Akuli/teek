@@ -15,4 +15,5 @@ links.add_url_link(text, "GitHub", 'https://github.com/Akuli/pythotk')
 text.insert(text.end, '\n\n')
 links.add_function_link(text, "Lol", lol)
 
+window.on_delete_window.connect(tk.quit)
 tk.run()

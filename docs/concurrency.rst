@@ -48,6 +48,7 @@ Here is some code that pastebins a Hello World to
     window = tk.Window("dpaster")
     Dpaster(window).pack()
     window.geometry(250, 100)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Run the program. If you click the pasting button, the whole GUI freezes for a
@@ -160,6 +161,7 @@ Let's fix it by adding ``tk.init_threads()`` before the line that creates
     window = tk.Window("dpaster")
     Dpaster(window).pack()
     window.geometry(250, 100)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Run the program. It works!
@@ -311,6 +313,7 @@ Sometimes :ref:`threads <threads>` are overkill. Here is a clock program::
     tk.init_threads()
     window = tk.Window("Clock")
     Clock(window).pack()
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 .. admonition:: BTW
@@ -361,6 +364,7 @@ after callbacks might be a better alternative. They work like this::
 
     window = tk.Window("Clock")
     Clock(window).pack()
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 ``tk.after(1000, self.updater_callback)`` runs ``self.updater_callback()`` in

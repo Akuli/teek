@@ -28,6 +28,8 @@ This program displays a label that prints hello when it's clicked.
     label = tk.Label(window, "Click me")
     label.pack()
     label.bind('<Button-1>', on_click)
+
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 If you change ``'<Button-1>'`` to ``'<Motion>'``, ``'hello'`` is printed every
@@ -63,6 +65,7 @@ prevents this from happening by returning ``'break'``::
 
     text.bind('<Button-1>', on_click)
 
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Note that ``return 'break'`` also prevents other ``<Button-1>`` bindings from

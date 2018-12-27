@@ -88,6 +88,7 @@ class Checkbutton(ChildMixin, Widget):
 
         window = tk.Window("Checkbutton Example")
         tk.Checkbutton(window, "Check me", on_check_or_uncheck).pack()
+        window.on_delete_window.connect(tk.quit)
         tk.run()
 
     Manual page: :man:`ttk_checkbutton(3tk)`
@@ -469,6 +470,7 @@ class Scrollbar(ChildMixin, Widget):
         text.config['yscrollcommand'].connect(scrollbar.set)  # 1.
         scrollbar.config['command'].connect(text.yview)       # 2.
 
+        window.on_delete_window.connect(tk.quit)
         tk.run()
 
     The value of the scrollbar's ``'command'`` option is a :class:`.Callback`

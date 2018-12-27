@@ -18,4 +18,5 @@ world_tag.add(text.end.back(chars=5), text.end)
 # move cursor after hello
 text.marks['insert'] = text.start.forward(chars=5)
 
+window.on_delete_window.connect(tk.quit)
 tk.run()

@@ -22,6 +22,7 @@ This widget is useful for creating tabs as in the tabs of your web browser, not
         notebook.append(tab)
 
     window.geometry(300, 200)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 This program displays a notebook widget with 3 tabs. Let's go trough some of

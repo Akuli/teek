@@ -98,12 +98,15 @@ In tkinter, destroying the root window destroys the whole GUI and usually the
 program terminates soon after that. In pythotk, destroying a window doesn't
 quit the GUI, so instead of ``root.destroy()`` you need :func:`pythotk.quit`.
 
-Closing a pythotk window calls ``root.destroy()``. If you don't want that
-(which is probably the case if the tkinter code uses ``tkinter.Toplevel``), you
-can disconnect it and connect it to some other callback function::
+Trying to close a pythotk window does nothing by default. If you want the whole
+program to end instead, do this::
 
-    window.on_delete_window.disconnect(tk.quit)
-    window.on_delete_window.connect(something_else)
+    window.on_delete_window.connect(tk.quit)
+
+If you want to close only the window that the user is closing (which is the
+case for dialogs and other such things), do this::
+
+    window.on_delete_window.connect(window.destroy)
 
 
 Constants
@@ -126,7 +129,8 @@ constants are dumb, which is why pythotk doesn't have them. Use strings like
 Run
 ---
 
-Use :func:`tk.run() <.run>` instead of tkinter's ``root.mainloop()``.
+Use :func:`tk.run() <.run>` instead of tkinter's ``root.mainloop()``
+or ``tkinter.mainloop()``.
 
 
 Options

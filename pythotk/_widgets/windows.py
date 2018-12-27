@@ -17,7 +17,6 @@ class WmMixin:
         super().__init__(*args, **kwargs)
 
         self.on_delete_window = tk.Callback()
-        self.on_delete_window.connect(tk.quit)
         self.on_take_focus = tk.Callback()
 
         # TODO: delete the commands when they are no longer needed, mem leak
@@ -213,13 +212,7 @@ class Toplevel(WmMixin, Widget):
 
         :class:`Callback` objects that run with no arguments when a
         ``WM_DELETE_WINDOW`` or ``WM_TAKE_FOCUS`` event occurs. See
-        :man:`wm(3tk)`.
-
-        By default, ``some_window.on_delete_window`` is connected to
-        :func:`pythotk.quit`. If you don't want that, you can disconnect it::
-
-            toplevel_or_window.on_delete_window.disconnect(tk.quit)
-            toplevel_or_window.on_delete_window.connect(something_fun)
+        :man:`wm(3tk)`. These are connected to nothing by default.
     """
 
     _widget_name = 'toplevel'

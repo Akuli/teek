@@ -94,6 +94,7 @@ impossible to do with pack. Here is an example::
     for row_or_column in (window.grid_rows + window.grid_columns):
         row_or_column.config['weight'] = 1
 
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Let's go through some of that line by line.

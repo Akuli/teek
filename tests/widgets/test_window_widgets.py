@@ -60,9 +60,17 @@ def test_window_states():
 
 def test_window_closing():
     for window in [tk.Window(), tk.Toplevel()]:
-        # raises an error if not connected, so this also tests the
-        # implicit connecting
-        window.on_delete_window.disconnect(tk.quit)
+        # on_delete_window should NOT be connected to anything by default
+        with pytest.raises(ValueError):
+            window.on_delete_window.disconnect(tk.quit)
+        with pytest.raises(ValueError):
+            window.on_delete_window.disconnect(window.destroy)
+
+        # there are more callback tests elsewhere, but just to be sure
+        window.on_delete_window.connect(window.destroy)
+        window.on_delete_window.disconnect(window.destroy)
+        with pytest.raises(ValueError):
+            window.on_delete_window.disconnect(window.destroy)
 
         assert window.winfo_exists()
         window.destroy()

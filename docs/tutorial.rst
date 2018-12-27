@@ -1,3 +1,5 @@
+.. _tutorial:
+
 Pythotk Tutorial
 ================
 
@@ -65,6 +67,8 @@ Hello World!
     window = tk.Window("Hello World")
     label = tk.Label(window, "Hello World!")
     label.pack()
+
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Run the program. It displays a tiny Hello World greeting.
@@ -133,6 +137,15 @@ line of code displays it.
 Creating a child widget and displaying it in the parent are two separate things
 because this way you can choose how the widget shows up. There's more
 information about this :ref:`below <pack-with-frames>`.
+
+::
+
+    window.on_delete_window.connect(tk.quit)
+
+This line tells pythotk to run :func:`tk.quit` when the window is closed. By
+default, nothing happens when the user tries to close the window. You can
+connect it to any other function or method as well, which is useful for things
+like "Do you want to save your changes" dialogs.
 
 ::
 
@@ -304,6 +317,8 @@ function.
     window = tk.Window("Button Example")
     button = tk.Button(window, "Click me", command=on_click)
     button.pack()
+
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 Most of the code isn't very different from our label example. Let's go through
@@ -378,6 +393,8 @@ It's possible to put several different widgets into the same parent window with
     window = tk.Window("Pack Example")
     tk.Label(window, "One").pack()
     tk.Label(window, "Two").pack()
+
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 The "Two" label will show up below the "One" label. If you don't want that, you
@@ -407,6 +424,7 @@ and add more widgets *inside* that :class:`.Frame`, like this::
     status_bar.pack(fill='x')
 
     window.geometry(300, 200)
+    window.on_delete_window.connect(tk.quit)
     tk.run()
 
 This example uses plenty of things from :man:`pack(3tk)`, but you know

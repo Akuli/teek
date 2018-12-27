@@ -8,7 +8,6 @@ class _EntryDialog:
         self.validator = validator
 
         self.window = tk.Window(title)
-        self.window.on_delete_window.disconnect(tk.quit)
         self.window.on_delete_window.connect(self.on_cancel)
         if parent is not None:
             self.window.transient = parent
