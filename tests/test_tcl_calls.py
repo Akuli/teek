@@ -87,8 +87,7 @@ def test_eval_and_call(handy_commands):
         (CustomSequence(), '{a b c} 123'),
     ]
     for before, after in test_data:
-        assert tk.tcl_call(str, 'concat', before) == after
-        assert tk.tcl_call(str, 'concat', 'blah', before) == 'blah ' + after
+        assert tk.tcl_call(str, 'format', '%s', before) == after
 
     # test conversion to strings when tk.tcl_calling
     assert tk.tcl_call(
