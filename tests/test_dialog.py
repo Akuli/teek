@@ -1,8 +1,5 @@
 import contextlib
 import os
-import random
-import re
-import time
 
 import pytest
 
