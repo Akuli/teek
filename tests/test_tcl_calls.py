@@ -38,7 +38,7 @@ def handy_commands():
     tk.delete_command('returnEmptyString')
 
 
-def test_eval_and_call(handy_commands):
+def test_eval_and_call(handy_commands, capfd):
     assert tk.tcl_eval(None, 'if {1 == 2} {puts omg}') is None
     assert tk.tcl_eval(str, 'list a b c') == 'a b c'
     assert tk.tcl_eval(int, 'expr 22 / 7') == 3
@@ -72,8 +72,11 @@ def test_eval_and_call(handy_commands):
 
     with pytest.raises(TypeError):
         tk.tcl_call(None, 'puts', object())
+
+    assert capfd.readouterr() == ('', '')
     with pytest.raises(TypeError):
         tk.tcl_eval(object(), 'puts hello')
+    assert capfd.readouterr() == ('hello\r\n', '')  # tcl seems to use crlf
 
     # forced to string converting relies on this
     test_data = [
@@ -108,6 +111,8 @@ def test_eval_and_call(handy_commands):
 
     assert tk.tcl_call(BrokenFromTcl, 'returnEmpty') is None
     assert not BrokenFromTcl.oh_no
+
+    assert capfd.readouterr() == ('', '')
 
 
 # this was a fun bug: tkinter returns tuples for some things, and the
