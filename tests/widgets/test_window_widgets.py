@@ -8,7 +8,7 @@ import pythotk as tk
 
 
 SMILEY_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'data', 'smiley.gif')
+    os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'smiley.gif')
 
 
 def test_window():
