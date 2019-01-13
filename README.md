@@ -4,9 +4,8 @@
 [![Documentation Status](https://readthedocs.org/projects/teek/badge/?version=latest)](https://teek.readthedocs.io/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/Akuli/teek/badge.svg?branch=master)](https://coveralls.io/github/Akuli/teek?branch=master)
 
-Teek, short for "pythonic Tk", is a pythonic and user-friendly alternative
-to tkinter. It doesn't come with Python so you need to install it yourself, but
-it's nice and light-weight.
+Teek is a pythonic and user-friendly alternative to tkinter. It doesn't come
+with Python so you need to install it yourself, but it's nice and light-weight.
 
 Documentation: https://teek.rtfd.org/
 
