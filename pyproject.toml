@@ -1,6 +1,6 @@
 [build-system]
 requires = ["flit"]
-build-backend = "flipt.buildapi"
+build-backend = "flip.buildapi"
 
 [tool.flit.metadata]
 module = "teek"
