@@ -1,10 +1,46 @@
+=== Text ===
+tag lower        *2
+sel.first, sel.last     could be used everywhere if they existed
+edit separator
+edit reset
+Text.search
+text index with @
+
+=== winfo and wm ===
+winfo reqwidth   *2
+winfo reqheight  *2
+winfo x
+winfo y
+wm attributes
+wm min,maxsize
+wm resizable
+wm iconphoto
+wm overrideredirect
+
+=== Entry ===
+selection range
+
+=== Notebook ===
+lookup tab by xy
+
+=== misc stuffs ===
+clipboard
+identify
+Style api
+
+=== new extras ===
+simple dialogs         would allow removing a lot of code from porcu
+ttkthemes              needs Style api
+
+
+
 make threading stuff faster, this is slow:
 
     import threading
-    import pythotk
+    import teek
 
-    pythotk.init_threads()
-    text = pythotk.Text(pythotk.Window())
+    teek.init_threads()
+    text = teek.Text(teek.Window())
     text.pack()
 
     def inserter():
@@ -12,10 +48,10 @@ make threading stuff faster, this is slow:
         while True:
             i += 1
             text.insert(text.end, 'hello %d\n' % i)
-            #pythotk.tcl_call(None, text, 'insert', 'end - 1 char', 'hello %d\n' % i)
+            #teek.tcl_call(None, text, 'insert', 'end - 1 char', 'hello %d\n' % i)
 
     threading.Thread(target=inserter).start()
-    pythotk.run()
+    teek.run()
 
 because text.insert and text.end end up in the queue as separate items, which
 is a problem because this is a particularly common way to use things in a

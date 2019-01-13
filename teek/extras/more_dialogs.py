@@ -1,4 +1,4 @@
-import pythotk as tk
+import teek as tk
 
 
 class _EntryDialog:
@@ -35,7 +35,7 @@ class _EntryDialog:
         self.var.set(initial_value)
         self.on_var_changed(self.var)   # TODO: is this needed?
 
-        # TODO: add a way to select stuff to pythotk
+        # TODO: add a way to select stuff to teek
         self.window.geometry(300, 150)
         entry.focus()
         tk.tcl_call(None, entry, 'selection', 'range', '0', 'end')
@@ -65,7 +65,7 @@ class _EntryDialog:
 
 
 def ask_string(title, text, *, validator=str, initial_value='', parent=None):
-    """Displays a dialog that contains a :class:`pythotk.Entry` widget.
+    """Displays a dialog that contains a :class:`teek.Entry` widget.
 
     The ``validator`` should be a function that takes a string as an argument,
     and returns something useful (see below). By default, it returns the string
@@ -83,7 +83,7 @@ def ask_string(title, text, *, validator=str, initial_value='', parent=None):
 
 def ask_integer(title, text, allowed_values, *, initial_value=None,
                 parent=None):
-    """Displays a dialog that contains a :class:`pythotk.Spinbox` widget.
+    """Displays a dialog that contains a :class:`teek.Spinbox` widget.
 
     ``allowed_values`` can be a sequence of acceptable integers or a
     :class:`range`. If ``initial_value`` is given, it must be in

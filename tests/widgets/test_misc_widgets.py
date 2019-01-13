@@ -1,4 +1,4 @@
-import pythotk as tk
+import teek as tk
 
 import pytest
 
@@ -127,19 +127,19 @@ def test_labelframe():
     assert tk.LabelFrame(tk.Window(), 'hello').config['text'] == 'hello'
 
     labelframe = tk.LabelFrame(tk.Window(), 'hello')
-    assert repr(labelframe) == "<pythotk.LabelFrame widget: text='hello'>"
+    assert repr(labelframe) == "<teek.LabelFrame widget: text='hello'>"
 
 
 def test_progressbar():
     progress_bar = tk.Progressbar(tk.Window())
     assert progress_bar.config['value'] == 0
     assert repr(progress_bar) == (
-        "<pythotk.Progressbar widget: "
+        "<teek.Progressbar widget: "
         "mode='determinate', value=0.0, maximum=100.0>")
 
     progress_bar.config['mode'] = 'indeterminate'
     assert repr(progress_bar) == (
-        "<pythotk.Progressbar widget: mode='indeterminate'>")
+        "<teek.Progressbar widget: mode='indeterminate'>")
 
     # test that bouncy methods don't raise errors, they are tested better but
     # more slowly below
@@ -198,8 +198,8 @@ def test_separator():
     vsep = tk.Separator(tk.Window(), orient='vertical')
     assert hsep.config['orient'] == 'horizontal'
     assert vsep.config['orient'] == 'vertical'
-    assert repr(hsep) == "<pythotk.Separator widget: orient='horizontal'>"
-    assert repr(vsep) == "<pythotk.Separator widget: orient='vertical'>"
+    assert repr(hsep) == "<teek.Separator widget: orient='horizontal'>"
+    assert repr(vsep) == "<teek.Separator widget: orient='vertical'>"
 
 
 def test_spinbox():

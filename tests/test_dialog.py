@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 @pytest.fixture

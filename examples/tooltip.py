@@ -1,5 +1,5 @@
-import pythotk as tk
-from pythotk.extras import tooltips
+import teek as tk
+from teek.extras import tooltips
 
 window = tk.Window("Tooltip Example")
 label = tk.Label(window, "I have a tooltip")

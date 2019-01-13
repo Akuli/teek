@@ -18,28 +18,28 @@ to have two big widgets next to each other, this is the right choice.
     There is a beginner-friendly introduction to pack
     :ref:`here <pack-with-frames>`.
 
-Pack options have a ``-`` in front of them in Tcl, but pythotk hides that, so
-Tcl code like ``-anchor center`` looks like ``anchor='center'`` in pythotk.
+Pack options have a ``-`` in front of them in Tcl, but teek hides that, so
+Tcl code like ``-anchor center`` looks like ``anchor='center'`` in teek.
 
-Pythotk widgets have these methods:
+Teek widgets have these methods:
 
-.. method:: pythotk.Widget.pack(**kwargs)
+.. method:: teek.Widget.pack(**kwargs)
 
     Search for ``pack configure`` in :man:`pack(3tk)` for details. If you want
     to use the ``-in`` option, you can't do ``widget1.pack(in=widget2)``
     because ``in`` is a reserved keyword in Python and you get a syntax error,
-    but pythotk lets you do ``widget1.pack(in_=widget2)`` instead.
+    but teek lets you do ``widget1.pack(in_=widget2)`` instead.
 
-.. method:: pythotk.Widget.pack_forget()
+.. method:: teek.Widget.pack_forget()
 
     See ``pack forget`` in :man:`pack(3tk)`.
 
-.. method:: pythotk.Widget.pack_info()
+.. method:: teek.Widget.pack_info()
 
     This returns the keyword arguments passed to :meth:`~.Widget.pack` with
     string keys. The types of values are as follows:
 
-    * The value of ``'in'`` is a pythotk widget.
+    * The value of ``'in'`` is a teek widget.
     * The value of ``'expand'`` is True or False.
     * The values of ``'ipadx'`` and ``'ipady'`` are :class:`.ScreenDistance`
       objects.
@@ -56,7 +56,7 @@ Pythotk widgets have these methods:
         ...do something...
         widget.pack(**pack_info)
 
-.. method:: pythotk.Widget.pack_slaves()
+.. method:: teek.Widget.pack_slaves()
 
     Returns a list of other :class:`Widgets <.Widget>` packed into the widget.
     See ``pack slaves`` in :man:`pack(3tk)` for more details.
@@ -68,7 +68,7 @@ Grid
 This geometry manager is useful for making griddy things that would be hard or
 impossible to do with pack. Here is an example::
 
-    import pythotk as tk
+    import teek as tk
 
 
     window = tk.Window("Calculator")
@@ -129,21 +129,21 @@ the window to understand why I did this. See :ref:`grid-row-column-objects`
 below for details.
 
 
-.. method:: pythotk.Widget.grid(**kwargs)
+.. method:: teek.Widget.grid(**kwargs)
 
     Very similar to :meth:`~.Widget.pack`. See ``grid configure`` in
     :man:`grid(3tk)` for details.
 
-.. method:: pythotk.Widget.grid_forget()
+.. method:: teek.Widget.grid_forget()
 
     See ``grid forget`` in :man:`grid(3tk)`.
 
-.. method:: pythotk.Widget.grid_info()
+.. method:: teek.Widget.grid_info()
 
     Very similar to :meth:`~.Widget.pack_info`. The types of values are as
     follows:
 
-    * The value of ``'in'`` is a pythotk widget.
+    * The value of ``'in'`` is a teek widget.
     * The values of ``'ipadx'`` and ``'ipady'`` are :class:`.ScreenDistance`
       objects.
     * The values of ``'padx'`` and ``'pady'`` are lists of
@@ -153,14 +153,14 @@ below for details.
       are integers.
     * Other values are strings.
 
-.. method:: pythotk.Widget.grid_slaves()
+.. method:: teek.Widget.grid_slaves()
 
     Similar to :meth:`~.Widget.pack_slaves`. Use
     :meth:`row_or_column.get_slaves()` if you need the ``-row`` and ``-column``
     options of ``grid slaves`` in :man:`grid(3tk)`.
 
-.. attribute:: pythotk.Widget.grid_rows
-               pythotk.Widget.grid_columns
+.. attribute:: teek.Widget.grid_rows
+               teek.Widget.grid_columns
 
     Lists of :ref:`row objects or column objects <grid-row-column-objects>`.
 
@@ -171,7 +171,7 @@ Grid Row and Column Objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Tk has some options and other things that can be done to rows or columns of a
-grid. These are represented with row objects and column objects in pythotk.
+grid. These are represented with row objects and column objects in teek.
 
 >>> window = tk.Window()
 >>> window.grid_rows
@@ -184,7 +184,7 @@ grid. These are represented with row objects and column objects in pythotk.
 >>> window.grid_columns[0].config['weight']
 0.0
 >>> window.grid_columns[0].get_slaves()
-[<pythotk.Label widget: text='label text'>]
+[<teek.Label widget: text='label text'>]
 
 Here is the reference:
 
@@ -232,21 +232,21 @@ useful when working with other things that use pixels. For example, if you
 the mouse x and y coordinates in pixels.
 
 
-.. method:: pythotk.Widget.place(**kwargs)
+.. method:: teek.Widget.place(**kwargs)
 
     See ``place configure`` in :man:`place(3tk)` for details. This is similar
     to :meth:`~.Widget.pack`.
 
-.. method:: pythotk.Widget.place_forget()
+.. method:: teek.Widget.place_forget()
 
     See ``place forget`` in :man:`place(3tk)`.
 
-.. method:: pythotk.Widget.place_info()
+.. method:: teek.Widget.place_info()
 
     Very similar to :meth:`~.Widget.pack_info` and :meth:`~.Widget.grid_info`.
     The types of values are as follows:
 
-    * The value of ``'in'`` is a pythotk widget.
+    * The value of ``'in'`` is a teek widget.
     * The values of ``'width'``, ``'height'``, ``'x'`` and ``'y'`` are
       :class:`.ScreenDistance` objects.
     * The values of ``'relwidth'``, ``'relheight'``, ``'relx'`` and ``'rely'``
@@ -255,6 +255,6 @@ the mouse x and y coordinates in pixels.
 
     See also ``place info`` in :man:`place(3tk)`.
 
-.. method:: pythotk.Widget.place_slaves()
+.. method:: teek.Widget.place_slaves()
 
     Returns a list of other :class:`Widgets <.Widget>` placed into the widget.

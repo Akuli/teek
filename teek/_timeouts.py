@@ -1,9 +1,9 @@
-import pythotk as tk
-from pythotk._tcl_calls import make_thread_safe
+import teek as tk
+from teek._tcl_calls import make_thread_safe
 
 
 # there's no after_info because i don't see how it would be useful in
-# pythotk
+# teek
 
 class _Timeout:
 

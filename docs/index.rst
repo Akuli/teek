@@ -1,14 +1,14 @@
-.. Pythotk documentation master file, created by
+.. Teek documentation master file, created by
    sphinx-quickstart on Wed Aug 15 22:15:40 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Pythotk's documentation!
+Welcome to Teek's documentation!
 ===================================
 
-Pythotk is a pythonic way to write Tk GUIs in Python. See
-`the README <https://github.com/Akuli/pythotk/#pythotk>`_ for an introduction
-to pythotk, and then click the tutorial link below to get started.
+Teek is a pythonic way to write Tk GUIs in Python. See
+`the README <https://github.com/Akuli/teek/#teek>`_ for an introduction
+to teek, and then click the tutorial link below to get started.
 
 
 Tutorials and Guides
@@ -40,12 +40,12 @@ covered in the tutorial.
     extras
 
 
-Understanding pythotk
+Understanding teek
 ---------------------
 
 Things documented here are useful if you want to know how stuff works or you
-want to do some advanced tricks with pythotk. I recommend reading these things
-if you want to help me with developing pythotk.
+want to do some advanced tricks with teek. I recommend reading these things
+if you want to help me with developing teek.
 
 .. toctree::
     :maxdepth: 1

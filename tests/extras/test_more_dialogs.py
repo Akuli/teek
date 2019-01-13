@@ -1,8 +1,8 @@
 import pytest
 
-import pythotk as tk
-from pythotk._widgets.windows import WmMixin
-from pythotk.extras import more_dialogs
+import teek as tk
+from teek._widgets.windows import WmMixin
+from teek.extras import more_dialogs
 
 
 def test_ask_string(handy_callback, monkeypatch):

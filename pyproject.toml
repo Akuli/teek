@@ -3,10 +3,10 @@ requires = ["flit"]
 build-backend = "flipt.buildapi"
 
 [tool.flit.metadata]
-module = "pythotk"
+module = "teek"
 author = "Akuli"
 author-email = "akuviljanen17@gmail.com"
-home-page = "https://github.com/Akuli/pythotk"
+home-page = "https://github.com/Akuli/teek"
 description-file = "README.md"
 requires-python = ">=3.4"
 keywords = "pythonic tk tcl tkinter gui beginner"

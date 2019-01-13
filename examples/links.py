@@ -1,5 +1,5 @@
-import pythotk as tk
-from pythotk.extras import links
+import teek as tk
+from teek.extras import links
 
 
 window = tk.Window("Link Example")
@@ -9,9 +9,9 @@ text.pack()
 def lol():
     tk.dialog.info("Link Example Dialog", "Lol")
 
-links.add_url_link(text, "Docs", 'https://pythotk.rtfd.io/')
+links.add_url_link(text, "Docs", 'https://teek.rtfd.io/')
 text.insert(text.end, '\n\n')
-links.add_url_link(text, "GitHub", 'https://github.com/Akuli/pythotk')
+links.add_url_link(text, "GitHub", 'https://github.com/Akuli/teek')
 text.insert(text.end, '\n\n')
 links.add_function_link(text, "Lol", lol)
 

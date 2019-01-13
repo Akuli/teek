@@ -13,7 +13,7 @@ You can use menu widges for a few different things:
 
 Here is an example of a menu bar::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window()
 
@@ -48,7 +48,7 @@ Here is a pop-up menu example. See :ref:`bind documentation <binding>` for more
 details about the binding stuff.
 ::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window()
 
@@ -81,7 +81,7 @@ I found the Mac OSX specific code from here_.
 .. _here: https://books.google.fi/books?id=BWf6mdwHjDMC&pg=PT392&lpg=PT392&dq=tk_popup+vs+post&source=bl&ots=n32EYTF27b&sig=V0xXtCqHmKKa37BRNCdPk6unhr4&hl=fi&sa=X&ved=2ahUKEwikwa7A0pzdAhVKCCwKHSeNCa4Q6AEwBHoECAYQAQ#v=onepage&q=tk_popup%20vs%20post&f=false
 
 Menu widgets are *not* Ttk widgets. If you don't know what that means, you
-should go :ref:`here <tcl-tk-tkinter-pythotk>` and learn. The only practical
+should go :ref:`here <tcl-tk-tkinter-teek>` and learn. The only practical
 thing I can think of right now is that menus don't have a
 :attr:`~.Widget.state` attribute.
 
@@ -130,7 +130,7 @@ Here is an example that demonstrates most things. See :class:`.StringVar` and
 :class:`.BooleanVar` documentation for more info about them.
 ::
 
-    import pythotk as tk
+    import teek as tk
 
 
     def on_click():
@@ -177,8 +177,8 @@ Reference
 
 .. explicit member list for same reason as with Notebook
 
-.. autoclass:: pythotk.Menu
+.. autoclass:: teek.Menu
     :members: popup
 
-.. autoclass:: pythotk.MenuItem
+.. autoclass:: teek.MenuItem
     :members:

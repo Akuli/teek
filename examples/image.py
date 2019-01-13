@@ -1,6 +1,6 @@
 import os
 
-import pythotk as tk
+import teek as tk
 
 
 IMAGE_PATH = os.path.join(

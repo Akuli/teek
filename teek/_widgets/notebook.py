@@ -1,10 +1,10 @@
 import collections.abc
 import weakref
 
-import pythotk as tk
-from pythotk._structures import ConfigDict
-from pythotk._tcl_calls import make_thread_safe
-from pythotk._widgets.base import ChildMixin, Widget
+import teek as tk
+from teek._structures import ConfigDict
+from teek._tcl_calls import make_thread_safe
+from teek._widgets.base import ChildMixin, Widget
 
 
 class TabConfigDict(ConfigDict):
@@ -150,12 +150,12 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     >>> tab2 = tk.NotebookTab(tk.Label(notebook, text="2"), text="Two")
     >>> notebook.extend([tab1, tab2])
     >>> list(notebook)      # doctest: +NORMALIZE_WHITESPACE
-    [NotebookTab(<pythotk.Label widget: text='1'>, text='One'),
-     NotebookTab(<pythotk.Label widget: text='2'>, text='Two')]
+    [NotebookTab(<teek.Label widget: text='1'>, text='One'),
+     NotebookTab(<teek.Label widget: text='2'>, text='Two')]
     >>> notebook.append(notebook[0])
     >>> list(notebook)      # doctest: +NORMALIZE_WHITESPACE
-    [NotebookTab(<pythotk.Label widget: text='2'>, text='Two'),
-     NotebookTab(<pythotk.Label widget: text='1'>, text='One')]
+    [NotebookTab(<teek.Label widget: text='2'>, text='Two'),
+     NotebookTab(<teek.Label widget: text='1'>, text='One')]
 
     For doing advanced magic, you can create a new class that inherits from
     :class:`.Notebook`. Here are some facts that can be useful when deciding
@@ -212,9 +212,9 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
         >>> tab = tk.NotebookTab(label)
         >>> notebook.append(tab)
         >>> tab
-        NotebookTab(<pythotk.Label widget: text='lol'>)
+        NotebookTab(<teek.Label widget: text='lol'>)
         >>> notebook.get_tab_by_widget(label)
-        NotebookTab(<pythotk.Label widget: text='lol'>)
+        NotebookTab(<teek.Label widget: text='lol'>)
         """
         try:
             return self._tab_objects[widget]

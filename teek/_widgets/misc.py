@@ -1,6 +1,6 @@
-import pythotk as tk
-from pythotk._tcl_calls import from_tcl, make_thread_safe
-from pythotk._widgets.base import Widget, ChildMixin
+import teek as tk
+from teek._tcl_calls import from_tcl, make_thread_safe
+from teek._widgets.base import Widget, ChildMixin
 
 
 class Button(ChildMixin, Widget):
@@ -78,7 +78,7 @@ class Checkbutton(ChildMixin, Widget):
 
     Example::
 
-        import pythotk as tk
+        import teek as tk
 
         def on_check_or_uncheck(checked):
             if checked:
@@ -458,7 +458,7 @@ class Scrollbar(ChildMixin, Widget):
 
     For example::
 
-        import pythotk as tk
+        import teek as tk
 
         window = tk.Window()
 

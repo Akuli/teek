@@ -5,9 +5,9 @@ import keyword
 import operator
 import re
 
-import pythotk as tk
-from pythotk._tcl_calls import counts, from_tcl, make_thread_safe
-from pythotk._structures import ConfigDict, CgetConfigureConfigDict, after_quit
+import teek as tk
+from teek._tcl_calls import counts, from_tcl, make_thread_safe
+from teek._structures import ConfigDict, CgetConfigureConfigDict, after_quit
 
 _widgets = {}
 _class_bindings = {}
@@ -136,7 +136,7 @@ class Widget:
     Don't create instances of ``Widget`` yourself like ``Widget(...)``; use one
     of the classes documented below instead. However, you can use ``Widget``
     with :func:`isinstance`; e.g. ``isinstance(thingy, tk.Widget)`` returns
-    ``True`` if ``thingy`` is a pythotk widget.
+    ``True`` if ``thingy`` is a teek widget.
 
     .. attribute:: config
 
@@ -172,8 +172,8 @@ class Widget:
         .. note::
             Only Ttk widgets have states, and this attribute is set to None for
             non-Ttk widgets. If you don't know what Ttk is, you should read
-            about it in :ref:`the pythotk tutorial <tcl-tk-tkinter-pythotk>`.
-            Most pythotk widgets are ttk widgets, but some aren't, and that's
+            about it in :ref:`the teek tutorial <tcl-tk-tkinter-teek>`.
+            Most teek widgets are ttk widgets, but some aren't, and that's
             mentioned in the documentation of those widgets.
 
     .. attribute:: tk_class_name
@@ -368,7 +368,7 @@ class Widget:
     def __repr__(self):
         class_name = type(self).__name__
         if getattr(tk, class_name, None) is type(self):
-            result = 'pythotk.%s widget' % class_name
+            result = 'teek.%s widget' % class_name
         else:
             result = '{0.__module__}.{0.__name__} widget'.format(type(self))
 
@@ -442,7 +442,7 @@ class Widget:
         """
         for name in self._call([str], 'winfo', 'children', self):
             # allow overriding the destroy() method if the widget was
-            # created by pythotk
+            # created by teek
             if name in _widgets:
                 _widgets[name]._destroy_recurser()
             else:
@@ -666,7 +666,7 @@ et`.
         As usual, options are given without dashes as keyword arguments, so Tcl
         code like ``event generate $widget <SomeEvent> -data $theData`` looks
         like ``widget.event_generate('<SomeEvent>', data=the_data)`` in
-        pythotk.
+        teek.
         """
         option_args = []
         for name, value in kwargs.items():
@@ -777,7 +777,7 @@ class BindingDict(collections.abc.Mapping):
                     # bind(3tk) says that %E is 1 or 0
                     value = None
                 else:   # pragma: no cover
-                    raise e     # if this runs, there's a bug in pythotk
+                    raise e     # if this runs, there's a bug in teek
 
             setattr(event, attrib, value)
 
@@ -826,7 +826,7 @@ class ChildMixin:
             args.append('-' + name)
             args.append(value)
 
-        # special case: tkinter does nothing (lol), pythotk would give a
+        # special case: tkinter does nothing (lol), teek would give a
         # noob-unfriendly TclError otherwise
         if geometry_manager == 'place' and not args:
             raise TypeError(

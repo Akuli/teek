@@ -1,8 +1,8 @@
 import functools
 import webbrowser
 
-import pythotk as tk
-from pythotk.extras import links
+import teek as tk
+from teek.extras import links
 
 
 def test_links_clicking():
@@ -16,12 +16,12 @@ def test_links_clicking():
     assert text.get() == 'ab123c'
 
     all_tag_names = (tag.name for tag in text.get_all_tags())
-    assert {'pythotk-extras-link-1',
-            'pythotk-extras-link-2',
-            'pythotk-extras-link-common'}.issubset(all_tag_names)
+    assert {'teek-extras-link-1',
+            'teek-extras-link-2',
+            'teek-extras-link-common'}.issubset(all_tag_names)
 
-    text.get_tag('pythotk-extras-link-1').bindings['<1>'].run(None)
-    text.get_tag('pythotk-extras-link-2').bindings['<1>'].run(None)
+    text.get_tag('teek-extras-link-1').bindings['<1>'].run(None)
+    text.get_tag('teek-extras-link-2').bindings['<1>'].run(None)
     assert stuff == [1, 2]
 
 
@@ -35,11 +35,11 @@ def test_links_cursor_changes():
     for binding, cursor in [('<Leave>', 'clock'),
                             ('<Enter>', 'hand2'),
                             ('<Leave>', 'clock')]:
-        text.get_tag('pythotk-extras-link-common').bindings[binding].run(None)
+        text.get_tag('teek-extras-link-common').bindings[binding].run(None)
         assert text.config['cursor'] == cursor
 
 
-URL = 'https://github.com/Akuli/pythotk'
+URL = 'https://github.com/Akuli/teek'
 
 
 def test_add_url_link(monkeypatch, handy_callback):
@@ -48,5 +48,5 @@ def test_add_url_link(monkeypatch, handy_callback):
 
     text = tk.Text(tk.Window())
     links.add_url_link(text, 'asd', URL)
-    text.get_tag('pythotk-extras-link-1').bindings['<1>'].run(None)
+    text.get_tag('teek-extras-link-1').bindings['<1>'].run(None)
     assert stuff == [URL]

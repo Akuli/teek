@@ -1,4 +1,4 @@
-import pythotk as tk
+import teek as tk
 
 
 class _TooltipManager:
@@ -55,7 +55,7 @@ class _TooltipManager:
             tipwindow.geometry(x=(self.mousex + 10), y=(self.mousey - 10))
             tipwindow.bind('<Motion>', self.destroy_tipwindow)
 
-            # TODO: add overrideredirect to pythotk
+            # TODO: add overrideredirect to teek
             tk.tcl_call(None, 'wm', 'overrideredirect', tipwindow, 1)
 
             # i don't think there's a need to add better support for things

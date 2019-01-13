@@ -7,19 +7,19 @@ import os
 import sys
 import traceback
 
-import pythotk as tk
-from pythotk._tcl_calls import make_thread_safe
+import teek as tk
+from teek._tcl_calls import make_thread_safe
 
 
-def _is_from_pythotk(traceback_frame_summary):
+def _is_from_teek(traceback_frame_summary):
     try:
         filename = traceback_frame_summary.filename
     except AttributeError:
         # python 3.4 or older, the frame summary is a tuple
         filename = traceback_frame_summary[0]
 
-    pythotk_prefix = os.path.normcase(tk.__path__[0]).rstrip(os.sep) + os.sep
-    return filename.startswith(pythotk_prefix)
+    teek_prefix = os.path.normcase(tk.__path__[0]).rstrip(os.sep) + os.sep
+    return filename.startswith(teek_prefix)
 
 
 class Callback:
@@ -29,7 +29,7 @@ class Callback:
 
         >>> c = Callback()
         >>> c.connect(print, args=["hello", "world"])
-        >>> c.run()   # runs print("hello", "world"), usually pythotk does this
+        >>> c.run()   # runs print("hello", "world"), usually teek does this
         hello world
         >>> c.connect(print, args=["hello", "again"])
         >>> c.run()
@@ -62,8 +62,8 @@ class Callback:
         """
         stack = traceback.extract_stack()
 
-        # skip some pythotk implementation details, they are too verbose
-        while stack and _is_from_pythotk(stack[-1]):
+        # skip some teek implementation details, they are too verbose
+        while stack and _is_from_teek(stack[-1]):
             del stack[-1]
 
         stack_info = ''.join(traceback.format_list(stack))
@@ -386,7 +386,7 @@ class TclVariable:
 
     Use ``SomeUsableTclVarSubclass(name='asd')`` to create a variable object
     that represents a Tcl variable named ``asd``, or
-    ``SomeUsableTclVarSubclass()`` to let pythotk choose a variable name for
+    ``SomeUsableTclVarSubclass()`` to let teek choose a variable name for
     you.
 
     .. attribute:: type_spec
@@ -395,7 +395,7 @@ class TclVariable:
         :ref:`type specification <type-spec>` of what :meth:`get` returns.
     """
 
-    _default_names = map('pythotk_var_{}'.format, itertools.count(1))
+    _default_names = map('teek_var_{}'.format, itertools.count(1))
     type_spec = None
 
     def __init__(self, *, name=None):

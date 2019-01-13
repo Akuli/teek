@@ -1,4 +1,4 @@
-import pythotk as tk
+import teek as tk
 
 
 class TimeoutDemo(tk.Frame):

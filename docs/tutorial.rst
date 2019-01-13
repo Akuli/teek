@@ -1,26 +1,26 @@
 .. _tutorial:
 
-Pythotk Tutorial
+Teek Tutorial
 ================
 
-If you have never written any pythotk code before, you came to the right place.
-**You don't need to have any tkinter experience** in order to learn pythotk,
-although learning pythotk will be easier if you have used tkinter in the past.
+If you have never written any teek code before, you came to the right place.
+**You don't need to have any tkinter experience** in order to learn teek,
+although learning teek will be easier if you have used tkinter in the past.
 
 .. note::
     If you have **any trouble at all** following this tutorial,
-    `let me know <https://github.com/Akuli/pythotk/issues/new>`_ and I'll try
+    `let me know <https://github.com/Akuli/teek/issues/new>`_ and I'll try
     to make this tutorial better. You can contact me for other things as well,
     but I'm especially interested in making this tutorial beginner-friendly.
 
 
-.. _tcl-tk-tkinter-pythotk:
+.. _tcl-tk-tkinter-teek:
 
-Tkinter, _tkinter, Tcl, Tk and PythoTk
+Tkinter, _tkinter, Tcl, Tk and teek
 --------------------------------------
 
-You need to install tkinter in order to install pythotk. That's correct,
-pythotk is an alternative to tkinter that needs tkinter. This section explains
+You need to install tkinter in order to install teek. That's correct,
+teek is an alternative to tkinter that needs tkinter. This section explains
 why.
 
 When we say tkinter, we really mean a combination of two things that cannot be
@@ -34,17 +34,17 @@ installed separately:
   run commands in the Tcl interpreter; to be more precise, they use a Tcl
   library called **Tk**.
 
-Pythotk is an alternative to the pure-Python part; it uses a Tcl interpreter
+Teek is an alternative to the pure-Python part; it uses a Tcl interpreter
 with ``_tkinter``, just like ``tkinter``, but it's much nicer to use in several
-ways as shown in `the README <https://github.com/Akuli/pythotk/#pythotk>`_.
+ways as shown in `the README <https://github.com/Akuli/teek/#teek>`_.
 
 .. admonition:: tl;dr
 
     **Tcl** is a programming language with a nice GUI library named **Tk**.
-    **Tkinter** and **Pythotk** both use Tcl and Tk with ``_tkinter``.
+    **Tkinter** and **Teek** both use Tcl and Tk with ``_tkinter``.
 
 
-Installing Pythotk
+Installing Teek
 ------------------
 
 Install Python 3.4 or newer and tkinter (yes, you need to have tkinter
@@ -52,7 +52,7 @@ installed, there are more details about this above). Then run this:
 
 .. code-block:: none
 
-    python3 -m pip install --user pythotk
+    python3 -m pip install --user teek
 
 Use ``py`` instead of ``python3`` if you are on Windows.
 
@@ -62,7 +62,7 @@ Hello World!
 
 ::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window("Hello World")
     label = tk.Label(window, "Hello World!")
@@ -77,17 +77,17 @@ Let's go through the program line by line.
 
 ::
 
-    import pythotk as tk
+    import teek as tk
 
-This imports pythotk. If you get an :exc:`ImportError` or a
-:exc:`ModuleNotFoundError` from this step, make sure that you installed pythotk
+This imports teek. If you get an :exc:`ImportError` or a
+:exc:`ModuleNotFoundError` from this step, make sure that you installed teek
 as explained above.
 
-You can also import ``pythotk`` and use ``pythotk.Label`` instead of
-``tk.Label``, but most pythotk programs use pythotk things a lot, and it's much
-easier to ``import pythotk as tk``.
+You can also import ``teek`` and use ``teek.Label`` instead of
+``tk.Label``, but most teek programs use teek things a lot, and it's much
+easier to ``import teek as tk``.
 
-Don't do ``from pythotk import *`` because that confuses both tools that
+Don't do ``from teek import *`` because that confuses both tools that
 process code automatically, and people who read your code.
 ``tk.Label(parent_widget, "hello")`` obviously creates a tk label, but
 ``Label(parent_widget, "hello")`` creates a label. What is a label? If you have
@@ -96,19 +96,19 @@ many star imports...
 ::
 
     # this code is BAD!! DONT DO THIS!! NO!!!
-    from pythotk import *
+    from teek import *
     from os import *
     from sys import *
 
 ...and you need to find out where ``Label`` comes from, you have many things
 that it might be coming from; if ``os`` or ``sys`` had something called
-``Label``, it would replace pythotk's ``Label``. Everyone reading this code
+``Label``, it would replace teek's ``Label``. Everyone reading this code
 need to know that neither ``os`` nor ``sys`` has anything named ``Label``,
 which is bad.
 
 .. important::
     From now on, if you see ``tk.something`` in this documentation, it means
-    ``pythotk.something``.
+    ``teek.something``.
 
 ::
 
@@ -142,7 +142,7 @@ information about this :ref:`below <pack-with-frames>`.
 
     window.on_delete_window.connect(tk.quit)
 
-This line tells pythotk to run :func:`tk.quit` when the window is closed. By
+This line tells teek to run :func:`tk.quit` when the window is closed. By
 default, nothing happens when the user tries to close the window. You can
 connect it to any other function or method as well, which is useful for things
 like "Do you want to save your changes" dialogs.
@@ -200,7 +200,7 @@ you can set values of options in several ways:
   ``tk.Label(window, text="blah blah")``. Some common options can also be used
   without passing the option name explicitly with ``text=``, e.g.
   ``tk.Label(window, "blah blah")``. This is widget-specific, and it's
-  documented in pythotk's documentation; for example, this label thing is
+  documented in teek's documentation; for example, this label thing is
   documented in :class:`.Label` docs.
 
 Sometimes the name of a widget option happens to be a reserved keyword in
@@ -216,7 +216,7 @@ Traceback (most recent call last):
   ...
 SyntaxError: invalid syntax
 
-To avoid this problem, you can use ``in_`` instead of ``in``, and pythotk will
+To avoid this problem, you can use ``in_`` instead of ``in``, and teek will
 handle it correctly:
 
 >>> in_ = 'lol'
@@ -224,7 +224,7 @@ handle it correctly:
 'lol'
 >>> label.pack(in_=window)
 
-Pythotk strips the last ``_`` before it does anything with the option.
+Teek strips the last ``_`` before it does anything with the option.
 
 
 Tkinter Instructions
@@ -234,13 +234,13 @@ Tkinter is very popular, so if you want to know how to do something in tkinter,
 you can just google it. For example, if you want to change the text of a label
 after creating it, google "tkinter change label text" and you'll find a
 stackoverflow answer that does ``some_label['text'] = 'new text'`` and
-``some_label.config(text='new text')``. Neither of those works in pythotk, but
+``some_label.config(text='new text')``. Neither of those works in teek, but
 both of them give errors with good messages that tell you what you need
 to do instead.
 
-Sometimes pythotk and tkinter differ a lot more, and pythotk can't detect too
+Sometimes teek and tkinter differ a lot more, and teek can't detect too
 tkintery ways to do things and give you particularly good errors. In these
-cases, use :ref:`pythotk's tkinter porting guide <tkinter>`.
+cases, use :ref:`teek's tkinter porting guide <tkinter>`.
 
 
 .. _man-pages:
@@ -250,12 +250,12 @@ Manual Pages
 
 .. note::
     This section assumes that you know the Tcl stuff explained
-    :ref:`above <tcl-tk-tkinter-pythotk>`.
+    :ref:`above <tcl-tk-tkinter-teek>`.
 
 Sometimes stackoverflow answers don't contain the best possible solution
 because they are written by noobs who don't actually know Tk and tkinter very
 well. I see this quite often. Some of the people who answer tkinter questions
-on stackoverflow have 20+ years of :ref:`Tk <tcl-tk-tkinter-pythotk>`
+on stackoverflow have 20+ years of :ref:`Tk <tcl-tk-tkinter-teek>`
 experience, but most answerers don't.
 
 If you don't want to rely on stackoverflow or you want to do things like
@@ -265,14 +265,14 @@ syntax, so you will probably be somewhat confused at first. For example, let's
 say that you don't know how to change the text of a label after creating it.
 Figure it out like this:
 
-1. Go to pythotk's label documentation by clicking this :class:`.Label` link.
-   This tutorial and rest of pythotk's documentation are full of these links.
+1. Go to teek's label documentation by clicking this :class:`.Label` link.
+   This tutorial and rest of teek's documentation are full of these links.
    Click them.
 2. The :class:`.Label` link doesn't say anything about changing the text
    afterwards, but it has a link to a manual page. Click it.
 3. In the manual page, press Ctrl+F and search for "text". You'll find a widget
    option whose "Command-Line Name" is ``-text``. The leading ``-`` is common
-   in Tcl syntax, but we won't need it in pythotk. So all we really need to do
+   in Tcl syntax, but we won't need it in teek. So all we really need to do
    is to change the ``'text'`` widget option as shown :ref:`above <options>`.
    We found what we were looking for.
 
@@ -309,7 +309,7 @@ This code displays a button. Clicking the button runs the ``on_click()``
 function.
 ::
 
-    import pythotk as tk
+    import teek as tk
 
     def on_click():
         print("You clicked me!")
@@ -353,7 +353,7 @@ the function itself without calling it.
 
 .. admonition:: BTW
 
-    Pythotk lets you omit the ``command=`` part when creating buttons if you
+    Teek lets you omit the ``command=`` part when creating buttons if you
     put the button text before the command, so this...
     ::
 
@@ -388,7 +388,7 @@ Multiple child widgets in same parent
 It's possible to put several different widgets into the same parent window with
 :meth:`~.Widget.pack`, like this::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window("Pack Example")
     tk.Label(window, "One").pack()
@@ -411,7 +411,7 @@ that, and so on, so the widgets get stacked to the left edge. The default is
 If you need more complex layouts, you can create a :class:`.Frame` and pack it,
 and add more widgets *inside* that :class:`.Frame`, like this::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window("Pack Example")
 
@@ -460,7 +460,7 @@ the window bigger.
 What now?
 ---------
 
-You are ready for creating a project in pythotk! All parts of pythotk's
+You are ready for creating a project in teek! All parts of teek's
 documentation are listed at left, but here are the things you will most
 likely need next:
 

@@ -3,7 +3,7 @@ import platform
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 # tkinter only handles lists and tuples, not things like this

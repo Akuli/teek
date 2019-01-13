@@ -25,7 +25,7 @@ Hello World!
 
 ::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window()
     text = tk.Text(window)
@@ -59,7 +59,7 @@ TextIndex(line=1, column=0)
 
 .. note::
     Line numbers start at 1, and columns start at 0. Tk does this too, and
-    pythotk doesn't hide it because it is very common to call the first line
+    teek doesn't hide it because it is very common to call the first line
     "line 1"...
 
     .. code-block:: py3tb
@@ -72,7 +72,7 @@ TextIndex(line=1, column=0)
     ...but it's just as common to start column numbering at 0, just like string
     indexing in general.
 
-    Avoid working with 0-based line numbers if you can. That way your pythotk
+    Avoid working with 0-based line numbers if you can. That way your teek
     code will probably be simpler and less confusing.
 
 The text indices can do everything that namedtuples can do.
@@ -244,7 +244,7 @@ You can use tags to change things like color of *some* of the text without
 changing all of it. For example, this code displays a ``Hello World`` with a
 red ``Hello`` and a green ``World``::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window("Text Widget Demo")
 
@@ -334,7 +334,7 @@ Tag objects have these attributes and methods. Search for ``pathName tag`` in
     For example, if you have code like this...
     ::
 
-        import pythotk as tk
+        import teek as tk
 
         text = tk.Text(tk.Window())
         text.pack()
@@ -355,5 +355,5 @@ Tag objects have these attributes and methods. Search for ``pathName tag`` in
 Text Widget Methods and Attributes
 ----------------------------------
 
-.. autoclass:: pythotk.Text
+.. autoclass:: teek.Text
     :members:

@@ -1,6 +1,6 @@
 import _tkinter
 
-import pythotk as tk
+import teek as tk
 
 
 # i'm not sure if these can be different, but why not allow that i guess... lol

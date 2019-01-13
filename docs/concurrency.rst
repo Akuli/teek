@@ -3,7 +3,7 @@
 Concurrency
 ===========
 
-This page is all about running things concurrently in pythotk. That means doing
+This page is all about running things concurrently in teek. That means doing
 something else while the GUI is running.
 
 
@@ -17,7 +17,7 @@ Here is some code that pastebins a Hello World to
 ::
 
     import requests
-    import pythotk as tk
+    import teek as tk
 
 
     class Dpaster(tk.Frame):
@@ -100,7 +100,7 @@ program and change the last 2 lines to this...
     ``()`` at the end of ``one_thing()`` tell Python to run the function right
     away, but instead of that, we want to run it in the thread.
 
-The good *\*ehm\** **awesome** news is that threads work nicely in pythotk.
+The good *\*ehm\** **awesome** news is that threads work nicely in teek.
 Add ``import threading`` to the top of the file, and add this method to the
 ``Dpaster`` class...
 ::
@@ -126,7 +126,7 @@ Let's fix it by adding ``tk.init_threads()`` before the line that creates
     import threading
 
     import requests
-    import pythotk as tk
+    import teek as tk
 
 
     class Dpaster(tk.Frame):
@@ -207,7 +207,7 @@ you would need to do quite a few things yourself:
       :ref:`after callbacks <after-cb>`.
 
 If you accidentally call a tkinter thing from a thread, you may get very weird
-behaviour (but in pythotk, you get a :exc:`RuntimeError` as shown above):
+behaviour (but in teek, you get a :exc:`RuntimeError` as shown above):
 
 * Things may work 90% of the time and break 10% of the time.
 * Everything may work just fine on your computer but not on someone else's
@@ -218,13 +218,13 @@ behaviour (but in pythotk, you get a :exc:`RuntimeError` as shown above):
 Furthermore, beginners often want to use threads with tkinter, and they
 struggle with it a lot, which is no surprise. Threading with tkinter is hard.
 
-Pythotk's ``init_threads()`` does the hard things for you:
+Teek's ``init_threads()`` does the hard things for you:
 
-.. autofunction:: pythotk.init_threads
+.. autofunction:: teek.init_threads
 
 If you use ``init_threads()``, you can also use this decorator:
 
-.. autofunction:: pythotk.make_thread_safe
+.. autofunction:: teek.make_thread_safe
 
 
 Letting the user know that something is happening
@@ -272,10 +272,10 @@ all widgets in it, you can use :meth:`.Widget.busy` instead, like this::
 
 Here is the reference.
 
-.. automethod:: pythotk.Widget.busy_hold
-.. automethod:: pythotk.Widget.busy_forget
-.. automethod:: pythotk.Widget.busy_status
-.. automethod:: pythotk.Widget.busy
+.. automethod:: teek.Widget.busy_hold
+.. automethod:: teek.Widget.busy_forget
+.. automethod:: teek.Widget.busy_status
+.. automethod:: teek.Widget.busy
 
 For more advanced things, you can also use a separate :class:`.Progressbar`
 widget.
@@ -291,7 +291,7 @@ Sometimes :ref:`threads <threads>` are overkill. Here is a clock program::
     import threading
     import time
 
-    import pythotk as tk
+    import teek as tk
 
 
     class Clock(tk.Frame):
@@ -343,7 +343,7 @@ after callbacks might be a better alternative. They work like this::
 
     import time
 
-    import pythotk as tk
+    import teek as tk
 
 
     class Clock(tk.Frame):
@@ -370,8 +370,8 @@ after callbacks might be a better alternative. They work like this::
 ``tk.after(1000, self.updater_callback)`` runs ``self.updater_callback()`` in
 Tk's event loop after 1000 milliseconds; that is, 1 second.
 
-.. autofunction:: pythotk.after
-.. autofunction:: pythotk.after_idle
+.. autofunction:: teek.after
+.. autofunction:: teek.after_idle
 
 See also :man:`after(3tcl)`.
 

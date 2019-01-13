@@ -14,49 +14,49 @@ looking for, and ignore rest of this.
     notebook
     menu
 
-.. autoclass:: pythotk.Widget
+.. autoclass:: teek.Widget
     :members: from_tcl, to_tcl, destroy, focus, winfo_exists, winfo_children, winfo_toplevel, winfo_width, winfo_height, winfo_reqwidth, winfo_reqheight, winfo_x, winfo_y, winfo_rootx, winfo_rooty
 
-.. autoclass:: pythotk.Button
+.. autoclass:: teek.Button
     :members:
-.. autoclass:: pythotk.Checkbutton
+.. autoclass:: teek.Checkbutton
     :members:
-.. autoclass:: pythotk.Combobox
+.. autoclass:: teek.Combobox
     :members:
-.. autoclass:: pythotk.Entry
+.. autoclass:: teek.Entry
     :members:
-.. autoclass:: pythotk.Frame
+.. autoclass:: teek.Frame
     :members:
-.. autoclass:: pythotk.Label
+.. autoclass:: teek.Label
     :members:
-.. autoclass:: pythotk.LabelFrame
+.. autoclass:: teek.LabelFrame
     :members:
 
-.. class:: pythotk.Menu
+.. class:: teek.Menu
     :noindex:
 
     See :ref:`menu`.
 
-.. class:: pythotk.Notebook
+.. class:: teek.Notebook
     :noindex:
 
     See :ref:`notebook`.
 
-.. autoclass:: pythotk.Progressbar
+.. autoclass:: teek.Progressbar
     :members:
-.. autoclass:: pythotk.Scrollbar
+.. autoclass:: teek.Scrollbar
     :members:
-.. autoclass:: pythotk.Separator
+.. autoclass:: teek.Separator
     :members:
-.. autoclass:: pythotk.Spinbox
+.. autoclass:: teek.Spinbox
     :members:
 
-.. class:: pythotk.Text
+.. class:: teek.Text
     :noindex:
 
     See :ref:`textwidget`.
 
-.. autoclass:: pythotk.Toplevel
+.. autoclass:: teek.Toplevel
     :members:
-.. autoclass:: pythotk.Window
+.. autoclass:: teek.Window
     :members:

@@ -1,5 +1,5 @@
 import os
-import pythotk
+import teek
 
 
 EXAMPLES_DIR = os.path.join(
@@ -18,15 +18,15 @@ def _create_test_function(filename):
             pass
 
         with monkeypatch.context() as monkey:
-            monkey.setattr(pythotk, 'run', fake_run)
+            monkey.setattr(teek, 'run', fake_run)
             exec(code, {'__file__': os.path.join(EXAMPLES_DIR, filename)})
 
         assert fake_run.ran_once()
 
         # make sure that nothing breaks if the real .run() is called
-        pythotk.update()
-        pythotk.after_idle(pythotk.quit)
-        pythotk.run()
+        teek.update()
+        teek.after_idle(teek.quit)
+        teek.run()
 
     func.__name__ = func.__qualname__ = 'test_' + filename.replace('.', '_')
     globals()[func.__name__] = func

@@ -9,9 +9,9 @@ python:
 install:
   - pip install 'pytest>=4.0' pytest-cov python-coveralls flake8==3.5 sphinx
 script:
-  - flake8 pythotk/ tests/ *.py
+  - flake8 teek/ tests/ *.py
 
   # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
-  - xvfb-run python -m pytest --cov=pythotk
+  - xvfb-run python -m pytest --cov=teek
 after_success:
   - coveralls

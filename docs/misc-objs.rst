@@ -8,14 +8,14 @@ things.
 Colors
 ------
 
-.. autoclass:: pythotk.Color
+.. autoclass:: teek.Color
     :members:
 
 
 Callbacks
 ---------
 
-.. autoclass:: pythotk.Callback
+.. autoclass:: teek.Callback
     :members:
 
 
@@ -42,11 +42,11 @@ For example, if you have :class:`.Label`...
 
 >>> label.config['font'] = ('Helvetica', 20)
 
-This form is the pythotk equivalent of the alternative ``[3]`` in the
+This form is the teek equivalent of the alternative ``[3]`` in the
 ``FONT DESCRIPTIONS`` part of :man:`font(3tk)`. All of the other font
 descriptions work as well.
 
-If you then get the font of the label, you get a :class:`pythotk.Font` object:
+If you then get the font of the label, you get a :class:`teek.Font` object:
 
 >>> label.config['font']
 Font('Helvetica 20')
@@ -60,23 +60,23 @@ With a named font, the code looks like this:
 Of course, :class:`.Font` and :class:`.NamedFont` objects can also be set to
 ``label.config['font']``.
 
-.. autoclass:: pythotk.Font
+.. autoclass:: teek.Font
     :members:
 
-.. autoclass:: pythotk.NamedFont
+.. autoclass:: teek.NamedFont
     :members:
 
 
 Tcl Variable Objects
 --------------------
 
-.. autoclass:: pythotk.TclVariable
+.. autoclass:: teek.TclVariable
     :members:
 
-.. class:: pythotk.StringVar
-           pythotk.IntVar
-           pythotk.FloatVar
-           pythotk.BooleanVar
+.. class:: teek.StringVar
+           teek.IntVar
+           teek.FloatVar
+           teek.BooleanVar
 
     Handy :class:`.TclVariable` subclasses for variables with :class:`str`,
     :class:`int`, :class:`float` and :class:`bool` values, respectively.
@@ -85,12 +85,12 @@ Tcl Variable Objects
 Images
 ------
 
-.. autoclass:: pythotk.Image
+.. autoclass:: teek.Image
     :members:
 
 
 Screen Distance Objects
 -----------------------
 
-.. autoclass:: pythotk.ScreenDistance
+.. autoclass:: teek.ScreenDistance
     :members:

@@ -1,6 +1,6 @@
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 def test_pack():

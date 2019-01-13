@@ -5,7 +5,7 @@ import re
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
@@ -20,7 +20,7 @@ def _get_all_subclasses(claas):
 def test_all_widgets_fixture(all_widgets):
     assert {type(widget) for widget in all_widgets} == {
         claas for claas in _get_all_subclasses(tk.Widget)
-        if claas.__module__.startswith('pythotk.')
+        if claas.__module__.startswith('teek.')
     }
 
 
@@ -72,9 +72,9 @@ def test_basic_repr_stuff(monkeypatch):
     label1 = tk.Label(window, text='a')
     label2 = subclasser.LolLabel(window, text='b')
 
-    assert repr(label1) == "<pythotk.Label widget: text='a'>"
+    assert repr(label1) == "<teek.Label widget: text='a'>"
     assert repr(label2) == "<subclasser.LolLabel widget: text='b'>"
-    assert repr(frame) == "<pythotk.Frame widget>"
+    assert repr(frame) == "<teek.Frame widget>"
 
 
 @contextlib.contextmanager
@@ -141,7 +141,7 @@ def test_destroy():
     assert str(error.value) == 'the widget has been destroyed'
 
 
-def test_destroy_with_widget_not_created_in_pythotk():
+def test_destroy_with_widget_not_created_in_teek():
     window = tk.Window()
     label_name = window.to_tcl() + '.asd'
     tk.tcl_call(None, 'label', label_name)
@@ -218,21 +218,21 @@ def test_bind(handy_callback):
         pass
 
     @handy_callback
-    def pythotk_bound_callback():
+    def teek_bound_callback():
         pass
 
     command = tk.create_command(tcl_call_bound_callback)
 
     tk.tcl_call(None, 'bind', widget, '<<Asd>>', command)
     assert widget.bindings.keys() == {'<<Asd>>'}
-    widget.bind('<<Asd>>', pythotk_bound_callback)
+    widget.bind('<<Asd>>', teek_bound_callback)
     tk.update()
     tk.tcl_call(None, 'event', 'generate', widget, '<<Asd>>')
 
     tk.delete_command(command)
 
     assert tcl_call_bound_callback.ran_once()    # tests binding with +
-    assert pythotk_bound_callback.ran_once()
+    assert teek_bound_callback.ran_once()
 
     # some binding strings are equivalent
     assert widget.bindings['<Button-3>'] is widget.bindings['<Button-3>']
@@ -342,7 +342,7 @@ def test_bind_deletes_tcl_commands(handy_callback):
     widget = tk.Window()
     widget.bind('<Button-1>', print)
     tcl_codes = tk.tcl_call(str, 'bind', widget, '<Button-1>')
-    command_string = re.search(r'pythotk_command_\d+', tcl_codes).group(0)
+    command_string = re.search(r'teek_command_\d+', tcl_codes).group(0)
 
     assert command_string in tk.tcl_call([str], 'info', 'commands')
     widget.destroy()

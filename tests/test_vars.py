@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 class IntListVar(tk.TclVariable):

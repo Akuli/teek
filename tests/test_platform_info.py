@@ -1,6 +1,6 @@
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 def test_versions():
@@ -15,7 +15,7 @@ def test_version_check(monkeypatch):
     with pytest.raises(AttributeError):
         tk.version_check
 
-    from pythotk import _platform_info
+    from teek import _platform_info
     monkeypatch.setattr(_platform_info, 'TCL_VERSION', (1, 2))
     monkeypatch.setattr(_platform_info, 'TK_VERSION', (3, 4))
 

@@ -1,30 +1,30 @@
 Extras
 ======
 
-.. module:: pythotk.extras
+.. module:: teek.extras
 
 Big tkinter projects often have their own implementations of some commonly
-needed things that tkinter doesn't come with. The ``pythotk.extras`` module
+needed things that tkinter doesn't come with. The ``teek.extras`` module
 contains a collection of them.
 
-To use the extras, ``import pythotk as tk`` is not enough; that doesn't import
-any extras. This is good because most pythotk programs don't need the extras,
-and for them, ``import pythotk as tk`` may run a little bit faster if it
+To use the extras, ``import teek as tk`` is not enough; that doesn't import
+any extras. This is good because most teek programs don't need the extras,
+and for them, ``import teek as tk`` may run a little bit faster if it
 doesn't import the extras. Instead, you typically need to do something like
 this to use the extras::
 
-    import pythotk as tk
-    from pythotk.extras import tooltips
+    import teek as tk
+    from teek.extras import tooltips
 
     # now some code that uses tooltips.set_tooltip
 
 
-.. module:: pythotk.extras.tooltips
+.. module:: teek.extras.tooltips
 
 tooltips
 --------
 
-This module contains a simple tooltip implementation with pythotk.
+This module contains a simple tooltip implementation with teek.
 
 If you have read some of IDLE's source code (if you haven't, that's
 good; IDLE's source code is ugly), you might be wondering what this
@@ -36,12 +36,12 @@ anything from it in my projects.
 .. autofunction:: set_tooltip
 
 
-.. module:: pythotk.extras.cross_platform
+.. module:: teek.extras.cross_platform
 
 cross_platform
 --------------
 
-Most pythotk things work the same on most platforms, but not everything does.
+Most teek things work the same on most platforms, but not everything does.
 For example, binding ``<Tab>`` works everywhere, but binding ``<Shift-Tab>``
 doesn't work on Linux and you need a different binding instead. This extra
 module contains utilities for dealing with things like that.
@@ -49,12 +49,12 @@ module contains utilities for dealing with things like that.
 .. autofunction:: bind_tab_key
 
 
-.. module:: pythotk.extras.more_dialogs
+.. module:: teek.extras.more_dialogs
 
 more_dialogs
 ------------
 
-This is useful when :mod:`pythotk.dialog` is not enough.
+This is useful when :mod:`teek.dialog` is not enough.
 
 All of the functions take these arguments:
 
@@ -68,13 +68,13 @@ All of the functions take these arguments:
 .. autofunction:: ask_integer
 
 
-.. module:: pythotk.extras.links
+.. module:: teek.extras.links
 
 links
 -----
 
 With this extra, you can insert web browser style links to
-:class:`~pythotk.Text` widgets. This is based on
+:class:`~teek.Text` widgets. This is based on
 `this tutorial <http://effbot.org/zone/tkinter-text-hyperlink.htm>`_ that is
 almost as old as I am, but it's still usable.
 

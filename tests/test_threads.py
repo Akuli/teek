@@ -5,7 +5,7 @@ import traceback
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 @pytest.mark.slow

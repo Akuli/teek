@@ -10,7 +10,7 @@ This widget is useful for creating tabs as in the tabs of your web browser, not
 
 ::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window("Notebook Example")
     notebook = tk.Notebook(window)
@@ -92,7 +92,7 @@ variables. Try to keep the code readable, as usual.
 
 Here is some reference:
 
-.. autoclass:: pythotk.Notebook
+.. autoclass:: teek.Notebook
     :members:
-.. autoclass:: pythotk.NotebookTab
+.. autoclass:: teek.NotebookTab
     :members:

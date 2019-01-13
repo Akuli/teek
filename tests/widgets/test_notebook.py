@@ -1,6 +1,6 @@
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 class LolTab(tk.NotebookTab):
@@ -17,11 +17,11 @@ def test_reprs():
     assert repr(tab) == "NotebookTab(" + repr(label) + ", text='toot')"
     assert repr(tab2) == "LolTab(" + repr(label2) + ", text='toot toot')"
 
-    assert repr(notebook) == '<pythotk.Notebook widget: contains 0 tabs>'
+    assert repr(notebook) == '<teek.Notebook widget: contains 0 tabs>'
     notebook.append(tab)
-    assert repr(notebook) == '<pythotk.Notebook widget: contains 1 tabs>'
+    assert repr(notebook) == '<teek.Notebook widget: contains 1 tabs>'
     notebook.remove(tab)
-    assert repr(notebook) == '<pythotk.Notebook widget: contains 0 tabs>'
+    assert repr(notebook) == '<teek.Notebook widget: contains 0 tabs>'
 
 
 def test_config_types(check_config_types):
@@ -63,7 +63,7 @@ def test_get_tab_by_widget_error():
 
     assert str(error.value) == (
         "expected a widget with the notebook as its parent, "
-        "got <pythotk.Label widget: text='lol'>")
+        "got <teek.Label widget: text='lol'>")
 
 
 def test_insert_with_different_indexes():

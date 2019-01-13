@@ -1,6 +1,6 @@
 import itertools
 
-import pythotk as tk
+import teek as tk
 
 flatten = itertools.chain.from_iterable
 

@@ -2,7 +2,7 @@ import contextlib
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 # https://docs.pytest.org/en/latest/doctest.html#the-doctest-namespace-fixture

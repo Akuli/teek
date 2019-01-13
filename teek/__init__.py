@@ -1,4 +1,4 @@
-"""Pythotk is a pythonic alternative to tkinter."""
+"""Teek is a pythonic alternative to tkinter."""
 # flake8: noqa
 
 import os as _os
@@ -21,28 +21,28 @@ else:       # pragma: no cover
 
 
 # not to be confused with _tkinter's TclError, this is defined here because
-# this way error messages say pythotk.TclError instead of
-# pythotk._something.TclError, or worse yet, _tkinter.TclError
+# this way error messages say teek.TclError instead of
+# teek._something.TclError, or worse yet, _tkinter.TclError
 class TclError(Exception):
     """This is raised when a Tcl command fails."""
 
 
 # _platform_info does a version check, it must be first
-from pythotk._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
-from pythotk._font import Font, NamedFont
-from pythotk._structures import (
+from teek._platform_info import TCL_VERSION, TK_VERSION, windowingsystem
+from teek._font import Font, NamedFont
+from teek._structures import (
     Callback, Color, Image, ScreenDistance, TclVariable, StringVar, IntVar,
     FloatVar, BooleanVar, before_quit, after_quit)
-from pythotk._tcl_calls import (
+from teek._tcl_calls import (
     tcl_call, tcl_eval, create_command, delete_command, run, quit, update,
     init_threads, make_thread_safe)
-from pythotk._timeouts import after, after_idle
-from pythotk._widgets.base import Widget
-from pythotk._widgets.menu import Menu, MenuItem
-from pythotk._widgets.misc import (
+from teek._timeouts import after, after_idle
+from teek._widgets.base import Widget
+from teek._widgets.menu import Menu, MenuItem
+from teek._widgets.misc import (
     Button, Checkbutton, Combobox, Entry, Frame, Label, LabelFrame,
     Progressbar, Scrollbar, Separator, Spinbox)
-from pythotk._widgets.notebook import Notebook, NotebookTab
-from pythotk._widgets.text import Text
-from pythotk._widgets.windows import Window, Toplevel
-from pythotk import dialog, extras
+from teek._widgets.notebook import Notebook, NotebookTab
+from teek._widgets.text import Text
+from teek._widgets.windows import Window, Toplevel
+from teek import dialog, extras

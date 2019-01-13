@@ -2,8 +2,8 @@ import time
 import types
 import pytest
 
-import pythotk as tk
-from pythotk.extras import tooltips
+import teek as tk
+from teek.extras import tooltips
 
 
 def run_event_loop(for_how_long):

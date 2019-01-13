@@ -1,7 +1,7 @@
 import functools
 import webbrowser
 
-_TAG_PREFIX = 'pythotk-extras-link-'
+_TAG_PREFIX = 'teek-extras-link-'
 
 
 def _init_links(widget):

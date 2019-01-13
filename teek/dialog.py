@@ -1,7 +1,7 @@
 from functools import partial
 import os
 
-import pythotk as tk
+import teek as tk
 
 
 def _options(kwargs):

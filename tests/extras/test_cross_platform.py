@@ -1,5 +1,5 @@
-import pythotk as tk
-from pythotk.extras import cross_platform
+import teek as tk
+from teek.extras import cross_platform
 
 
 def test_bind_tab_key():

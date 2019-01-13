@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-import pythotk as tk
+import teek as tk
 
 
 SMILEY_PATH = os.path.join(

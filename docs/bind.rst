@@ -19,7 +19,7 @@ Simple Example
 This program displays a label that prints hello when it's clicked.
 ::
 
-    import pythotk as tk
+    import teek as tk
 
     def on_click():
         print("hello")
@@ -47,12 +47,12 @@ strings you can pass to :meth:`~.Widget.bind`.
 Returning 'break'
 -----------------
 
-Pythotk lets you prevent the default action of a binding from happening. For
+Teek lets you prevent the default action of a binding from happening. For
 example, clicking a :class:`.Text` widget focuses the widget and moves the
 mouse to the location that was clicked. In this example, ``on_click()``
 prevents this from happening by returning ``'break'``::
 
-    import pythotk as tk
+    import teek as tk
 
     window = tk.Window("Hello")
 
@@ -86,7 +86,7 @@ the top left corner of the widget's parent window, ``clicked at 10,20`` will be
 printed. Here ``puts "clicked at %X,%Y"`` is a string of code, and ``%X`` and
 ``%Y`` are replaced with the coordinates before it's ran.
 
-This pythotk code does the same thing::
+This teek code does the same thing::
 
     def on_click(event):
         print("clicked at {},{}".format(event.rootx, event.rooty))
@@ -100,10 +100,10 @@ callback will be called without the event object.
 The ``%X`` and ``%Y`` stuff is documented in :man:`bind(3tk)`, but
 :man:`event(3tk)` seems to contain more useful things. Event object attributes
 are named similarly as in :man:`event(3tk)`; for example, there is a ``-rootx``
-option in :man:`event(3tk)`, and that's why pythotk's event objects have a
+option in :man:`event(3tk)`, and that's why teek's event objects have a
 ``rootx`` attribute.
 
-Here is a long table of attributes that pythotk supports. It took me a long
+Here is a long table of attributes that teek supports. It took me a long
 time to make. The list also demonstrates how limited tkinter is; only a few
 things in this table are supported in tkinter.
 
@@ -112,7 +112,7 @@ things in this table are supported in tkinter.
     <br>
 
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| Name in :man:`event(3tk)` and |br| pythotk event attribute            | Type in pythotk           | Tkinter event |br| attribute, if any  | Tcl substitution |br| :man:`bind(3tk)`|
+| Name in :man:`event(3tk)` and |br| teek event attribute            | Type in teek           | Tkinter event |br| attribute, if any  | Tcl substitution |br| :man:`bind(3tk)`|
 +=======================================================================+===========================+=======================================+=======================================+
 | ``above``                                                             | ``int``                   |                                       | ``%a``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
@@ -120,13 +120,13 @@ things in this table are supported in tkinter.
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``button``                                                            | ``int``                   | ``num``                               | ``%b``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| not in :man:`event(3tk)` |br| ``char`` in pythotk                     | ``str``                   | ``char``                              | ``%A``                                |
+| not in :man:`event(3tk)` |br| ``char`` in teek                     | ``str``                   | ``char``                              | ``%A``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``count``                                                             | ``int``                   |                                       | ``%c``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``data``                                                              | see :ref:`virtual-event`  |                                       | ``%d``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| ``detail`` in :man:`event(3tk)` |br| ``event.data(str)`` in pythotk   | ``str``                   |                                       | ``%d``                                |
+| ``detail`` in :man:`event(3tk)` |br| ``event.data(str)`` in teek   | ``str``                   |                                       | ``%d``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``delta``                                                             | ``int``                   | ``delta``                             | ``%D``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
@@ -134,13 +134,13 @@ things in this table are supported in tkinter.
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``height``                                                            | ``int``                   | ``height``                            | ``%h``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| not in :man:`event(3tk)` |br| ``i_window`` in pythotk                 | ``int``                   |                                       | ``%i``                                |
+| not in :man:`event(3tk)` |br| ``i_window`` in teek                 | ``int``                   |                                       | ``%i``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``keycode``                                                           | ``int``                   | ``keycode``                           | ``%k``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``keysym``                                                            | ``str``                   | ``keysym``                            | ``%K``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| not in :man:`event(3tk)` |br| ``keysym_num`` in pythotk               | ``int``                   | ``keysym_num``                        | ``%N``                                |
+| not in :man:`event(3tk)` |br| ``keysym_num`` in teek               | ``int``                   | ``keysym_num``                        | ``%N``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``mode``                                                              | ``str``                   |                                       | ``%m``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
@@ -148,7 +148,7 @@ things in this table are supported in tkinter.
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``place``                                                             | ``str``                   |                                       | ``%p``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| not in :man:`event(3tk)` |br| ``property_name`` in pythotk            | ``str``                   |                                       | ``%P``                                |
+| not in :man:`event(3tk)` |br| ``property_name`` in teek            | ``str``                   |                                       | ``%P``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``root``                                                              | ``int``                   |                                       | ``%R``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
@@ -166,9 +166,9 @@ things in this table are supported in tkinter.
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``time``                                                              | ``int``                   | ``time``                              | ``%t``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| not in :man:`event(3tk)` |br| ``type`` in pythotk                     | ``int``                   | ``type``                              | ``%T``                                |
+| not in :man:`event(3tk)` |br| ``type`` in teek                     | ``int``                   | ``type``                              | ``%T``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
-| not in :man:`event(3tk)` |br| ``widget`` in pythotk                   | :class:`.Widget`          | ``widget``                            | ``%W``                                |
+| not in :man:`event(3tk)` |br| ``widget`` in teek                   | :class:`.Widget`          | ``widget``                            | ``%W``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 | ``width``                                                             | ``int``                   | ``width``                             | ``%w``                                |
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
@@ -178,29 +178,29 @@ things in this table are supported in tkinter.
 +-----------------------------------------------------------------------+---------------------------+---------------------------------------+---------------------------------------+
 
 Note that ``%d`` is used for both ``detail`` and ``data`` in Tcl, depending on
-the type of the event. Pythotk uses that internally, but it doesn't keep track
+the type of the event. Teek uses that internally, but it doesn't keep track
 of the event types for you, so you need to do ``event.data(str)`` if you want
 the ``detail`` string.
 
 .. note::
     If the value is not available, it's usually None, but the attributes whose
-    pythotk type is ``str`` are ``'??'`` instead. The reason is that the Tcl
+    teek type is ``str`` are ``'??'`` instead. The reason is that the Tcl
     substitution gets a ``??`` value for some reason in these cases, but
-    ``'??'`` could be also a valid value of e.g. ``data``, so pythotk doesn't
+    ``'??'`` could be also a valid value of e.g. ``data``, so teek doesn't
     try to hide it.
 
 The "Tcl bind substitution" and "tkinter event attribute" columns are for
-porting Tcl code and tkinter code to pythotk. If you are writing a new program
-in pythotk, don't worry about them.
+porting Tcl code and tkinter code to teek. If you are writing a new program
+in teek, don't worry about them.
 
 
 The bindings attribute
 ----------------------
 
-Pythotk uses :class:`.Callback` objects for most things that it runs for you.
+Teek uses :class:`.Callback` objects for most things that it runs for you.
 It also does that with bindings.
 
-.. attribute:: pythotk.Widget.bindings
+.. attribute:: teek.Widget.bindings
 
     A dictionary-like object of the widget's bindings with string keys and
     :class:`.Callback` values.
@@ -210,7 +210,7 @@ It also does that with bindings.
     and looking up those strings from a widget's ``bindings`` is guaranteed
     to give the same :class:`.Callback` object.
 
-.. method:: pythotk.Widget.bind(sequence, func, *, event=False)
+.. method:: teek.Widget.bind(sequence, func, *, event=False)
 
     For convenience, ``widget.bind(sequence, func, event=True)`` does
     ``widget.bindings[sequence].connect(func)``. Note that this does not
@@ -226,21 +226,21 @@ It also does that with bindings.
 Class Bindings
 --------------
 
-Sometimes it's useful to bind things so that all instances of a pythotk class
+Sometimes it's useful to bind things so that all instances of a teek class
 get bound.
 
-.. attribute:: pythotk.Widget.class_bindings
-.. method:: pythotk.Widget.bind_class(sequence, func, *, event=False)
+.. attribute:: teek.Widget.class_bindings
+.. method:: teek.Widget.bind_class(sequence, func, *, event=False)
 
     These are like :attr:`~.Widget.bindings` and :meth:`~.Widget.bind`, but for
-    binding all instances of a class. Call ``pythotk.Widget.bind_class()`` to
-    bind all widgets in the whole program, or e.g. ``pythotk.Text.bind_class()``
+    binding all instances of a class. Call ``teek.Widget.bind_class()`` to
+    bind all widgets in the whole program, or e.g. ``teek.Text.bind_class()``
     to bind all text widgets. This works both for widgets that have been
     already created and for widgets that will be created after the
     ``bind_class()`` call.
 
     .. note::
-        This does not work well for classes that inherit from pythotk's widget
+        This does not work well for classes that inherit from teek's widget
         classes. For example, if you have a class like this...
         ::
 
@@ -284,4 +284,4 @@ retrieves the data as a list of strings.
 >>> label.event_generate('<<ThingyThing>>', data=['a', 'b', 'c'])  # doctest: +ELLIPSIS
 got data string list: ['a', 'b', 'c']
 
-.. automethod:: pythotk.Widget.event_generate
+.. automethod:: teek.Widget.event_generate

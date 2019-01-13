@@ -1,4 +1,4 @@
-import pythotk as tk
+import teek as tk
 
 import pytest
 
@@ -48,7 +48,7 @@ def test_repr():
         tk.MenuItem("Click me", print),
         tk.MenuItem("Check me", tk.BooleanVar()),
     ])
-    assert repr(menu) == '<pythotk.Menu widget: contains 2 items>'
+    assert repr(menu) == '<teek.Menu widget: contains 2 items>'
 
 
 def test_must_be_menuitem_object():

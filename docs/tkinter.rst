@@ -3,8 +3,8 @@
 Porting from Tkinter
 ====================
 
-If you have some tkinter code and you would like to switch to pythotk, you came
-to the right place. This page lists differences between tkinter and pythotk.
+If you have some tkinter code and you would like to switch to teek, you came
+to the right place. This page lists differences between tkinter and teek.
 You might also find this page interesting if you are an experienced tkinter
 programmer.
 
@@ -20,7 +20,7 @@ the code works doesn't hurt either.
 
 .. _flake8: http://flake8.pycqa.org/en/latest/
 
-Currently these tkinter widgets are missing in pythotk:
+Currently these tkinter widgets are missing in teek:
 
 * ``tkinter.Canvas``
 * ``tkinter.Listbox``
@@ -36,8 +36,8 @@ Currently these tkinter widgets are missing in pythotk:
 If the project uses some of these, you can still use them with
 :ref:`Tcl calls <tcl-calls>`. However, that's kind of painful, so if the
 project uses these widgets a lot, it's probably best to use tkinter for now or
-`ask me <https://github.com/Akuli/pythotk/issues/new>`_ to add the widget to
-pythotk.
+`ask me <https://github.com/Akuli/teek/issues/new>`_ to add the widget to
+teek.
 
 
 To Get Started
@@ -45,12 +45,12 @@ To Get Started
 
 If you find a file that contains ``from tkinter import *``, you should
 immediately fix that. It is very bad style. Change the import to
-``import pythotk as tk``, and then replace things like ``Label`` with
+``import teek as tk``, and then replace things like ``Label`` with
 ``tk.Label``.
 
 If you find code like ``import tkinter as tk``, just change ``tkinter`` to
-``pythotk``. If there is ``import tkinter``, replace ``tkinter.something`` with
-``tk.something`` everywhere and ``import pythotk as tk``.
+``teek``. If there is ``import tkinter``, replace ``tkinter.something`` with
+``tk.something`` everywhere and ``import teek as tk``.
 
 Sometimes you may see this::
 
@@ -64,7 +64,7 @@ Or much worse::
 
 In these cases, you should replace both ``tkinter.something`` and
 ``tkinter.ttk.something`` with ``tk.something`` and do the
-``import pythotk as tk``. The ``pythotk`` module contains everything you need.
+``import teek as tk``. The ``teek`` module contains everything you need.
 
 After this, try it out. It probably doesn't work yet, so keep reading.
 
@@ -73,9 +73,9 @@ Widget Name Differences
 -----------------------
 
 All tkinter GUIs use a ``tkinter.Tk`` object. There is no ``Tk`` object in
-pythotk; instead, you should create a :class:`.Window` object and use that.
+teek; instead, you should create a :class:`.Window` object and use that.
 Usually you should also use :class:`.Window` instead of a :class:`.Toplevel` as
-explained in :class:`.Window` documentation. You can create as many pythotk
+explained in :class:`.Window` documentation. You can create as many teek
 windows as you want, and they actually use toplevels under the hood.
 
 If the tkinter code creates multiple ``tkinter.Tk`` instances, it is probably
@@ -95,10 +95,10 @@ Quitting
 --------
 
 In tkinter, destroying the root window destroys the whole GUI and usually the
-program terminates soon after that. In pythotk, destroying a window doesn't
-quit the GUI, so instead of ``root.destroy()`` you need :func:`pythotk.quit`.
+program terminates soon after that. In teek, destroying a window doesn't
+quit the GUI, so instead of ``root.destroy()`` you need :func:`teek.quit`.
 
-Trying to close a pythotk window does nothing by default. If you want the whole
+Trying to close a teek window does nothing by default. If you want the whole
 program to end instead, do this::
 
     window.on_delete_window.connect(tk.quit)
@@ -122,8 +122,8 @@ similar strings::
 This means that ``some_widget.pack(fill=tkinter.BOTH)`` does the same thing as
 ``some_widget.pack(fill='both')``. Some programmers use constants like
 ``tkinter.BOTH`` while others prefer to just write ``'both'``. I think these
-constants are dumb, which is why pythotk doesn't have them. Use strings like
-``'both'`` in pythotk.
+constants are dumb, which is why teek doesn't have them. Use strings like
+``'both'`` in teek.
 
 
 Run
@@ -136,11 +136,11 @@ or ``tkinter.mainloop()``.
 Options
 -------
 
-Options are used differently in tkinter and pythotk. For example,
+Options are used differently in tkinter and teek. For example,
 ``button['text']``, ``button.cget('text')``, ``button.config('text')[-1]`` and
 ``button.configure('text')[-1]`` are all valid ways to get the text of a button.
-In pythotk, none of these work, and you instead do ``button.config['text']``.
-However, pythotk raises good error messages:
+In teek, none of these work, and you instead do ``button.config['text']``.
+However, teek raises good error messages:
 
 >>> button = tk.Button(tk.Window(), "some text")
 >>> button.cget('text')
@@ -158,7 +158,7 @@ TypeError: use widget.config['option'], not widget['option']
 Widget-specific Differences
 ---------------------------
 
-Most widgets work more or less the same way in pythotk and tkinter, but not all
+Most widgets work more or less the same way in teek and tkinter, but not all
 widgets do. Some of the biggest differences are listed here, but not everything
 is; refer to :ref:`the documentation <widgets>` of the widget that is causing
 errors for more details.
@@ -166,7 +166,7 @@ errors for more details.
 Button and CheckButton
     Tkinter buttons and checkbuttons have a ``command`` option that is set to a
     function that runs when the button is clicked, but that's a
-    :class:`.Callback` object in pythotk:
+    :class:`.Callback` object in teek:
 
     >>> button.config['command'] = print
     Traceback (most recent call last):
@@ -178,7 +178,7 @@ Button and CheckButton
 
 Text and Notebook
     Many things are very different (read: much better and more pythonic) in
-    pythotk. You probably need to read most of pythotk's
+    teek. You probably need to read most of teek's
     :ref:`text widget docs <textwidget>` or :ref:`notebook docs <notebook>`
     anyway, so I won't even try to summarize everything here.
 
@@ -190,11 +190,11 @@ Entry
 Dialogs
 -------
 
-Dialog functions are named differently in pythotk. For example, instead of
+Dialog functions are named differently in teek. For example, instead of
 ``filedialog.askopenfilename()`` you use
 :func:`tk.dialog.open_file() <.dialog.open_file>`. Unlike in tkinter, you don't
 need to import anything special in order to use the dialog functions;
-``import pythotk as tk`` is all you need, and after that, you can do
+``import teek as tk`` is all you need, and after that, you can do
 ``tk.dialog.open_file()``.
 
 
@@ -203,7 +203,7 @@ need to import anything special in order to use the dialog functions;
 Binding
 -------
 
-Pythotk's bind stuff is documented :ref:`here <binding>`. As you can see there,
+Teek's bind stuff is documented :ref:`here <binding>`. As you can see there,
 we have some differences to tkinter. First of all, if you want anything to work
 at all, you need to pass ``event=True`` to :meth:`~.Widget.bind` to get
 tkinter-like event objects. However, this is a common thing to do in tkinter::
@@ -224,17 +224,17 @@ thing as the lambda::
     widget.bind('<SomeEvent>', some_function)
 
 If you do need the event object, watch out for differences in the attributes.
-For example, tkinter's ``event.x_root`` is ``event.rootx`` in pythotk. This is
+For example, tkinter's ``event.x_root`` is ``event.rootx`` in teek. This is
 for consistency with :meth:`~.Widget.event_generate`.
 
 Note that tkinter's ``bind`` discards all old bindings, but this doesn't happen
-in pythotk. For example, if you do this...
+in teek. For example, if you do this...
 ::
 
     widget.bind('<SomeEvent>', func1)
     widget.bind('<SomeEvent>', func2)
 
-...only ``func2`` is bound in tkinter, but both are bound in pythotk.
+...only ``func2`` is bound in tkinter, but both are bound in teek.
 
 Tkinter's bind takes an ``add=True`` argument that tells it to not forget old
 bindings, and you can safely get rid of it. If you see some tkinter code that
@@ -252,7 +252,7 @@ Searching for ``def unbind`` in
 `tkinter's source code <https://github.com/python/cpython/blob/master/Lib/tkinter/__init__.py>`_
 reveals that ``widget.unbind`` actually discards all bindings of
 ``<SomeEvent>``, and if the ``func_id`` is given, it also cleans things up.
-Pythotk does the cleanup automatically for you when the widget is destroyed
+Teek does the cleanup automatically for you when the widget is destroyed
 (see :meth:`~.Widget.destroy`).
 
 
@@ -262,46 +262,46 @@ Widget Methods
 Tkinter's widgets have some methods that are available in all widgets, and they
 don't actually do anything with the widget. For example,
 ``any_widget.after(1000, func)`` runs ``func()`` in the
-:ref:`event loop <eventloop>` after waiting for 1 second. In pythotk, things
+:ref:`event loop <eventloop>` after waiting for 1 second. In teek, things
 that don't need a widget in order to work are functions, not widget methods.
 Here is a list of them:
 
 +-------------------------------------------+-------------------------------+
-| Tkinter                                   | Pythotk                       |
+| Tkinter                                   | Teek                       |
 +===========================================+===============================+
-| ``any_widget.after(milliseconds, cb)``    | :func:`pythotk.after`         |
+| ``any_widget.after(milliseconds, cb)``    | :func:`teek.after`         |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.after_idle(cb)``             | :func:`pythotk.after_idle`    |
+| ``any_widget.after_idle(cb)``             | :func:`teek.after_idle`    |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.update()``                   | :func:`pythotk.update`        |
+| ``any_widget.update()``                   | :func:`teek.update`        |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.call()``                  | :func:`pythotk.tcl_call`      |
+| ``any_widget.tk.call()``                  | :func:`teek.tcl_call`      |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.eval()``                  | :func:`pythotk.tcl_eval`      |
+| ``any_widget.tk.eval()``                  | :func:`teek.tcl_eval`      |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.createcommand()``         | :func:`pythotk.create_command`|
+| ``any_widget.tk.createcommand()``         | :func:`teek.create_command`|
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.deletecommand()``         | :func:`pythotk.delete_command`|
+| ``any_widget.tk.deletecommand()``         | :func:`teek.delete_command`|
 +-------------------------------------------+-------------------------------+
-| ``any_widget.mainloop()``                 | :func:`pythotk.run`           |
+| ``any_widget.mainloop()``                 | :func:`teek.run`           |
 +-------------------------------------------+-------------------------------+
-| ``root.destroy()``                        | :func:`pythotk.quit`          |
+| ``root.destroy()``                        | :func:`teek.quit`          |
 +-------------------------------------------+-------------------------------+
 
 There are also some things that must be done with ``any_widget.tk.call()`` in
-tkinter, but pythotk has nicer support for them:
+tkinter, but teek has nicer support for them:
 
 +-----------------------------------------------+-----------------------------------+
-| Tkinter                                       | Pythotk                           |
+| Tkinter                                       | Teek                           |
 +===============================================+===================================+
-| ``any_widget.call('tk', 'windowingsystem')``  | :func:`pythotk.windowingsystem`   |
+| ``any_widget.call('tk', 'windowingsystem')``  | :func:`teek.windowingsystem`   |
 +-----------------------------------------------+-----------------------------------+
 
 
 Variable Objects
 ----------------
 
-``DoubleVar`` is :class:`.FloatVar` in pythotk because not all python users
+``DoubleVar`` is :class:`.FloatVar` in teek because not all python users
 know that ``double`` means a precise ``float`` in programming languages like C.
 Other variable classes have same names.
 
@@ -313,8 +313,8 @@ Font Objects
 ------------
 
 Tkinter has one font class, ``tkinter.font.Font``, which represents a font that
-has a name in Tcl. There are two font classes in pythotk, and usually you
-should use :class:`.NamedFont` in pythotk when ``tkinter.font.Font`` is used in
+has a name in Tcl. There are two font classes in teek, and usually you
+should use :class:`.NamedFont` in teek when ``tkinter.font.Font`` is used in
 tkinter. See :ref:`font documentation <font-objs>` for details.
 
 
@@ -329,7 +329,7 @@ In tkinter, you might see code like this::
 Here ``root.tk.call('tk', 'windowingsystem')`` calls ``tk windowingsystem`` in
 Tcl, and that returns ``'win32'``, ``'aqua'`` or ``'x11'`` as documented in
 :man:`tk(3tk)`. Notice that the return type is a string, but it's not specified
-anywhere. Pythotk is more explicit::
+anywhere. Teek is more explicit::
 
     if tk.tcl_call(str, 'tk', 'windowingsystem') == 'aqua':
         ...
@@ -339,6 +339,6 @@ Tcl; all objects are essentially strings, and ``1.2`` is literally the same
 thing as ``'1.2'``. There is no good way to figure out what type tkinter's
 ``root.tk.call`` will return, and it's easiest to try it and see.
 
-Pythotk gets rid of this problem by requiring explicit return types everywhere.
+Teek gets rid of this problem by requiring explicit return types everywhere.
 If you want a Tcl call to return a string, you pass it ``str``. See
 :ref:`tcl-calls` for more documentation.

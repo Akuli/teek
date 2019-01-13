@@ -1,6 +1,6 @@
 import functools
 
-import pythotk as tk
+import teek as tk
 
 
 # this is not called bind_tab to avoid confusing with:
@@ -11,7 +11,7 @@ def bind_tab_key(widget, callback, **bind_kwargs):
 
     Use this function like this::
 
-        from pythotk.extras import cross_platform
+        from teek.extras import cross_platform
 
         def on_tab(shifted):
             if shifted:
@@ -26,7 +26,7 @@ def bind_tab_key(widget, callback, **bind_kwargs):
     function instead.
 
     This function can also take any of the keyword arguments that
-    :meth:`pythotk.Widget.bind` takes. If you pass ``event=True``, the callback
+    :meth:`teek.Widget.bind` takes. If you pass ``event=True``, the callback
     will be called like ``callback(shifted, event)``; that is, the ``shifted``
     bool is the first argument, and the event object is the second.
     """

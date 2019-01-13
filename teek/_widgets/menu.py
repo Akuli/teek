@@ -1,9 +1,9 @@
 import collections.abc
 
-import pythotk as tk
-from pythotk._structures import CgetConfigureConfigDict
-from pythotk._tcl_calls import make_thread_safe
-from pythotk._widgets.base import Widget
+import teek as tk
+from teek._structures import CgetConfigureConfigDict
+from teek._tcl_calls import make_thread_safe
+from teek._widgets.base import Widget
 
 
 # all menu item things that do something run in the main thread to avoid any
@@ -199,7 +199,7 @@ class Menu(Widget, collections.abc.MutableSequence):
     ... ])
     >>> menu.append(tk.MenuItem("No, click me instead", print))
     >>> menu
-    <pythotk.Menu widget: contains 2 items>
+    <teek.Menu widget: contains 2 items>
     >>> menu[0]     # this works
     <MenuItem('Click me', <built-in function print>): type='command', added to\
  a menu>

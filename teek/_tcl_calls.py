@@ -8,12 +8,12 @@ import threading
 import traceback
 import _tkinter
 
-import pythotk as tk
+import teek as tk
 
 _flatten = itertools.chain.from_iterable
 
 
-def raise_pythotk_tclerror(func):
+def raise_teek_tclerror(func):
     @functools.wraps(func)
     def result(*args, **kwargs):
         try:
@@ -80,7 +80,7 @@ class _TclInterpreter:
         # the function is called from Tk's event loop
         self._call_queue = queue.Queue()
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def init_threads(self, poll_interval_ms=50):
         if threading.current_thread() is not threading.main_thread():
             raise RuntimeError(
@@ -93,11 +93,11 @@ class _TclInterpreter:
 
         # hard-coded name is ok because there is only one of these in each
         # Tcl interpreter
-        poller_tcl_command = 'pythotk_init_threads_queue_poller'
+        poller_tcl_command = 'teek_init_threads_queue_poller'
 
         after_id = None
 
-        @raise_pythotk_tclerror
+        @raise_teek_tclerror
         def poller():
             nonlocal after_id
 
@@ -116,7 +116,7 @@ class _TclInterpreter:
                     future.set_value(value)
 
             after_id = self._app.call(
-                'after', poll_interval_ms, 'pythotk_init_threads_queue_poller')
+                'after', poll_interval_ms, 'teek_init_threads_queue_poller')
 
         self._app.createcommand(poller_tcl_command, poller)
 
@@ -146,7 +146,7 @@ class _TclInterpreter:
     # self._app must be accessed from the main thread, and this class provides
     # methods for calling it thread-safely
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def run(self):
         if threading.current_thread() is not threading.main_thread():
             raise RuntimeError("run() must be called from main thread")
@@ -154,13 +154,13 @@ class _TclInterpreter:
         # no idea what the 0 does, tkinter calls it like this
         self._app.mainloop(0)
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def getboolean(self, arg):
         return self.call_thread_safely(self._app.getboolean, [arg])
 
     # _tkinter returns tuples when tcl represents something as a
     # list internally, but this forces it to string
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def get_string(self, from_underscore_tkinter):
         if isinstance(from_underscore_tkinter, str):
             return from_underscore_tkinter
@@ -175,23 +175,23 @@ class _TclInterpreter:
         assert isinstance(result, str)
         return result
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def splitlist(self, value):
         return self.call_thread_safely(self._app.splitlist, [value])
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def call(self, *args):
         return self.call_thread_safely(self._app.call, args)
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def eval(self, code):
         return self.call_thread_safely(self._app.eval, [code])
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def createcommand(self, name, func):
         return self.call_thread_safely(self._app.createcommand, [name, func])
 
-    @raise_pythotk_tclerror
+    @raise_teek_tclerror
     def deletecommand(self, name):
         return self.call_thread_safely(self._app.deletecommand, [name])
 
@@ -216,9 +216,9 @@ def quit():
 
     This function calls ``destroy .`` in Tcl, and that's documented in
     :man:`destroy(3tk)`. Note that this function does not tell Python to quit;
-    only pythotk quits, so you can do this::
+    only teek quits, so you can do this::
 
-        import pythotk as tk
+        import teek as tk
 
         window = tk.Window()
         tk.Button(window, "Quit", tk.quit).pack()
@@ -239,7 +239,7 @@ def quit():
 
         # to avoid a weird errors, see test_weird_error in test_tcl_calls.py
         for command in tk.tcl_call([str], 'info', 'commands'):
-            if command.startswith('pythotk_command_'):
+            if command.startswith('teek_command_'):
                 delete_command(command)
 
         _interp = None
@@ -247,18 +247,18 @@ def quit():
 
 
 def run():
-    """Runs the event loop until :func:`~pythotk.quit` is called."""
+    """Runs the event loop until :func:`~teek.quit` is called."""
     _get_interp().run()
 
 
-@raise_pythotk_tclerror
+@raise_teek_tclerror
 def init_threads(poll_interval_ms=50):
-    """Allow using pythotk from other threads than the main thread.
+    """Allow using teek from other threads than the main thread.
 
     This is implemented with a queue. This function starts an
     :ref:`after callback <after-cb>` that checks for new messages in the queue
     every 50 milliseconds (that is, 20 times per second), and when another
-    thread calls a pythotk function that does a :ref:`Tcl call <tcl-calls>`,
+    thread calls a teek function that does a :ref:`Tcl call <tcl-calls>`,
     the information required for making the Tcl call is put to the queue and
     the Tcl call is done by the after callback.
 
@@ -276,7 +276,7 @@ def init_threads(poll_interval_ms=50):
     * Use a smaller ``poll_interval_ms``. Watch your CPU usage though; if you
       make ``poll_interval_ms`` too small, you might get 100% CPU usage when
       your program is doing nothing.
-    * Try to rewrite the program so that it does less pythotk stuff in threads.
+    * Try to rewrite the program so that it does less teek stuff in threads.
     """
     _get_interp().init_threads()
 
@@ -287,8 +287,8 @@ def make_thread_safe(func):
     Functions decorated with this always run in the event loop, and therefore
     in the main thread.
 
-    Most of the time you don't need to use this yourself; pythotk uses this a
-    lot internally, so most pythotk things are already thread safe. However, if
+    Most of the time you don't need to use this yourself; teek uses this a
+    lot internally, so most teek things are already thread safe. However, if
     you have code like this...
     ::
 
@@ -297,7 +297,7 @@ def make_thread_safe(func):
             func2()
             func3()
 
-    ...where ``func1``, ``func2`` and ``func3`` do pythotk things and you need
+    ...where ``func1``, ``func2`` and ``func3`` do teek things and you need
     to call ``func123`` from a thread, it's best to decorate ``func123``::
 
         @tk.make_thread_safe
@@ -308,7 +308,7 @@ def make_thread_safe(func):
 
     This may make ``func123`` noticably faster. If a function decorated with
     ``make_thread_safe()`` is called from some other thread than the main
-    thread, it needs to communicate between the main thread and pythotk's event
+    thread, it needs to communicate between the main thread and teek's event
     loop, which is slow. However, with ``good_func123``, there isn't much
     communication to do: the other thread needs to tell the main thread to run
     the function, and later the main thread tells the other thread that the
@@ -424,7 +424,7 @@ def from_tcl(type_spec, value):
     raise TypeError("unknown type specification " + repr(type_spec))
 
 
-@raise_pythotk_tclerror
+@raise_teek_tclerror
 def tcl_call(returntype, command, *arguments):
     """Call a Tcl command.
 
@@ -437,7 +437,7 @@ def tcl_call(returntype, command, *arguments):
     >>> tk.tcl_eval(None, 'puts %s' % message)  # 3 args to puts, tcl error
     Traceback (most recent call last):
         ...
-    pythotk.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
+    teek.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
 string"
     >>> tk.tcl_call(None, 'puts', message)   # 1 arg to puts  # doctest: +SKIP
     hello world thing
@@ -446,7 +446,7 @@ string"
     return from_tcl(returntype, result)
 
 
-@raise_pythotk_tclerror
+@raise_teek_tclerror
 def tcl_eval(returntype, code):
     """Run a string of Tcl code.
 
@@ -483,7 +483,7 @@ def create_command(func, arg_type_specs=(), *, extra_args_type=None):
 
     >>> tcl_print = tk.create_command(print, [str])  # calls print(some_string)
     >>> tcl_print       # doctest: +SKIP
-    'pythotk_command_1'
+    'teek_command_1'
     >>> tk.tcl_call(None, tcl_print, 'hello world')
     hello world
     >>> tk.tcl_eval(None, '%s "hello world"' % tcl_print)
@@ -553,7 +553,7 @@ def create_command(func, arg_type_specs=(), *, extra_args_type=None):
                   end='', file=sys.stderr)
             return ''
 
-    name = 'pythotk_command_%d' % next(counts['commands'])
+    name = 'teek_command_%d' % next(counts['commands'])
     _get_interp().createcommand(name, real_func)
     return name
 

@@ -2,10 +2,10 @@ import collections.abc
 import functools
 import re
 
-import pythotk as tk
-from pythotk._structures import CgetConfigureConfigDict
-from pythotk._tcl_calls import make_thread_safe
-from pythotk._widgets.base import BindingDict, ChildMixin, Widget
+import teek as tk
+from teek._structures import CgetConfigureConfigDict
+from teek._tcl_calls import make_thread_safe
+from teek._widgets.base import BindingDict, ChildMixin, Widget
 
 
 # a new subclass of IndexBase is created for each text widget, and inheriting
@@ -251,7 +251,7 @@ class Text(ChildMixin, Widget):
         the widget. In pure Tcl or in tkinter, getting the text from
         beginning to ``end`` returns the text in the widget plus a ``\n``,
         which is why you almost always need to do ``end - 1 char`` instead
-        of just ``end``. **Pythotk doesn't do that** because 99% of the
+        of just ``end``. **Teek doesn't do that** because 99% of the
         time it's not useful and 1% of the time it's confusing to people
         reading the code, so ``text.get(text.start, text.end)`` doesn't
         return anything that is not visible in the text widget.
