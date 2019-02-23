@@ -80,7 +80,7 @@ def test_checkbutton():
     asd.clear()
 
     checkbutton = teek.Checkbutton(teek.Window(), 'asd', asd.append,
-                                 onvalue=False, offvalue=True)
+                                   onvalue=False, offvalue=True)
     checkbutton.config['command'].connect(asd.append)
     checkbutton.invoke()
     assert checkbutton.config['variable'].get() is False
@@ -205,7 +205,7 @@ def test_separator():
 def test_spinbox():
     asd = []
     spinbox = teek.Spinbox(teek.Window(), from_=0, to=10,
-                         command=(lambda: asd.append('boo')))
+                           command=(lambda: asd.append('boo')))
     assert asd == []
     teek.tcl_eval(None, '''
     set command [%s cget -command]

@@ -41,7 +41,8 @@ class Font:
 
     >>> teek.Font('Helvetica 12')  # not a font name
     Font('Helvetica 12')
-    >>> teek.Font('TkFixedFont')   # special font name for default monospace font
+    >>> teek.Font('TkFixedFont')   # special font name for default monospace \
+font
     NamedFont('TkFixedFont')
     >>> teek.NamedFont('TkFixedFont')    # does the same thing
     NamedFont('TkFixedFont')

@@ -135,8 +135,8 @@ def test_ask_integer(handy_callback, monkeypatch):
     assert fake_entrydialog.ran == 2
 
     initial = 4
-    assert more_dialogs.ask_integer('a', 'b', [1, 4, 3],
-                                    initial_value=4, parent=teek.Window()) == 123
+    assert more_dialogs.ask_integer('a', 'b', [1, 4, 3], initial_value=4,
+                                    parent=teek.Window()) == 123
     assert fake_entrydialog.ran == 3
 
     with pytest.raises(ValueError):

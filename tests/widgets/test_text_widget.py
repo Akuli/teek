@@ -163,7 +163,7 @@ def test_tags():
 
     # misc other tag properties
     assert toot == toot
-    assert toot != teek.Text(teek.Window()).get_tag('toot')   # different widget
+    assert toot != teek.Text(teek.Window()).get_tag('toot')  # different widget
     assert toot != 123
     assert hash(toot) == hash(toot)
     assert repr(toot) == "<Text widget tag 'toot'>"

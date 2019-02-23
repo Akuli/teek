@@ -67,8 +67,8 @@ class _TooltipManager:
             # white default foreground, but works fine on systems with black
             # default foreground
             label = teek.tcl_call(str, 'label', tipwindow.to_tcl() + '.label',
-                                '-text', self.text, '-border', 3,
-                                '-fg', 'black', '-bg', '#ffc')
+                                  '-text', self.text, '-border', 3,
+                                  '-fg', 'black', '-bg', '#ffc')
             teek.tcl_call(None, 'pack', label)
 
 

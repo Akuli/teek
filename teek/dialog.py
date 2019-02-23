@@ -35,7 +35,8 @@ def _messagebox(type, title, message, detail=None, **kwargs):
     if type == 'okcancel':
         return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'ok'
     if type == 'retrycancel':
-        return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'retry'
+        return (
+            teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'retry')
     if type == 'yesno':
         return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'yes'
 

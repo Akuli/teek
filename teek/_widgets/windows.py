@@ -56,7 +56,8 @@ class WmMixin:
 
     @property
     def transient(self):
-        return self._call(teek.Widget, 'wm', 'transient', self._get_wm_widget())
+        return self._call(teek.Widget,
+                          'wm', 'transient', self._get_wm_widget())
 
     @transient.setter
     def transient(self, widget):

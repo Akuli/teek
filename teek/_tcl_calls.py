@@ -19,7 +19,8 @@ def raise_teek_tclerror(func):
         try:
             return func(*args, **kwargs)
         except _tkinter.TclError as e:
-            raise teek.TclError(str(e)).with_traceback(e.__traceback__) from None
+            raise teek.TclError(
+                str(e)).with_traceback(e.__traceback__) from None
 
     return result
 

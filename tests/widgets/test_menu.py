@@ -200,7 +200,8 @@ def test_indexes_dont_mess_up_ever_like_srsly_not_ever_never():
     check()
     menu.append(teek.MenuItem())
     check()
-    menu.extend([teek.MenuItem(), teek.MenuItem(), teek.MenuItem(), teek.MenuItem()])
+    menu.extend([teek.MenuItem(), teek.MenuItem(),
+                 teek.MenuItem(), teek.MenuItem()])
     check()
     menu.pop()
     check()

@@ -23,7 +23,8 @@ class _EntryDialog:
 
         self.ok_button = teek.Button(self.window, "OK", self.on_ok)
         self.ok_button.grid(row=3, column=0)
-        teek.Button(self.window, "Cancel", self.on_cancel).grid(row=3, column=1)
+        teek.Button(self.window, "Cancel", self.on_cancel).grid(
+            row=3, column=1)
 
         self.window.grid_rows[0].config['weight'] = 1
         self.window.grid_rows[2].config['weight'] = 1

@@ -48,7 +48,7 @@ def test_eval_and_call(handy_commands, capfd):
     assert teek.tcl_eval([str], 'list { a} {b } { c }') == [' a', 'b ', ' c ']
     assert (teek.tcl_eval((str, int, str, int), 'list a 1 b 2') ==
             ('a', 1, 'b', 2))
-    assert teek.tcl_eval([int], 'list 0b11111111 0o377 0xff') == [255, 255, 255]
+    assert teek.tcl_eval([int], 'list 0b11111111 0o377 0xff') == [255] * 3
     assert teek.tcl_eval(
         {'a': int, 'c': bool}, 'dict create a 1 b 2') == {'a': 1, 'b': '2'}
 
@@ -123,7 +123,8 @@ def test_eval_and_call(handy_commands, capfd):
 def test_empty_tuple_bug():
     # after half a second, press escape in the widget of the dialog that
     # happens to be focused
-    teek.after(500, lambda: teek.tcl_eval(None, "event generate [focus] <Escape>"))
+    teek.after(500, lambda: teek.tcl_eval(
+        None, "event generate [focus] <Escape>"))
 
     # do the dialog, tkinter should return an empty tuple which should be
     # converted to an empty string
