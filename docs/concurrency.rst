@@ -17,18 +17,18 @@ Here is some code that pastebins a Hello World to
 ::
 
     import requests
-    import teek as tk
+    import teek
 
 
-    class Dpaster(tk.Frame):
+    class Dpaster(teek.Frame):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-            self.paste_button = tk.Button(self, "Pastebin a hello world", self.paste)
+            self.paste_button = teek.Button(self, "Pastebin a hello world", self.paste)
             self.paste_button.pack()
 
-            self.url_label = tk.Label(self)
+            self.url_label = teek.Label(self)
             self.url_label.pack()
 
         def paste(self):
@@ -45,11 +45,11 @@ Here is some code that pastebins a Hello World to
             self.url_label.config['text'] = url
 
 
-    window = tk.Window("dpaster")
+    window = teek.Window("dpaster")
     Dpaster(window).pack()
     window.geometry(250, 100)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Run the program. If you click the pasting button, the whole GUI freezes for a
 couple seconds and the button looks like it's pressed down, and when the
@@ -110,7 +110,7 @@ Add ``import threading`` to the top of the file, and add this method to the
 
 ...and change the line that creates ``self.paste_button`` to this::
 
-    self.paste_button = tk.Button(self, "Pastebin a hello world", self.start_pasting)
+    self.paste_button = teek.Button(self, "Pastebin a hello world", self.start_pasting)
 
 Let's try to run the program again. Clicking the button gives this error:
 
@@ -120,24 +120,24 @@ Let's try to run the program again. Clicking the button gives this error:
         ...
     RuntimeError: init_threads() wasn't called
 
-Let's fix it by adding ``tk.init_threads()`` before the line that creates
+Let's fix it by adding ``teek.init_threads()`` before the line that creates
 ``window``. All in all, the code looks like this now::
 
     import threading
 
     import requests
-    import teek as tk
+    import teek
 
 
-    class Dpaster(tk.Frame):
+    class Dpaster(teek.Frame):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-            self.paste_button = tk.Button(self, "Pastebin a hello world", self.start_pasting)
+            self.paste_button = teek.Button(self, "Pastebin a hello world", self.start_pasting)
             self.paste_button.pack()
 
-            self.url_label = tk.Label(self)
+            self.url_label = teek.Label(self)
             self.url_label.pack()
 
         def start_pasting(self):
@@ -157,12 +157,12 @@ Let's fix it by adding ``tk.init_threads()`` before the line that creates
             self.url_label.config['text'] = url
 
 
-    tk.init_threads()
-    window = tk.Window("dpaster")
+    teek.init_threads()
+    window = teek.Window("dpaster")
     Dpaster(window).pack()
     window.geometry(250, 100)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Run the program. It works!
 
@@ -235,7 +235,7 @@ Here is a part of our example program above.
 
     def __init__(self, *args, **kwargs):
         ...
-        self.paste_button = tk.Button(self, "Pastebin a hello world", self.start_pasting)
+        self.paste_button = teek.Button(self, "Pastebin a hello world", self.start_pasting)
         ...
 
     def start_pasting(self):
@@ -291,15 +291,15 @@ Sometimes :ref:`threads <threads>` are overkill. Here is a clock program::
     import threading
     import time
 
-    import teek as tk
+    import teek
 
 
-    class Clock(tk.Frame):
+    class Clock(teek.Frame):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-            self.label = tk.Label(self)
+            self.label = teek.Label(self)
             self.label.pack()
 
             threading.Thread(target=self.updater_thread).start()
@@ -310,11 +310,11 @@ Sometimes :ref:`threads <threads>` are overkill. Here is a clock program::
                 time.sleep(1)
 
 
-    tk.init_threads()
-    window = tk.Window("Clock")
+    teek.init_threads()
+    window = teek.Window("Clock")
     Clock(window).pack()
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 .. admonition:: BTW
 
@@ -343,15 +343,15 @@ after callbacks might be a better alternative. They work like this::
 
     import time
 
-    import teek as tk
+    import teek
 
 
-    class Clock(tk.Frame):
+    class Clock(teek.Frame):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-            self.label = tk.Label(self)
+            self.label = teek.Label(self)
             self.label.pack()
             self.updater_callback()
 
@@ -359,15 +359,15 @@ after callbacks might be a better alternative. They work like this::
             self.label.config['text'] = time.asctime()
 
             # tell tk to run this again after 1 second
-            tk.after(1000, self.updater_callback)
+            teek.after(1000, self.updater_callback)
 
 
-    window = tk.Window("Clock")
+    window = teek.Window("Clock")
     Clock(window).pack()
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
-``tk.after(1000, self.updater_callback)`` runs ``self.updater_callback()`` in
+``teek.after(1000, self.updater_callback)`` runs ``self.updater_callback()`` in
 Tk's event loop after 1000 milliseconds; that is, 1 second.
 
 .. autofunction:: teek.after
@@ -388,5 +388,5 @@ canceling:
 
 Timeout objects also have a useful string representation for debugging:
 
->>> tk.after(1000, print)       # doctest: +ELLIPSIS
+>>> teek.after(1000, print)       # doctest: +ELLIPSIS
 <pending 'print' timeout 'after#...'>

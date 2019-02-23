@@ -1,11 +1,11 @@
-import teek as tk
+import teek
 
 
-window = tk.Window()
+window = teek.Window()
 
-tk.Label(window, "asd asd").pack()
-tk.Separator(window).pack(fill='x')
-tk.Label(window, "moar asd").pack()
+teek.Label(window, "asd asd").pack()
+teek.Separator(window).pack(fill='x')
+teek.Label(window, "moar asd").pack()
 
-window.on_delete_window.connect(tk.quit)
-tk.run()
+window.on_delete_window.connect(teek.quit)
+teek.run()

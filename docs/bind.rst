@@ -19,18 +19,18 @@ Simple Example
 This program displays a label that prints hello when it's clicked.
 ::
 
-    import teek as tk
+    import teek
 
     def on_click():
         print("hello")
 
-    window = tk.Window()
-    label = tk.Label(window, "Click me")
+    window = teek.Window()
+    label = teek.Label(window, "Click me")
     label.pack()
     label.bind('<Button-1>', on_click)
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 If you change ``'<Button-1>'`` to ``'<Motion>'``, ``'hello'`` is printed every
 time you move the mouse over the label. See :man:`bind(3tk)` for all possible
@@ -52,11 +52,11 @@ example, clicking a :class:`.Text` widget focuses the widget and moves the
 mouse to the location that was clicked. In this example, ``on_click()``
 prevents this from happening by returning ``'break'``::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window("Hello")
+    window = teek.Window("Hello")
 
-    text = tk.Text(window)
+    text = teek.Text(window)
     text.pack()
 
     def on_click():
@@ -65,8 +65,8 @@ prevents this from happening by returning ``'break'``::
 
     text.bind('<Button-1>', on_click)
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Note that ``return 'break'`` also prevents other ``<Button-1>`` bindings from
 running. See :meth:`.Callback.connect` for more details.
@@ -244,11 +244,11 @@ get bound.
         classes. For example, if you have a class like this...
         ::
 
-            class MyText(tk.Text):
+            class MyText(teek.Text):
                 pass
 
         ...then ``MyText.bind_class`` and ``MyText.class_bindings`` are no
-        different from ``tk.Text.bind_class`` and ``tk.Text.class_bindings``.
+        different from ``teek.Text.bind_class`` and ``teek.Text.class_bindings``.
         This is because ``class_bindings`` and ``bind_class()`` use the
         :attr:`~.Widget.tk_class_name` attribute.
 
@@ -261,8 +261,8 @@ Virtual Events
 Names of virtual events have ``<<`` and ``>>`` instead of ``<`` and ``>``. Here
 is an example:
 
->>> window = tk.Window()
->>> label = tk.Label(window)
+>>> window = teek.Window()
+>>> label = teek.Label(window)
 >>> label.bind('<<Asd>>', print, event=True)   # will run print(the_event)
 >>> label.event_generate('<<Asd>>')     # doctest: +ELLIPSIS
 <Event: data='', serial=..., type=35>

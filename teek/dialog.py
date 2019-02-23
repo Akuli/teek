@@ -1,11 +1,11 @@
 from functools import partial
 import os
 
-import teek as tk
+import teek
 
 
 def _options(kwargs):
-    if 'parent' in kwargs and isinstance(kwargs['parent'], tk.Window):
+    if 'parent' in kwargs and isinstance(kwargs['parent'], teek.Window):
         kwargs['parent'] = kwargs['parent'].toplevel
 
     for name, value in kwargs.items():
@@ -19,7 +19,7 @@ def color(**kwargs):
     The color selected by the user is returned, or ``None`` if the user
     cancelled the dialog.
     """
-    return tk.tcl_call(tk.Color, 'tk_chooseColor', *_options(kwargs))
+    return teek.tcl_call(teek.Color, 'tk_chooseColor', *_options(kwargs))
 
 
 def _messagebox(type, title, message, detail=None, **kwargs):
@@ -30,17 +30,17 @@ def _messagebox(type, title, message, detail=None, **kwargs):
         kwargs['detail'] = detail
 
     if type == 'ok':
-        tk.tcl_call(None, 'tk_messageBox', *_options(kwargs))
+        teek.tcl_call(None, 'tk_messageBox', *_options(kwargs))
         return None
     if type == 'okcancel':
-        return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'ok'
+        return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'ok'
     if type == 'retrycancel':
-        return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'retry'
+        return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'retry'
     if type == 'yesno':
-        return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'yes'
+        return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs)) == 'yes'
 
     # for anything else, return a string
-    return tk.tcl_call(str, 'tk_messageBox', *_options(kwargs))
+    return teek.tcl_call(str, 'tk_messageBox', *_options(kwargs))
 
 
 info = partial(_messagebox, 'ok', icon='info')
@@ -69,7 +69,7 @@ def open_file(**kwargs):
     returned if the user cancels.
     """
     _check_multiple(kwargs)
-    result = tk.tcl_call(str, 'tk_getOpenFile', *_options(kwargs))
+    result = teek.tcl_call(str, 'tk_getOpenFile', *_options(kwargs))
     if not result:
         return None
     return os.path.abspath(result)
@@ -83,7 +83,7 @@ def open_multiple_files(**kwargs):
     empty list is returned if the user cancels.
     """
     _check_multiple(kwargs)
-    result = tk.tcl_call(
+    result = teek.tcl_call(
         [str], 'tk_getOpenFile', '-multiple', True, *_options(kwargs))
     return list(map(os.path.abspath, result))
 
@@ -94,7 +94,7 @@ def save_file(**kwargs):
     This calls :man:`tk_getSaveFile(3tk)`, and returns ``None`` if the user
     cancels.
     """
-    result = tk.tcl_call(str, 'tk_getSaveFile', *_options(kwargs))
+    result = teek.tcl_call(str, 'tk_getSaveFile', *_options(kwargs))
     if not result:
         return None
     return os.path.abspath(result)
@@ -111,7 +111,7 @@ def directory(**kwargs):
         This behaviour is documented in :man:`tk_chooseDirectory(3tk)`. If you
         want the user to choose an existing directory, use ``mustexist=True``.
     """
-    result = tk.tcl_call(str, 'tk_chooseDirectory', *_options(kwargs))
+    result = teek.tcl_call(str, 'tk_chooseDirectory', *_options(kwargs))
     if not result:
         return None
     return os.path.abspath(result)

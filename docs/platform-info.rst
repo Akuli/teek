@@ -11,7 +11,7 @@ running on.
     Tk library that teek is using. These are two-tuples of integers, and you
     can compare integer tuples nicely, so you can do e.g. this::
 
-        if tk.TK_VERSION >= (8, 6):
+        if teek.TK_VERSION >= (8, 6):
             # use a feature new in Tk 8.6
         else:
             # show an error message or do things without the new feature

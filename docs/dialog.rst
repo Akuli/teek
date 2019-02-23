@@ -21,7 +21,7 @@ These functions call :man:`tk_messageBox(3tk)`. Options are passed to
 :man:`tk_messageBox(3tk)` so that this code...
 ::
 
-    tk.dialog.ok_cancel("Question", "Do you want that?")
+    teek.dialog.ok_cancel("Question", "Do you want that?")
 
 ...does a Tcl call like this:
 

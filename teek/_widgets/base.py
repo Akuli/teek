@@ -5,7 +5,7 @@ import keyword
 import operator
 import re
 
-import teek as tk
+import teek
 from teek._tcl_calls import counts, from_tcl, make_thread_safe
 from teek._structures import ConfigDict, CgetConfigureConfigDict, after_quit
 
@@ -67,10 +67,10 @@ class GridRowOrColumnConfig(ConfigDict):
     def __init__(self, configure_method):
         super().__init__()
         self._types.update({
-            'minsize': tk.ScreenDistance,
+            'minsize': teek.ScreenDistance,
             'weight': float,
             'uniform': str,
-            'pad': tk.ScreenDistance,
+            'pad': teek.ScreenDistance,
         })
         self._configure = configure_method
 
@@ -135,15 +135,15 @@ class Widget:
 
     Don't create instances of ``Widget`` yourself like ``Widget(...)``; use one
     of the classes documented below instead. However, you can use ``Widget``
-    with :func:`isinstance`; e.g. ``isinstance(thingy, tk.Widget)`` returns
+    with :func:`isinstance`; e.g. ``isinstance(thingy, teek.Widget)`` returns
     ``True`` if ``thingy`` is a teek widget.
 
     .. attribute:: config
 
         A dict-like object that represents the widget's options.
 
-        >>> window = tk.Window()
-        >>> label = tk.Label(window, text='Hello World')
+        >>> window = teek.Window()
+        >>> label = teek.Label(window, text='Hello World')
         >>> label.config
         <a config object, behaves like a dict>
         >>> label.config['text']
@@ -183,26 +183,26 @@ class Widget:
         This is a class attribute, but it can be accessed from instances as
         well:
 
-        >>> text = tk.Text(tk.Window())
+        >>> text = teek.Text(teek.Window())
         >>> text.tk_class_name
         'Text'
-        >>> tk.Text.tk_class_name
+        >>> teek.Text.tk_class_name
         'Text'
 
         Note that Tk's class names are sometimes different from the names of
         Python classes, and this attribute can also be None in some special
         cases.
 
-        >>> tk.Label.tk_class_name
+        >>> teek.Label.tk_class_name
         'TLabel'
-        >>> class AsdLabel(tk.Label):
+        >>> class AsdLabel(teek.Label):
         ...     pass
         ...
         >>> AsdLabel.tk_class_name
         'TLabel'
-        >>> print(tk.Window.tk_class_name)
+        >>> print(teek.Window.tk_class_name)
         None
-        >>> print(tk.Widget.tk_class_name)
+        >>> print(teek.Widget.tk_class_name)
         None
 
     .. attribute:: command_list
@@ -276,55 +276,55 @@ class Widget:
             'style': str,
 
             # options(3tk)
-            'activebackground': tk.Color,
-            'activeborderwidth': tk.ScreenDistance,
-            'activeforeground': tk.Color,
+            'activebackground': teek.Color,
+            'activeborderwidth': teek.ScreenDistance,
+            'activeforeground': teek.Color,
             'anchor': str,
-            'background': tk.Color,
-            'bg': tk.Color,
+            'background': teek.Color,
+            'bg': teek.Color,
             #'bitmap': ???,
-            'borderwidth': tk.ScreenDistance,
-            'bd': tk.ScreenDistance,
+            'borderwidth': teek.ScreenDistance,
+            'bd': teek.ScreenDistance,
             'cursor': str,
             'compound': str,
-            'disabledforeground': tk.Color,
+            'disabledforeground': teek.Color,
             'exportselection': bool,
-            'font': tk.Font,
-            'foreground': tk.Color,
-            'fg': tk.Color,
-            'highlightbackground': tk.Color,
-            'highlightcolor': tk.Color,
+            'font': teek.Font,
+            'foreground': teek.Color,
+            'fg': teek.Color,
+            'highlightbackground': teek.Color,
+            'highlightcolor': teek.Color,
             'highlightthickness': str,
-            'insertbackground': tk.Color,
-            'insertborderwidth': tk.ScreenDistance,
+            'insertbackground': teek.Color,
+            'insertborderwidth': teek.ScreenDistance,
             'insertofftime': int,
             'insertontime': int,
-            'insertwidth': tk.ScreenDistance,
+            'insertwidth': teek.ScreenDistance,
             'jump': bool,
             'justify': str,
             'orient': str,
-            'padx': tk.ScreenDistance,
-            'pady': tk.ScreenDistance,
+            'padx': teek.ScreenDistance,
+            'pady': teek.ScreenDistance,
             'relief': str,
             'repeatdelay': int,
             'repeatinterval': int,
-            'selectbackground': tk.Color,
-            'selectborderwidth': tk.ScreenDistance,
-            'selectforeground': tk.Color,
+            'selectbackground': teek.Color,
+            'selectborderwidth': teek.ScreenDistance,
+            'selectforeground': teek.Color,
             'setgrid': bool,
             'text': str,
-            'troughcolor': tk.Color,
-            'wraplength': tk.ScreenDistance,
+            'troughcolor': teek.Color,
+            'wraplength': teek.ScreenDistance,
 
             # these options are in both man pages
-            'textvariable': tk.StringVar,
+            'textvariable': teek.StringVar,
             'underline': int,
-            'image': tk.Image,
+            'image': teek.Image,
             # 'xscrollcommand' and 'yscrollcommand' are done below
             'takefocus': str,   # this one is harder to do right than you think
 
             # other stuff that many things seem to have
-            'padding': tk.ScreenDistance,
+            'padding': teek.ScreenDistance,
             'state': str,
         })
 
@@ -345,8 +345,9 @@ class Widget:
         ``Widget`` subclass than what the type of the ``path_string`` widget
         is:
 
-        >>> window = tk.Window()
-        >>> tk.Button.from_tcl(tk.Label(window).to_tcl())  # doctest: +ELLIPSIS
+        >>> window = teek.Window()
+        >>> teek.Button.from_tcl(teek.Label(window).to_tcl())  \
+# doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         TypeError: '...' is a Label, not a Button
@@ -367,7 +368,7 @@ class Widget:
 
     def __repr__(self):
         class_name = type(self).__name__
-        if getattr(tk, class_name, None) is type(self):
+        if getattr(teek, class_name, None) is type(self):
             result = 'teek.%s widget' % class_name
         else:
             result = '{0.__module__}.{0.__name__} widget'.format(type(self))
@@ -386,8 +387,8 @@ class Widget:
         return []
 
     def _create_scroll_callback(self, option_name):
-        result = tk.Callback()
-        command_string = tk.create_command(result.run, [float, float])
+        result = teek.Callback()
+        command_string = teek.create_command(result.run, [float, float])
         self.command_list.append(command_string)
         self._call(None, self, 'configure', '-' + option_name, command_string)
         return result
@@ -402,8 +403,8 @@ class Widget:
     @make_thread_safe
     def _call(self, *args, **kwargs):
         try:
-            return tk.tcl_call(*args, **kwargs)
-        except tk.TclError as err:
+            return teek.tcl_call(*args, **kwargs)
+        except teek.TclError as err:
             if not self.winfo_exists():
                 raise RuntimeError("the widget has been destroyed") from None
             raise err
@@ -418,26 +419,26 @@ class Widget:
             Don't override this in a subclass. In some cases, the widget is
             destroyed without a call to this method.
 
-            >>> class BrokenFunnyLabel(tk.Label):
+            >>> class BrokenFunnyLabel(teek.Label):
             ...     def destroy(self):
             ...         print("destroying")
             ...         super().destroy()
             ...
-            >>> BrokenFunnyLabel(tk.Window()).pack()
-            >>> tk.quit()
+            >>> BrokenFunnyLabel(teek.Window()).pack()
+            >>> teek.quit()
             >>> # nothing was printed!
 
             Use the ``<Destroy>`` event instead:
 
-            >>> class WorkingFunnyLabel(tk.Label):
+            >>> class WorkingFunnyLabel(teek.Label):
             ...     def __init__(self, *args, **kwargs):
             ...         super().__init__(*args, **kwargs)
             ...         self.bind('<Destroy>', self._destroy_callback)
             ...     def _destroy_callback(self):
             ...         print("destroying")
             ...
-            >>> WorkingFunnyLabel(tk.Window()).pack()
-            >>> tk.quit()
+            >>> WorkingFunnyLabel(teek.Window()).pack()
+            >>> teek.quit()
             destroying
         """
         for name in self._call([str], 'winfo', 'children', self):
@@ -456,7 +457,7 @@ class Widget:
         del _widgets[self.to_tcl()]
 
         for command in self.command_list:
-            tk.delete_command(command)
+            teek.delete_command(command)
         self.command_list.clear()      # why not
 
     # can be overrided when .destroy() in .destroy() would cause infinite
@@ -481,7 +482,7 @@ class Widget:
             return _class_bindings[bindtag]
         except KeyError:
             def call_bind(returntype, *args):
-                return tk.tcl_call(returntype, 'bind', bindtag, *args)
+                return teek.tcl_call(returntype, 'bind', bindtag, *args)
 
             # all commands are deleted when the interpreter shuts down, and the
             # binding dict created here should be alive until then, so it's
@@ -508,7 +509,7 @@ class Widget:
         Manual page: :man:`winfo(3tk)`
         """
         # self._call uses this, so this must not use that
-        return tk.tcl_call(bool, 'winfo', 'exists', self)
+        return teek.tcl_call(bool, 'winfo', 'exists', self)
 
     def winfo_ismapped(self):
         """
@@ -762,7 +763,7 @@ class BindingDict(collections.abc.Mapping):
             assert isinstance(string_value, str)
             try:
                 value = from_tcl(type_, string_value)
-            except (ValueError, tk.TclError) as e:
+            except (ValueError, teek.TclError) as e:
                 if string_value == '??':
                     value = None
                 elif attrib == 'sendevent':
@@ -797,9 +798,9 @@ class BindingDict(collections.abc.Mapping):
                 self._callback_objects[sequence] = equiv_callback
                 return equiv_callback
 
-        callback = tk.Callback()
+        callback = teek.Callback()
         runner = functools.partial(self._callback_runner, callback)
-        command = tk.create_command(runner, [str] * len(_BIND_SUBS))
+        command = teek.create_command(runner, [str] * len(_BIND_SUBS))
         self.command_list.append(command)      # avoid memory leaks
 
         subs_string = ' '.join(subs for subs, type_, name in _BIND_SUBS)
@@ -849,10 +850,10 @@ class ChildMixin:
                 # screen distance, which is fine because a Tcl screen distance
                 # string
                 # behaves like a list of 1 item
-                '-padx': [tk.ScreenDistance],
-                '-pady': [tk.ScreenDistance],
-                '-ipadx': tk.ScreenDistance,
-                '-ipady': tk.ScreenDistance,
+                '-padx': [teek.ScreenDistance],
+                '-pady': [teek.ScreenDistance],
+                '-ipadx': teek.ScreenDistance,
+                '-ipady': teek.ScreenDistance,
             })
 
         if geometry_manager == 'pack':
@@ -871,14 +872,14 @@ class ChildMixin:
             types.update({
                 '-anchor': str,
                 '-bordermode': str,
-                '-width': tk.ScreenDistance,
-                '-height': tk.ScreenDistance,
+                '-width': teek.ScreenDistance,
+                '-height': teek.ScreenDistance,
                 '-relheight': float,
                 '-relwidth': float,
                 '-relx': float,
                 '-rely': float,
-                '-x': tk.ScreenDistance,
-                '-y': tk.ScreenDistance,
+                '-x': teek.ScreenDistance,
+                '-y': teek.ScreenDistance,
             })
         else:
             raise RuntimeError("oh no")     # pragma: no cover

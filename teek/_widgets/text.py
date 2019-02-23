@@ -2,7 +2,7 @@ import collections.abc
 import functools
 import re
 
-import teek as tk
+import teek
 from teek._structures import CgetConfigureConfigDict
 from teek._tcl_calls import make_thread_safe
 from teek._widgets.base import BindingDict, ChildMixin, Widget
@@ -65,33 +65,33 @@ class Tag(CgetConfigureConfigDict):
         super().__init__(self._call_tag_subcommand)
 
         self._types.update({
-            'background': tk.Color,
+            'background': teek.Color,
             #'bgstipple': ???,
-            'borderwidth': tk.ScreenDistance,
+            'borderwidth': teek.ScreenDistance,
             'elide': bool,
             #'fgstipple': ???,
-            'font': tk.Font,
-            'foreground': tk.Color,
+            'font': teek.Font,
+            'foreground': teek.Color,
             'justify': str,
-            'lmargin1': tk.ScreenDistance,
-            'lmargin2': tk.ScreenDistance,
-            'lmargin3': tk.ScreenDistance,
-            'lmargincolor': tk.Color,
-            'offset': tk.ScreenDistance,
+            'lmargin1': teek.ScreenDistance,
+            'lmargin2': teek.ScreenDistance,
+            'lmargin3': teek.ScreenDistance,
+            'lmargincolor': teek.Color,
+            'offset': teek.ScreenDistance,
             'overstrike': bool,
-            'overstrikefg': tk.Color,
+            'overstrikefg': teek.Color,
             'relief': str,
-            'rmargin': tk.ScreenDistance,
-            'rmargincolor': tk.Color,
-            'selectbackground': tk.Color,
-            'selectforeground': tk.Color,
-            'spacing1': tk.ScreenDistance,
-            'spacing2': tk.ScreenDistance,
-            'spacing3': tk.ScreenDistance,
+            'rmargin': teek.ScreenDistance,
+            'rmargincolor': teek.Color,
+            'selectbackground': teek.Color,
+            'selectforeground': teek.Color,
+            'spacing1': teek.ScreenDistance,
+            'spacing2': teek.ScreenDistance,
+            'spacing3': teek.ScreenDistance,
             'tabs': [str],
             'tabstyle': str,
             'underline': bool,
-            'underlinefg': tk.Color,
+            'underlinefg': teek.Color,
             'wrap': str,
         })
 
@@ -234,8 +234,8 @@ class Text(ChildMixin, Widget):
 
         Note that ``end`` changes when the text widget's content changes:
 
-        >>> window = tk.Window()
-        >>> text = tk.Text(window)
+        >>> window = teek.Window()
+        >>> text = teek.Text(window)
         >>> text.end
         TextIndex(line=1, column=0)
         >>> old_end = text.end
@@ -293,12 +293,12 @@ class Text(ChildMixin, Widget):
             # undocumented: height can also be a screen distance??
             # probably a bug
             'height': int,
-            'inactiveselectbackground': tk.Color,
+            'inactiveselectbackground': teek.Color,
             'insertunfocussed': str,
             'maxundo': int,
-            'spacing1': tk.ScreenDistance,
-            'spacing2': tk.ScreenDistance,
-            'spacing3': tk.ScreenDistance,
+            'spacing1': teek.ScreenDistance,
+            'spacing2': teek.ScreenDistance,
+            'spacing3': teek.ScreenDistance,
             'startline': int,
             'state': str,
             'tabs': [str],

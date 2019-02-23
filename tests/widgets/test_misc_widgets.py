@@ -1,15 +1,15 @@
-import teek as tk
+import teek
 
 import pytest
 
 
 def test_button(capsys):
-    window = tk.Window()
+    window = teek.Window()
     stuff = []
 
-    button1 = tk.Button(window)
-    button2 = tk.Button(window, 'click me')
-    button3 = tk.Button(window, 'click me', (lambda: stuff.append(3)))
+    button1 = teek.Button(window)
+    button2 = teek.Button(window, 'click me')
+    button3 = teek.Button(window, 'click me', (lambda: stuff.append(3)))
 
     assert "text=''" in repr(button1)
     assert "text='click me'" in repr(button2)
@@ -19,7 +19,7 @@ def test_button(capsys):
     assert button2.config['text'] == button3.config['text'] == 'click me'
 
     for button in [button1, button2, button3]:
-        assert isinstance(button.config['command'], tk.Callback)
+        assert isinstance(button.config['command'], teek.Callback)
         with pytest.raises(ValueError) as error:
             button.config['command'] = print
         assert str(error.value) == (
@@ -56,7 +56,7 @@ def test_button(capsys):
 
 
 def test_button_invoke():
-    button = tk.Button(tk.Window())
+    button = teek.Button(teek.Window())
     stuff = []
     button.config['command'].connect(stuff.append, args=[1])
     button.config['command'].connect(stuff.append, args=[2])
@@ -65,12 +65,12 @@ def test_button_invoke():
 
 
 def test_checkbutton():
-    assert tk.Checkbutton(tk.Window()).config['text'] == ''
-    assert tk.Checkbutton(tk.Window(), 'asd').config['text'] == 'asd'
+    assert teek.Checkbutton(teek.Window()).config['text'] == ''
+    assert teek.Checkbutton(teek.Window(), 'asd').config['text'] == 'asd'
 
     asd = []
 
-    checkbutton = tk.Checkbutton(tk.Window(), 'asd', asd.append)
+    checkbutton = teek.Checkbutton(teek.Window(), 'asd', asd.append)
     checkbutton.config['command'].connect(asd.append)
     checkbutton.invoke()
     assert checkbutton.config['variable'].get() is True
@@ -79,7 +79,7 @@ def test_checkbutton():
     assert asd == [True, True, False, False]
     asd.clear()
 
-    checkbutton = tk.Checkbutton(tk.Window(), 'asd', asd.append,
+    checkbutton = teek.Checkbutton(teek.Window(), 'asd', asd.append,
                                  onvalue=False, offvalue=True)
     checkbutton.config['command'].connect(asd.append)
     checkbutton.invoke()
@@ -91,7 +91,7 @@ def test_checkbutton():
 
 
 def test_entry():
-    entry = tk.Entry(tk.Window(), "some text")
+    entry = teek.Entry(teek.Window(), "some text")
     assert "text='some text'" in repr(entry)
 
     assert entry.text == 'some text'
@@ -108,9 +108,9 @@ def test_entry():
 
 
 def test_label():
-    window = tk.Window()
+    window = teek.Window()
 
-    label = tk.Label(window)
+    label = teek.Label(window)
     assert "text=''" in repr(label)
     assert label.config['text'] == ''
 
@@ -118,20 +118,20 @@ def test_label():
     assert label.config['text'] == 'new text'
     assert "text='new text'" in repr(label)
 
-    label2 = tk.Label(window, 'new text')
+    label2 = teek.Label(window, 'new text')
     assert label.config == label2.config
 
 
 def test_labelframe():
-    assert tk.LabelFrame(tk.Window()).config['text'] == ''
-    assert tk.LabelFrame(tk.Window(), 'hello').config['text'] == 'hello'
+    assert teek.LabelFrame(teek.Window()).config['text'] == ''
+    assert teek.LabelFrame(teek.Window(), 'hello').config['text'] == 'hello'
 
-    labelframe = tk.LabelFrame(tk.Window(), 'hello')
+    labelframe = teek.LabelFrame(teek.Window(), 'hello')
     assert repr(labelframe) == "<teek.LabelFrame widget: text='hello'>"
 
 
 def test_progressbar():
-    progress_bar = tk.Progressbar(tk.Window())
+    progress_bar = teek.Progressbar(teek.Window())
     assert progress_bar.config['value'] == 0
     assert repr(progress_bar) == (
         "<teek.Progressbar widget: "
@@ -149,7 +149,7 @@ def test_progressbar():
 
 @pytest.mark.slow
 def test_progressbar_bouncing():
-    progress_bar = tk.Progressbar(tk.Window(), mode='indeterminate')
+    progress_bar = teek.Progressbar(teek.Window(), mode='indeterminate')
     assert progress_bar.config['value'] == 0
     progress_bar.start()
 
@@ -160,14 +160,14 @@ def test_progressbar_bouncing():
             progress_bar.stop()     # prevents funny tk errors
         finally:
             # if this doesn't run, the test freezes
-            tk.quit()
+            teek.quit()
 
-    tk.after(500, done_callback)
-    tk.run()
+    teek.after(500, done_callback)
+    teek.run()
 
 
 def test_scrollbar(fake_command, handy_callback):
-    scrollbar = tk.Scrollbar(tk.Window())
+    scrollbar = teek.Scrollbar(teek.Window())
     assert scrollbar.get() == (0.0, 1.0)
 
     # testing the set method isn't as easy as you might think because get()
@@ -180,7 +180,7 @@ def test_scrollbar(fake_command, handy_callback):
     log = []
     scrollbar.config['command'].connect(lambda *args: log.append(args))
 
-    tk.tcl_eval(None, '''
+    teek.tcl_eval(None, '''
     set command [%s cget -command]
     $command moveto 1.2
     $command scroll 1 units
@@ -194,8 +194,8 @@ def test_scrollbar(fake_command, handy_callback):
 
 
 def test_separator():
-    hsep = tk.Separator(tk.Window())
-    vsep = tk.Separator(tk.Window(), orient='vertical')
+    hsep = teek.Separator(teek.Window())
+    vsep = teek.Separator(teek.Window(), orient='vertical')
     assert hsep.config['orient'] == 'horizontal'
     assert vsep.config['orient'] == 'vertical'
     assert repr(hsep) == "<teek.Separator widget: orient='horizontal'>"
@@ -204,10 +204,10 @@ def test_separator():
 
 def test_spinbox():
     asd = []
-    spinbox = tk.Spinbox(tk.Window(), from_=0, to=10,
+    spinbox = teek.Spinbox(teek.Window(), from_=0, to=10,
                          command=(lambda: asd.append('boo')))
     assert asd == []
-    tk.tcl_eval(None, '''
+    teek.tcl_eval(None, '''
     set command [%s cget -command]
     $command
     $command
@@ -216,7 +216,7 @@ def test_spinbox():
 
 
 def test_combobox():
-    combobox = tk.Combobox(tk.Window(), values=['a', 'b', 'c and d'])
+    combobox = teek.Combobox(teek.Window(), values=['a', 'b', 'c and d'])
     assert combobox.config['values'] == ['a', 'b', 'c and d']
     combobox.text = 'c and d'
     assert combobox.text in combobox.config['values']

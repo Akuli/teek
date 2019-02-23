@@ -1,6 +1,6 @@
 import pytest
 
-import teek as tk
+import teek
 from teek._widgets.windows import WmMixin
 from teek.extras import more_dialogs
 
@@ -19,9 +19,9 @@ def test_ask_string(handy_callback, monkeypatch):
         @handy_callback
         def fake_wait_window():
             [label] = [widget for widget in entrydialog.window.winfo_children()
-                       if isinstance(widget, tk.Label)]
+                       if isinstance(widget, teek.Label)]
             [entry] = [widget for widget in entrydialog.window.winfo_children()
-                       if isinstance(widget, tk.Entry)]
+                       if isinstance(widget, teek.Entry)]
 
             assert entrydialog.window.toplevel.title == 'A'
             assert label.config['text'] == 'B'
@@ -61,7 +61,7 @@ def test_ask_string(handy_callback, monkeypatch):
     monkeypatch.setattr(more_dialogs._EntryDialog, 'run', fake_run)
     assert more_dialogs.ask_string(
         'A', 'B', validator=validator, initial_value='boo',
-        parent=tk.Window()) == 'WAT'
+        parent=teek.Window()) == 'WAT'
     assert fake_run.ran_once()
 
 
@@ -69,7 +69,7 @@ def test_ask_string_canceling(handy_callback, monkeypatch):
     @handy_callback
     def fake_run(entrydialog):
         [entry] = [widget for widget in entrydialog.window.winfo_children()
-                   if isinstance(widget, tk.Entry)]
+                   if isinstance(widget, teek.Entry)]
         entry.text = 'a'
 
         assert entrydialog.window.winfo_exists()
@@ -103,7 +103,7 @@ def test_ask_integer(handy_callback, monkeypatch):
         entrydialog.run = lambda: 123
 
         [spinbox] = [widget for widget in entrydialog.window.winfo_children()
-                     if isinstance(widget, tk.Spinbox)]
+                     if isinstance(widget, teek.Spinbox)]
 
         assert spinbox.text == str(initial)
         assert entrydialog.result == initial
@@ -136,7 +136,7 @@ def test_ask_integer(handy_callback, monkeypatch):
 
     initial = 4
     assert more_dialogs.ask_integer('a', 'b', [1, 4, 3],
-                                    initial_value=4, parent=tk.Window()) == 123
+                                    initial_value=4, parent=teek.Window()) == 123
     assert fake_entrydialog.ran == 3
 
     with pytest.raises(ValueError):

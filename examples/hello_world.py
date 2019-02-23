@@ -1,8 +1,8 @@
-import teek as tk
+import teek
 
 
-window = tk.Window("Hello")
-label = tk.Label(window, "Hello World!")
+window = teek.Window("Hello")
+label = teek.Label(window, "Hello World!")
 label.pack()
-window.on_delete_window.connect(tk.quit)
-tk.run()
+window.on_delete_window.connect(teek.quit)
+teek.run()

@@ -41,10 +41,10 @@ widgets into that frame.
 
 ```python3
 # this is a well-done hello world, and tbh, most people don't use tkinter "well"
-import tkinter as tk
+import tkinter
 from tkinter import ttk
 
-root = tk.Tk()
+root = tkinter.Tk()
 big_frame = ttk.Frame(root)
 big_frame.pack(fill='both', expand=True)   # make sure it fills the root window
 ttk.Label(big_frame, text="Hello World!").pack()
@@ -54,12 +54,12 @@ root.mainloop()
 **Teek:**
 
 ```python3
-import teek as tk
+import teek
 
-window = tk.Window("Hello")
-tk.Label(window, "Hello World!").pack()
-window.on_delete_window.connect(tk.quit)
-tk.run()
+window = teek.Window("Hello")
+teek.Label(window, "Hello World!").pack()
+window.on_delete_window.connect(teek.quit)
+teek.run()
 ```
 
 All teek widgets are Ttk, so you don't need to do a separate import to use
@@ -116,9 +116,9 @@ root.mainloop()
 ```python3
 import threading
 import time
-import teek as tk
+import teek
 
-text = tk.Text(tk.Window("Thread Demo"))
+text = teek.Text(teek.Window("Thread Demo"))
 text.pack()
 
 def thread_target():
@@ -128,14 +128,14 @@ def thread_target():
     time.sleep(2)
     text.insert(text.end, 'done')
 
-tk.init_threads()
+teek.init_threads()
 threading.Thread(target=thread_target).start()
-window.on_delete_window.connect(tk.quit)
-tk.run()
+window.on_delete_window.connect(teek.quit)
+teek.run()
 ```
 
 This is not a joke. Using threads with tkinter is a horrible mess, but teek
-works with threads nicely. All you need is `tk.init_threads()`, and then you
+works with threads nicely. All you need is `teek.init_threads()`, and then you
 can do teek things from threads. See [concurrency docs] for details.
 
 [concurrency docs]: https://teek.readthedocs.io/en/latest/concurrency.html
@@ -154,7 +154,7 @@ print(repr(label))  # somewhat better: <tkinter.ttk.Label object .14026901615277
 **Teek:**
 
 ```python3
-label = tk.Label(some_widget, "hello world")
+label = teek.Label(some_widget, "hello world")
 print(label)    # <teek.Label widget: text='hello world'>
 ```
 
@@ -264,7 +264,7 @@ if we_actually_dont_want_to_timeout():
 **Teek:**
 
 ```python3
-timeout_object = tk.after(1000, my_function)
+timeout_object = teek.after(1000, my_function)
 ...
 # debugging
 print(timeout_object)   # prints <pending 'my_function' timeout 'after#0'>

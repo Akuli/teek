@@ -1,11 +1,11 @@
 import pytest
 
-import teek as tk
+import teek
 
 
 def test_pack():
-    window = tk.Window()
-    button = tk.Button(window)
+    window = teek.Window()
+    button = teek.Button(window)
     button.pack(fill='both', expand=True)
 
     pack_info = button.pack_info()
@@ -19,12 +19,12 @@ def test_pack():
         assert isinstance(pack_info[option], list)
         assert len(pack_info[option]) in {1, 2}
         for item in pack_info[option]:
-            assert isinstance(item, tk.ScreenDistance)
+            assert isinstance(item, teek.ScreenDistance)
     for option in ['ipadx', 'ipady']:
-        assert isinstance(pack_info[option], tk.ScreenDistance)
+        assert isinstance(pack_info[option], teek.ScreenDistance)
 
     button.pack_forget()
-    with pytest.raises(tk.TclError):
+    with pytest.raises(teek.TclError):
         button.pack_info()
 
     button.pack(**pack_info)
@@ -32,13 +32,13 @@ def test_pack():
     button.pack_forget()
 
     assert window.pack_slaves() == []
-    label1 = tk.Label(window, 'label one')
+    label1 = teek.Label(window, 'label one')
     label1.pack()
-    label2 = tk.Label(window, 'label two')
+    label2 = teek.Label(window, 'label two')
     label2.pack()
     assert window.pack_slaves() == [label1, label2]
 
-    frame = tk.Frame(window)
+    frame = teek.Frame(window)
     label2.pack(in_=frame)
     assert window.pack_slaves() == [label1]
     assert frame.pack_slaves() == [label2]
@@ -47,8 +47,8 @@ def test_pack():
 def test_grid():
     # grid shares a lot of code with pack, so no need to test everything
     # separately
-    window = tk.Window()
-    button = tk.Button(window)
+    window = teek.Window()
+    button = teek.Button(window)
     button.grid(column=1, rowspan=2, sticky='nswe')
 
     grid_info = button.grid_info()
@@ -57,15 +57,15 @@ def test_grid():
     assert grid_info['row'] == 0
     assert grid_info['rowspan'] == 2
     assert grid_info['in'] is button.parent
-    assert grid_info['padx'] == grid_info['pady'] == [tk.ScreenDistance(0)]
-    assert grid_info['ipadx'] == grid_info['ipady'] == tk.ScreenDistance(0)
+    assert grid_info['padx'] == grid_info['pady'] == [teek.ScreenDistance(0)]
+    assert grid_info['ipadx'] == grid_info['ipady'] == teek.ScreenDistance(0)
     assert grid_info['sticky'] == 'nesw'     # not 'nswe' for some reason
 
     assert window.grid_slaves() == [button]
 
 
 def test_grid_row_and_column_objects(check_config_types):
-    window = tk.Window()
+    window = teek.Window()
     assert window.grid_rows == []
     assert window.grid_columns == []
 
@@ -73,7 +73,7 @@ def test_grid_row_and_column_objects(check_config_types):
     assert window.grid_rows is not window.grid_rows
     assert window.grid_rows == window.grid_rows
 
-    label = tk.Label(window)
+    label = teek.Label(window)
     label.grid()
 
     for rows_columns in [window.grid_rows, window.grid_columns]:
@@ -94,21 +94,21 @@ def test_grid_row_and_column_objects(check_config_types):
 
 
 def test_place():
-    window = tk.Window()
-    button = tk.Button(window)
+    window = teek.Window()
+    button = teek.Button(window)
     button.place(x=123, rely=0.5)
 
     place_info = button.place_info()
     assert place_info['anchor'] == 'nw'
     assert place_info['bordermode'] == 'inside'
     assert place_info['in'] is window
-    assert place_info['x'] == tk.ScreenDistance(123)
+    assert place_info['x'] == teek.ScreenDistance(123)
     assert place_info['rely'] == 0.5
 
     assert isinstance(place_info['relx'], float)
     assert isinstance(place_info['rely'], float)
-    assert isinstance(place_info['x'], tk.ScreenDistance)
-    assert isinstance(place_info['y'], tk.ScreenDistance)
+    assert isinstance(place_info['x'], teek.ScreenDistance)
+    assert isinstance(place_info['y'], teek.ScreenDistance)
 
     assert place_info['width'] is None
     assert place_info['height'] is None
@@ -123,20 +123,20 @@ def test_place():
     button.place_forget()
 
     assert window.place_slaves() == []
-    label1 = tk.Label(window, 'label one')
+    label1 = teek.Label(window, 'label one')
     label1.place(x=1)
-    label2 = tk.Label(window, 'label two')
+    label2 = teek.Label(window, 'label two')
     label2.place(x=2)
     assert set(window.place_slaves()) == {label1, label2}   # allow any order
 
-    frame = tk.Frame(window)
+    frame = teek.Frame(window)
     label2.place(in_=frame)
     assert window.place_slaves() == [label1]
     assert frame.place_slaves() == [label2]
 
 
 def test_place_special_error():
-    label = tk.Label(tk.Window())
+    label = teek.Label(teek.Window())
     with pytest.raises(TypeError) as error:
         label.place()
 

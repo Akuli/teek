@@ -1,7 +1,7 @@
 import collections.abc
 import weakref
 
-import teek as tk
+import teek
 from teek._structures import ConfigDict
 from teek._tcl_calls import make_thread_safe
 from teek._widgets.base import ChildMixin, Widget
@@ -15,9 +15,9 @@ class TabConfigDict(ConfigDict):
         self._types.update({
             'state': str,
             'sticky': str,
-            'padding': [tk.ScreenDistance],
+            'padding': [teek.ScreenDistance],
             'text': str,
-            'image': tk.Image,
+            'image': teek.Image,
             'compound': str,
             'underline': int,
         })
@@ -25,19 +25,19 @@ class TabConfigDict(ConfigDict):
     # self._tab.widget.parent is the notebook, lol
     def _set(self, option, value):
         self._tab._check_in_notebook()
-        tk.tcl_call(None, self._tab.widget.parent,
-                    'tab', self._tab.widget, '-' + option, value)
+        teek.tcl_call(None, self._tab.widget.parent,
+                      'tab', self._tab.widget, '-' + option, value)
 
     def _get(self, option):
         self._tab._check_in_notebook()
-        return tk.tcl_call(self._types.get(option, str),
-                           self._tab.widget.parent, 'tab', self._tab.widget,
-                           '-' + option)
+        return teek.tcl_call(self._types.get(option, str),
+                             self._tab.widget.parent, 'tab', self._tab.widget,
+                             '-' + option)
 
     def _list_options(self):
         self._tab._check_in_notebook()
-        for option in tk.tcl_call({}, self._tab.widget.parent,
-                                  'tab', self._tab.widget):
+        for option in teek.tcl_call({}, self._tab.widget.parent,
+                                    'tab', self._tab.widget):
             yield option.lstrip('-')
 
 
@@ -51,7 +51,7 @@ class NotebookTab:
     if you create a tab like this...
     ::
 
-        tab = tk.NotebookTab(tk.Label(asd_notebook, "hello"))
+        tab = teek.NotebookTab(teek.Label(asd_notebook, "hello"))
 
     ...then the tab cannot be added to any other notebook widget than
     ``asd_notebook``, because ``asd_notebook`` is the parent widget of the
@@ -64,11 +64,11 @@ class NotebookTab:
     :class:`.NotebookTab`, so that this...
     ::
 
-        notebook.append(tk.NotebookTab(some_widget, text="Tab Title"))
+        notebook.append(teek.NotebookTab(some_widget, text="Tab Title"))
 
     ...does the same thing as this::
 
-        tab = tk.NotebookTab(some_widget, text="Tab Title")
+        tab = teek.NotebookTab(some_widget, text="Tab Title")
         notebook.append(tab)
         tab.config['text'] = "Tab Title"
 
@@ -145,9 +145,9 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
     If you try to add a tab that is already in the notebook, that tab will be
     moved. For example:
 
-    >>> notebook = tk.Notebook(tk.Window())
-    >>> tab1 = tk.NotebookTab(tk.Label(notebook, text="1"), text="One")
-    >>> tab2 = tk.NotebookTab(tk.Label(notebook, text="2"), text="Two")
+    >>> notebook = teek.Notebook(teek.Window())
+    >>> tab1 = teek.NotebookTab(teek.Label(notebook, text="1"), text="One")
+    >>> tab2 = teek.NotebookTab(teek.Label(notebook, text="2"), text="Two")
     >>> notebook.extend([tab1, tab2])
     >>> list(notebook)      # doctest: +NORMALIZE_WHITESPACE
     [NotebookTab(<teek.Label widget: text='1'>, text='One'),
@@ -207,9 +207,9 @@ class Notebook(ChildMixin, Widget, collections.abc.MutableSequence):
 
         If there is no tab with the given widget, a new tab is created.
 
-        >>> notebook = tk.Notebook(tk.Window())
-        >>> label = tk.Label(notebook, text='lol')
-        >>> tab = tk.NotebookTab(label)
+        >>> notebook = teek.Notebook(teek.Window())
+        >>> label = teek.Label(notebook, text='lol')
+        >>> tab = teek.NotebookTab(label)
         >>> notebook.append(tab)
         >>> tab
         NotebookTab(<teek.Label widget: text='lol'>)

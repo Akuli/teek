@@ -1,10 +1,10 @@
 import pytest
 
-import teek as tk
+import teek
 
 
 def test_versions():
-    for version in [tk.TCL_VERSION, tk.TK_VERSION]:
+    for version in [teek.TCL_VERSION, teek.TK_VERSION]:
         assert isinstance(version, tuple)
         major, minor = version
         assert isinstance(major, int)
@@ -13,7 +13,7 @@ def test_versions():
 
 def test_version_check(monkeypatch):
     with pytest.raises(AttributeError):
-        tk.version_check
+        teek.version_check
 
     from teek import _platform_info
     monkeypatch.setattr(_platform_info, 'TCL_VERSION', (1, 2))
@@ -27,4 +27,4 @@ def test_version_check(monkeypatch):
 
 
 def test_windowingsystem():
-    assert tk.windowingsystem() in {'x11', 'aqua', 'win32'}
+    assert teek.windowingsystem() in {'x11', 'aqua', 'win32'}

@@ -1,5 +1,5 @@
-import teek as tk
+import teek
 
 
-class LolLabel(tk.Label):
+class LolLabel(teek.Label):
     pass

@@ -1,4 +1,4 @@
-import teek as tk
+import teek
 
 
 class _EntryDialog:
@@ -7,23 +7,23 @@ class _EntryDialog:
                  initial_value, parent):
         self.validator = validator
 
-        self.window = tk.Window(title)
+        self.window = teek.Window(title)
         self.window.on_delete_window.connect(self.on_cancel)
         if parent is not None:
             self.window.transient = parent
 
-        self.var = tk.StringVar()
+        self.var = teek.StringVar()
 
-        tk.Label(self.window, text).grid(row=0, column=0, columnspan=2)
+        teek.Label(self.window, text).grid(row=0, column=0, columnspan=2)
         entry = entry_creator(self.window)
         entry.config['textvariable'] = self.var
         entry.grid(row=1, column=0, columnspan=2)
         entry.bind('<Return>', self.on_ok)
         entry.bind('<Escape>', self.on_cancel)
 
-        self.ok_button = tk.Button(self.window, "OK", self.on_ok)
+        self.ok_button = teek.Button(self.window, "OK", self.on_ok)
         self.ok_button.grid(row=3, column=0)
-        tk.Button(self.window, "Cancel", self.on_cancel).grid(row=3, column=1)
+        teek.Button(self.window, "Cancel", self.on_cancel).grid(row=3, column=1)
 
         self.window.grid_rows[0].config['weight'] = 1
         self.window.grid_rows[2].config['weight'] = 1
@@ -38,7 +38,7 @@ class _EntryDialog:
         # TODO: add a way to select stuff to teek
         self.window.geometry(300, 150)
         entry.focus()
-        tk.tcl_call(None, entry, 'selection', 'range', '0', 'end')
+        teek.tcl_call(None, entry, 'selection', 'range', '0', 'end')
 
     def on_var_changed(self, var):
         result = self.var.get()
@@ -77,7 +77,7 @@ def ask_string(title, text, *, validator=str, initial_value='', parent=None):
     This returns whatever ``validator`` returned, or ``None`` if the dialog was
     canceled.
     """
-    return _EntryDialog(title, text, tk.Entry, validator, initial_value,
+    return _EntryDialog(title, text, teek.Entry, validator, initial_value,
                         parent).run()
 
 
@@ -101,11 +101,11 @@ def ask_integer(title, text, allowed_values, *, initial_value=None,
 
             # allowed_values.stop is not same as allowed_values[-1], the -1 one
             # is inclusive
-            return tk.Spinbox(
+            return teek.Spinbox(
                 spinbox_parent, from_=allowed_values[0], to=allowed_values[-1],
                 increment=allowed_values.step)
 
-        return tk.Spinbox(spinbox_parent, values=allowed_values)
+        return teek.Spinbox(spinbox_parent, values=allowed_values)
 
     def validator(value):
         int_value = int(value)

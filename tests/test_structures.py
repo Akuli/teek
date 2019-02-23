@@ -1,6 +1,6 @@
 import platform
 
-import teek as tk
+import teek
 
 import pytest
 
@@ -9,7 +9,7 @@ def test_callbacks(capsys):
     result1 = []
     result2 = []
 
-    cb = tk.Callback()
+    cb = teek.Callback()
     cb.connect(result1.append)
     cb.connect(result1.append)   # repeated intentionally
     cb.connect(result2.append)
@@ -70,7 +70,7 @@ def test_callback_break(capsys):
         stuff.append('wat')
         return 'wat'
 
-    cb = tk.Callback()
+    cb = teek.Callback()
     cb.connect(non_breaking)
     cb.connect(breaking)
     cb.connect(non_breaking)
@@ -78,7 +78,7 @@ def test_callback_break(capsys):
     assert stuff == ['no break', 'break']
     stuff.clear()
 
-    cb2 = tk.Callback()
+    cb2 = teek.Callback()
     cb2.connect(wat)
     cb2.connect(non_breaking)
     assert cb2.run() is None
@@ -94,21 +94,21 @@ def test_callback_break(capsys):
 # most things are tested with doctests, but this is for testing corner cases
 def test_colors():
     # these must work
-    tk.Color(1, 2, 255)
-    tk.Color(1, 2, 0)
+    teek.Color(1, 2, 255)
+    teek.Color(1, 2, 0)
 
     with pytest.raises(ValueError):
-        tk.Color(1, 2, 256)
+        teek.Color(1, 2, 256)
     with pytest.raises(ValueError):
-        tk.Color(1, 2, -1)
+        teek.Color(1, 2, -1)
     with pytest.raises(TypeError):
-        tk.Color(1, 2, 3, 4)
+        teek.Color(1, 2, 3, 4)
     with pytest.raises(TypeError):
-        tk.Color()
+        teek.Color()
 
-    blue1 = tk.Color(0, 0, 255)
-    blue2 = tk.Color('blue')
-    white = tk.Color('white')
+    blue1 = teek.Color(0, 0, 255)
+    blue2 = teek.Color('blue')
+    white = teek.Color('white')
 
     assert repr(blue1).startswith("<Color '#0000ff': ")
     assert repr(blue2).startswith("<Color 'blue': ")
@@ -125,17 +125,17 @@ def test_colors():
 
 
 def test_screen_distances():
-    assert tk.ScreenDistance(123).pixels == 123
-    assert tk.ScreenDistance('123').pixels == 123
-    assert round(tk.ScreenDistance(123).fpixels, 3) == 123.0
-    assert round(tk.ScreenDistance('123').fpixels, 3) == 123.0
+    assert teek.ScreenDistance(123).pixels == 123
+    assert teek.ScreenDistance('123').pixels == 123
+    assert round(teek.ScreenDistance(123).fpixels, 3) == 123.0
+    assert round(teek.ScreenDistance('123').fpixels, 3) == 123.0
 
-    assert tk.ScreenDistance(123) == tk.ScreenDistance('123')
-    assert hash(tk.ScreenDistance(123)) == hash(tk.ScreenDistance('123'))
+    assert teek.ScreenDistance(123) == teek.ScreenDistance('123')
+    assert hash(teek.ScreenDistance(123)) == hash(teek.ScreenDistance('123'))
 
-    inch = tk.ScreenDistance('1i')
-    centimeter = tk.ScreenDistance('1c')
-    pixel = tk.ScreenDistance(1)
+    inch = teek.ScreenDistance('1i')
+    centimeter = teek.ScreenDistance('1c')
+    pixel = teek.ScreenDistance(1)
     assert round(inch.fpixels / centimeter.fpixels, 2) == 2.54
 
     assert repr(inch) == "ScreenDistance('1i')"
@@ -154,13 +154,13 @@ def test_screen_distances():
     with pytest.raises(TypeError):
         inch < '1i'
 
-    tk.tcl_eval(None, 'proc returnArg {arg} {return $arg}')
+    teek.tcl_eval(None, 'proc returnArg {arg} {return $arg}')
     try:
-        assert tk.tcl_eval(tk.ScreenDistance, 'returnArg 1i') == inch
-        assert tk.tcl_eval(tk.ScreenDistance, 'returnArg 1c') == centimeter
-        assert tk.tcl_eval(tk.ScreenDistance, 'returnArg 1') == pixel
+        assert teek.tcl_eval(teek.ScreenDistance, 'returnArg 1i') == inch
+        assert teek.tcl_eval(teek.ScreenDistance, 'returnArg 1c') == centimeter
+        assert teek.tcl_eval(teek.ScreenDistance, 'returnArg 1') == pixel
     finally:
-        tk.delete_command('returnArg')
+        teek.delete_command('returnArg')
 
-    with pytest.raises(tk.TclError):
-        tk.ScreenDistance('asdf asdf')
+    with pytest.raises(teek.TclError):
+        teek.ScreenDistance('asdf asdf')

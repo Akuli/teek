@@ -62,14 +62,14 @@ Hello World!
 
 ::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window("Hello World")
-    label = tk.Label(window, "Hello World!")
+    window = teek.Window("Hello World")
+    label = teek.Label(window, "Hello World!")
     label.pack()
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Run the program. It displays a tiny Hello World greeting.
 
@@ -77,19 +77,22 @@ Let's go through the program line by line.
 
 ::
 
-    import teek as tk
+    import teek
 
 This imports teek. If you get an :exc:`ImportError` or a
 :exc:`ModuleNotFoundError` from this step, make sure that you installed teek
 as explained above.
 
-You can also import ``teek`` and use ``teek.Label`` instead of
-``tk.Label``, but most teek programs use teek things a lot, and it's much
-easier to ``import teek as tk``.
+You can also ``import teek as tk`` and use ``tk.Label`` instead of
+``teek.Label``, but then people reading your code will see ``tk.Label`` there
+and think that it's probably a tkinter label, because it's quite common to
+``import tkinter as tk``. ``teek.Label`` is not much more work to type than
+``tk.Label`` anyway (unlike ``tkinter.Label``), so I recommend just
+``import teek``.
 
 Don't do ``from teek import *`` because that confuses both tools that
 process code automatically, and people who read your code.
-``tk.Label(parent_widget, "hello")`` obviously creates a tk label, but
+``teek.Label(parent_widget, "hello")`` obviously creates a teek label, but
 ``Label(parent_widget, "hello")`` creates a label. What is a label? If you have
 many star imports...
 
@@ -104,22 +107,19 @@ many star imports...
 that it might be coming from; if ``os`` or ``sys`` had something called
 ``Label``, it would replace teek's ``Label``. Everyone reading this code
 need to know that neither ``os`` nor ``sys`` has anything named ``Label``,
-which is bad.
-
-.. important::
-    From now on, if you see ``tk.something`` in this documentation, it means
-    ``teek.something``.
+which is bad. Also, if Python developers decide to add something called
+``Label`` to ``os`` or ``sys``, your code will break.
 
 ::
 
-    window = tk.Window("Hello World")
+    window = teek.Window("Hello World")
 
 This creates a :class:`.Window` widget with title ``"Hello World"``. A widget is
 an element of the GUI.
 
 ::
 
-    label = tk.Label(window, "Hello World!")
+    label = teek.Label(window, "Hello World!")
 
 Many widgets need to go into another widget. :class:`.Label` is a widget that
 displays text, and this line of code puts it in our ``window``. The widget that
@@ -140,16 +140,16 @@ information about this :ref:`below <pack-with-frames>`.
 
 ::
 
-    window.on_delete_window.connect(tk.quit)
+    window.on_delete_window.connect(teek.quit)
 
-This line tells teek to run :func:`tk.quit` when the window is closed. By
+This line tells teek to run :func:`teek.quit` when the window is closed. By
 default, nothing happens when the user tries to close the window. You can
 connect it to any other function or method as well, which is useful for things
 like "Do you want to save your changes" dialogs.
 
 ::
 
-    tk.run()
+    teek.run()
 
 The code before this runs for just a fraction of a second, but this line of
 code stays running until we close the window. That's usually something between
@@ -158,18 +158,18 @@ a few seconds and a few hours.
 Note that instead of this...
 ::
 
-    label = tk.Label(window, "Hello World")
+    label = teek.Label(window, "Hello World")
     label.pack()
 
 ...we can also do this...
 ::
 
-    tk.Label(window, "Hello World").pack()
+    teek.Label(window, "Hello World").pack()
 
 ...because we create the variable once, and only use it once. However, this
 doesn't work::
 
-    label = tk.Label(window, "Hello World").pack()    # WRONG! common mistake
+    label = teek.Label(window, "Hello World").pack()    # WRONG! common mistake
 
 Look carefully: this does *not* set the ``label`` variable to a label; it sets
 that variable to what ever ``the_actual_label_widget.pack()`` returns, which is
@@ -185,8 +185,8 @@ Options
 Widget options can be used to change how widgets look and behave. For example,
 the text of a label is in an option named ``text``.
 
->>> window = tk.Window()
->>> label = tk.Label(window, "blah blah")
+>>> window = teek.Window()
+>>> label = teek.Label(window, "blah blah")
 >>> label.config['text']
 'blah blah'
 
@@ -197,9 +197,9 @@ you can set values of options in several ways:
   ``label.config['text'] = "new text"``. The label will display the new text
   automatically.
 * When creating the label, you can pass options to it like
-  ``tk.Label(window, text="blah blah")``. Some common options can also be used
+  ``teek.Label(window, text="blah blah")``. Some common options can also be used
   without passing the option name explicitly with ``text=``, e.g.
-  ``tk.Label(window, "blah blah")``. This is widget-specific, and it's
+  ``teek.Label(window, "blah blah")``. This is widget-specific, and it's
   documented in teek's documentation; for example, this label thing is
   documented in :class:`.Label` docs.
 
@@ -309,17 +309,17 @@ This code displays a button. Clicking the button runs the ``on_click()``
 function.
 ::
 
-    import teek as tk
+    import teek
 
     def on_click():
         print("You clicked me!")
 
-    window = tk.Window("Button Example")
-    button = tk.Button(window, "Click me", command=on_click)
+    window = teek.Window("Button Example")
+    button = teek.Button(window, "Click me", command=on_click)
     button.pack()
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Most of the code isn't very different from our label example. Let's go through
 the things that are different.
@@ -336,14 +336,14 @@ everything a lot easier. I have written more about defining functions here_.
 
 ::
 
-    button = tk.Button(window, "Click me", command=on_click)
+    button = teek.Button(window, "Click me", command=on_click)
 
 :class:`.Button` takes a parent widget and a text, just like :class:`.Label`,
 but :class:`.Button` also takes a function that is called when the button is
 clicked. Read that sentence carefully: :class:`.Button` takes a **function**.
 This is a common mistake::
 
-    button = tk.Button(..., command=on_click())     # ummm... it doesn't work like this!!
+    button = teek.Button(..., command=on_click())     # ummm... it doesn't work like this!!
 
 ``command=on_click()`` does not do what was intended here;
 ``command=on_click()`` calls the ``on_click`` function because it has ``()``
@@ -357,11 +357,11 @@ the function itself without calling it.
     put the button text before the command, so this...
     ::
 
-        button = tk.Button(window, "Click me", on_click)
+        button = teek.Button(window, "Click me", on_click)
 
     ...does the same thing as this::
 
-        button = tk.Button(window, "Click me", command=on_click)
+        button = teek.Button(window, "Click me", command=on_click)
 
 Here is another common mistake::
 
@@ -388,20 +388,20 @@ Multiple child widgets in same parent
 It's possible to put several different widgets into the same parent window with
 :meth:`~.Widget.pack`, like this::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window("Pack Example")
-    tk.Label(window, "One").pack()
-    tk.Label(window, "Two").pack()
+    window = teek.Window("Pack Example")
+    teek.Label(window, "One").pack()
+    teek.Label(window, "Two").pack()
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 The "Two" label will show up below the "One" label. If you don't want that, you
 can also put the labels next to each other::
 
-    tk.Label(window, "One").pack(side='left')
-    tk.Label(window, "Two").pack(side='left')
+    teek.Label(window, "One").pack(side='left')
+    teek.Label(window, "Two").pack(side='left')
 
 That's correct, both of them have ``side='left'``. This means that the first
 widget goes all the way to the left edge, and the second goes to the *right* of
@@ -411,21 +411,21 @@ that, and so on, so the widgets get stacked to the left edge. The default is
 If you need more complex layouts, you can create a :class:`.Frame` and pack it,
 and add more widgets *inside* that :class:`.Frame`, like this::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window("Pack Example")
+    window = teek.Window("Pack Example")
 
-    big_frame = tk.Frame(window)
+    big_frame = teek.Frame(window)
     big_frame.pack(fill='both', expand=True)
-    tk.Label(big_frame, text="Left").pack(side='left', fill='both', expand=True)
-    tk.Label(big_frame, text="Right").pack(side='left', fill='both', expand=True)
+    teek.Label(big_frame, text="Left").pack(side='left', fill='both', expand=True)
+    teek.Label(big_frame, text="Right").pack(side='left', fill='both', expand=True)
 
-    status_bar = tk.Label(window, "This is a status bar")
+    status_bar = teek.Label(window, "This is a status bar")
     status_bar.pack(fill='x')
 
     window.geometry(300, 200)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 This example uses plenty of things from :man:`pack(3tk)`, but you know
 :ref:`how to read manual pages <man-pages>`, so you can figure out how it all

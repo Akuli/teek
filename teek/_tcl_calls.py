@@ -8,7 +8,7 @@ import threading
 import traceback
 import _tkinter
 
-import teek as tk
+import teek
 
 _flatten = itertools.chain.from_iterable
 
@@ -19,7 +19,7 @@ def raise_teek_tclerror(func):
         try:
             return func(*args, **kwargs)
         except _tkinter.TclError as e:
-            raise tk.TclError(str(e)).with_traceback(e.__traceback__) from None
+            raise teek.TclError(str(e)).with_traceback(e.__traceback__) from None
 
     return result
 
@@ -124,7 +124,7 @@ class _TclInterpreter:
             if after_id is not None:
                 self._app.call('after', 'cancel', after_id)
 
-        tk.before_quit.connect(quit_disconnecter)
+        teek.before_quit.connect(quit_disconnecter)
 
         poller()
         self._init_threads_called = True
@@ -218,14 +218,14 @@ def quit():
     :man:`destroy(3tk)`. Note that this function does not tell Python to quit;
     only teek quits, so you can do this::
 
-        import teek as tk
+        import teek
 
-        window = tk.Window()
-        tk.Button(window, "Quit", tk.quit).pack()
-        tk.run()
+        window = teek.Window()
+        teek.Button(window, "Quit", teek.quit).pack()
+        teek.run()
         print("Still alive")
 
-    If you click the button, it interrupts ``tk.run()`` and the print runs.
+    If you click the button, it interrupts ``teek.run()`` and the print runs.
     """
     global _interp
 
@@ -234,16 +234,16 @@ def quit():
         raise RuntimeError("can only quit from main thread")
 
     if _interp is not None:
-        tk.before_quit.run()
+        teek.before_quit.run()
         _interp.call('destroy', '.')
 
         # to avoid a weird errors, see test_weird_error in test_tcl_calls.py
-        for command in tk.tcl_call([str], 'info', 'commands'):
+        for command in teek.tcl_call([str], 'info', 'commands'):
             if command.startswith('teek_command_'):
                 delete_command(command)
 
         _interp = None
-        tk.after_quit.run()
+        teek.after_quit.run()
 
 
 def run():
@@ -300,7 +300,7 @@ def make_thread_safe(func):
     ...where ``func1``, ``func2`` and ``func3`` do teek things and you need
     to call ``func123`` from a thread, it's best to decorate ``func123``::
 
-        @tk.make_thread_safe
+        @teek.make_thread_safe
         def good_func123():
             func1()
             func2()
@@ -320,7 +320,7 @@ def make_thread_safe(func):
         they are ran in the event loop. In other words, this code is bad,
         because it will freeze the GUI for about 5 seconds::
 
-            @tk.make_thread_safe
+            @teek.make_thread_safe
             def do_stuff():
                 time.sleep(5)
     """
@@ -370,7 +370,7 @@ def from_tcl(type_spec, value):
 
         try:
             return _get_interp().getboolean(value)
-        except tk.TclError as e:
+        except teek.TclError as e:
             raise ValueError(str(e)).with_traceback(e.__traceback__) from None
 
     # special case to allow bases other than 10 and empty strings
@@ -430,16 +430,17 @@ def tcl_call(returntype, command, *arguments):
 
     The arguments are passed correctly, even if they contain spaces:
 
-    >>> tk.tcl_eval(None, 'puts "hello world thing"')  # 1 arguments to puts \
+    >>> teek.tcl_eval(None, 'puts "hello world thing"')  # 1 arguments to puts\
         # doctest: +SKIP
     hello world thing
     >>> message = 'hello world thing'
-    >>> tk.tcl_eval(None, 'puts %s' % message)  # 3 args to puts, tcl error
+    >>> teek.tcl_eval(None, 'puts %s' % message)  # 3 args to puts, tcl error
     Traceback (most recent call last):
         ...
     teek.TclError: wrong # args: should be "puts ?-nonewline? ?channelId? \
 string"
-    >>> tk.tcl_call(None, 'puts', message)   # 1 arg to puts  # doctest: +SKIP
+    >>> teek.tcl_call(None, 'puts', message)   # 1 arg to puts\
+        # doctest: +SKIP
     hello world thing
     """
     result = _get_interp().call(tuple(map(to_tcl, (command,) + arguments)))
@@ -450,10 +451,10 @@ string"
 def tcl_eval(returntype, code):
     """Run a string of Tcl code.
 
-    >>> tk.tcl_eval(None, 'proc add {a b} { return [expr $a + $b] }')
-    >>> tk.tcl_eval(int, 'add 1 2')
+    >>> teek.tcl_eval(None, 'proc add {a b} { return [expr $a + $b] }')
+    >>> teek.tcl_eval(int, 'add 1 2')
     3
-    >>> tk.tcl_call(int, 'add', 1, 2)      # usually this is better, see below
+    >>> teek.tcl_call(int, 'add', 1, 2)     # usually this is better, see below
     3
     """
     result = _get_interp().eval(code)
@@ -481,12 +482,12 @@ def create_command(func, arg_type_specs=(), *, extra_args_type=None):
 
     Here is a simple example:
 
-    >>> tcl_print = tk.create_command(print, [str])  # calls print(some_string)
+    >>> tcl_print = teek.create_command(print, [str])  # calls print(a_string)
     >>> tcl_print       # doctest: +SKIP
     'teek_command_1'
-    >>> tk.tcl_call(None, tcl_print, 'hello world')
+    >>> teek.tcl_call(None, tcl_print, 'hello world')
     hello world
-    >>> tk.tcl_eval(None, '%s "hello world"' % tcl_print)
+    >>> teek.tcl_eval(None, '%s "hello world"' % tcl_print)
     hello world
 
     Created commands should be deleted with :func:`.delete_command` when they
@@ -506,8 +507,8 @@ def create_command(func, arg_type_specs=(), *, extra_args_type=None):
     ...     for arg in args:
     ...         print(arg)
     ...
-    >>> command = tk.create_command(func, [int, int], extra_args_type=str)
-    >>> tk.tcl_call(None, command, 123, 23, 'asd', 'toot', 'boom boom')
+    >>> command = teek.create_command(func, [int, int], extra_args_type=str)
+    >>> teek.tcl_call(None, command, 123, 23, 'asd', 'toot', 'boom boom')
     100
     asd
     toot

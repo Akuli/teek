@@ -5,7 +5,7 @@ import re
 
 import pytest
 
-import teek as tk
+import teek
 
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
@@ -19,14 +19,14 @@ def _get_all_subclasses(claas):
 
 def test_all_widgets_fixture(all_widgets):
     assert {type(widget) for widget in all_widgets} == {
-        claas for claas in _get_all_subclasses(tk.Widget)
+        claas for claas in _get_all_subclasses(teek.Widget)
         if claas.__module__.startswith('teek.')
     }
 
 
 def test_manual_page_links_in_docstrings(all_widgets):
     for claas in map(type, all_widgets):
-        if claas is not tk.Window:
+        if claas is not teek.Window:
             text = ('Manual page: :man:`%s(3tk)`'
                     % claas._widget_name.replace('::', '_'))
             assert text in claas.__doc__
@@ -34,7 +34,7 @@ def test_manual_page_links_in_docstrings(all_widgets):
 
 def test_that_widget_names_dont_contain_horrible_mistakes(all_widgets):
     for widget in all_widgets:
-        if isinstance(widget, tk.Window):
+        if isinstance(widget, teek.Window):
             # it is weird, and it is supposed to be weird
             continue
 
@@ -45,18 +45,18 @@ def test_that_widget_names_dont_contain_horrible_mistakes(all_widgets):
 
 def test_tk_class_names(all_widgets):
     for widget in all_widgets:
-        if not isinstance(widget, tk.Window):
-            winfo_result = tk.tcl_call(str, 'winfo', 'class', widget)
+        if not isinstance(widget, teek.Window):
+            winfo_result = teek.tcl_call(str, 'winfo', 'class', widget)
             assert winfo_result == type(widget).tk_class_name
 
     # special cases
-    assert tk.Widget.tk_class_name is None
-    assert tk.Window.tk_class_name is None
+    assert teek.Widget.tk_class_name is None
+    assert teek.Window.tk_class_name is None
 
-    class LolWidget(tk.Widget):
+    class LolWidget(teek.Widget):
         pass
 
-    class LolLabel(tk.Label):
+    class LolLabel(teek.Label):
         pass
 
     assert LolWidget.tk_class_name is None
@@ -67,9 +67,9 @@ def test_basic_repr_stuff(monkeypatch):
     monkeypatch.syspath_prepend(DATA_DIR)
     import subclasser
 
-    window = tk.Window()
-    frame = tk.Frame(window)
-    label1 = tk.Label(window, text='a')
+    window = teek.Window()
+    frame = teek.Frame(window)
+    label1 = teek.Label(window, text='a')
     label2 = subclasser.LolLabel(window, text='b')
 
     assert repr(label1) == "<teek.Label widget: text='a'>"
@@ -89,7 +89,7 @@ def _tkinter_hint(bad, assigning):
 
 
 def test_tkinter_hints():
-    window = tk.Window()
+    window = teek.Window()
 
     with _tkinter_hint("widget['option']", assigning=False):
         window['whatever']
@@ -108,20 +108,20 @@ def test_tkinter_hints():
 
 def test_creating_instance_of_wrong_class():
     with pytest.raises(TypeError) as error:
-        tk.Widget(None)
+        teek.Widget(None)
     assert "cannot create instances of Widget" in str(error.value)
 
 
 def test_destroy():
-    window = tk.Window()
-    label = tk.Label(window)
-    frame = tk.Frame(window)
-    button = tk.Button(frame)
+    window = teek.Window()
+    label = teek.Label(window)
+    frame = teek.Frame(window)
+    button = teek.Button(frame)
     widgets = [window, label, button]
 
-    command = tk.create_command(print, str)
+    command = teek.create_command(print, str)
     label.command_list.append(command)
-    assert tk.tcl_call([str], 'info', 'commands', command) == [command]
+    assert teek.tcl_call([str], 'info', 'commands', command) == [command]
 
     assert window.winfo_children() == [label, frame]
     assert frame.winfo_children() == [button]
@@ -134,7 +134,7 @@ def test_destroy():
         assert not widget.winfo_exists()
         assert repr(widget).startswith('<destroyed ')
 
-    assert tk.tcl_call([str], 'info', 'commands', command) == []
+    assert teek.tcl_call([str], 'info', 'commands', command) == []
 
     with pytest.raises(RuntimeError) as error:
         label.config['text'] = 'lel'
@@ -142,19 +142,19 @@ def test_destroy():
 
 
 def test_destroy_with_widget_not_created_in_teek():
-    window = tk.Window()
+    window = teek.Window()
     label_name = window.to_tcl() + '.asd'
-    tk.tcl_call(None, 'label', label_name)
-    assert tk.tcl_call(bool, 'winfo', 'exists', label_name)
+    teek.tcl_call(None, 'label', label_name)
+    assert teek.tcl_call(bool, 'winfo', 'exists', label_name)
     window.destroy()    # should also destroy the label
-    assert not tk.tcl_call(bool, 'winfo', 'exists', label_name)
+    assert not teek.tcl_call(bool, 'winfo', 'exists', label_name)
 
 
 def test_destroy_event():
-    window = tk.Window()
+    window = teek.Window()
     asd = []
     window.bind('<Destroy>', asd.append, event=True)
-    tk.quit()
+    teek.quit()
     assert len(asd) == 1
 
 
@@ -162,7 +162,7 @@ def test_destroy_event():
 # command_list commands, but <Destroy> binding had a command_list command
 def test_destroy_event_bug(handy_callback):
     for gonna_update_in_between in [True, False]:
-        frame = tk.Frame(tk.Window())
+        frame = teek.Frame(teek.Window())
 
         @handy_callback
         def on_destroy():
@@ -170,17 +170,17 @@ def test_destroy_event_bug(handy_callback):
 
         frame.bind('<Destroy>', on_destroy)
         if gonna_update_in_between:
-            tk.update()
+            teek.update()
 
         frame.destroy()
         assert on_destroy.ran_once()
-        tk.update()
+        teek.update()
 
 
 def test_options():
-    window = tk.Window()
+    window = teek.Window()
 
-    for widget in [tk.Button(window), tk.Label(window)]:
+    for widget in [teek.Button(window), teek.Label(window)]:
         assert 'behaves like a dict' in repr(widget.config)
         assert len(widget.config) == len(list(widget.config))
 
@@ -197,20 +197,20 @@ def test_options():
         # buttons are tested below, this makes sure that windows and
         # labels don't do something weird when they get an option that
         # they shouldn't support
-        if not isinstance(widget, tk.Button):
+        if not isinstance(widget, teek.Button):
             with pytest.raises(KeyError):
                 widget.config['command'] = print
 
-    widget1 = tk.Label(window, 'lol')
+    widget1 = teek.Label(window, 'lol')
     widget1.config.update({'text': 'asd'})
-    widget2 = tk.Label(window, text='asd')
+    widget2 = teek.Label(window, text='asd')
     assert widget1.config == widget2.config
     widget2.config['text'] = 'tootie'
     assert widget1.config != widget2.config
 
 
 def test_bind(handy_callback):
-    widget = tk.Window()
+    widget = teek.Window()
     assert not widget.bindings.keys()
 
     @handy_callback
@@ -221,15 +221,15 @@ def test_bind(handy_callback):
     def teek_bound_callback():
         pass
 
-    command = tk.create_command(tcl_call_bound_callback)
+    command = teek.create_command(tcl_call_bound_callback)
 
-    tk.tcl_call(None, 'bind', widget, '<<Asd>>', command)
+    teek.tcl_call(None, 'bind', widget, '<<Asd>>', command)
     assert widget.bindings.keys() == {'<<Asd>>'}
     widget.bind('<<Asd>>', teek_bound_callback)
-    tk.update()
-    tk.tcl_call(None, 'event', 'generate', widget, '<<Asd>>')
+    teek.update()
+    teek.tcl_call(None, 'event', 'generate', widget, '<<Asd>>')
 
-    tk.delete_command(command)
+    teek.delete_command(command)
 
     assert tcl_call_bound_callback.ran_once()    # tests binding with +
     assert teek_bound_callback.ran_once()
@@ -250,18 +250,18 @@ def test_bind_class(handy_callback):
     def all_callback():
         pass
 
-    tk.Text.bind_class('<<Lol>>', class_callback)
-    tk.Widget.bind_class('<<Lol>>', all_callback)
+    teek.Text.bind_class('<<Lol>>', class_callback)
+    teek.Widget.bind_class('<<Lol>>', all_callback)
 
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     text.pack()
-    tk.update()     # make sure that virtual events work
+    teek.update()     # make sure that virtual events work
     text.event_generate('<<Lol>>')
 
     assert class_callback.ran_once()
     assert all_callback.ran_once()
 
-    class FunnyWidget(tk.Widget):
+    class FunnyWidget(teek.Widget):
         pass
 
     with pytest.raises(AttributeError) as error:
@@ -283,21 +283,21 @@ def test_bind_class(handy_callback):
 
 def test_bind_break():
     events = []
-    widget = tk.Window()
+    widget = teek.Window()
     widget.bind('<<Asd>>', (lambda: events.append('one')))
     widget.bind('<<Asd>>', (lambda: [events.append('two'), 'break'][1]))  # lol
     widget.bind('<<Asd>>', (lambda: events.append('three')))
 
-    tk.update()     # needed for virtual events to work
+    teek.update()     # needed for virtual events to work
     widget.event_generate('<<Asd>>')
 
 
 def test_event_objects():
     events = []
 
-    widget = tk.Window()
+    widget = teek.Window()
     widget.bind('<<Asd>>', events.append, event=True)
-    tk.update()     # needed for virtual events to work
+    teek.update()     # needed for virtual events to work
     widget.event_generate('<<Asd>>', data='asd asd')
     event = events.pop()
     assert not events
@@ -339,14 +339,14 @@ def test_event_objects():
 
 
 def test_bind_deletes_tcl_commands(handy_callback):
-    widget = tk.Window()
+    widget = teek.Window()
     widget.bind('<Button-1>', print)
-    tcl_codes = tk.tcl_call(str, 'bind', widget, '<Button-1>')
+    tcl_codes = teek.tcl_call(str, 'bind', widget, '<Button-1>')
     command_string = re.search(r'teek_command_\d+', tcl_codes).group(0)
 
-    assert command_string in tk.tcl_call([str], 'info', 'commands')
+    assert command_string in teek.tcl_call([str], 'info', 'commands')
     widget.destroy()
-    assert command_string not in tk.tcl_call([str], 'info', 'commands')
+    assert command_string not in teek.tcl_call([str], 'info', 'commands')
 
 
 def test_config_types(check_config_types, all_widgets):
@@ -355,19 +355,19 @@ def test_config_types(check_config_types, all_widgets):
 
 
 def test_from_tcl():
-    window = tk.Window()
+    window = teek.Window()
     widget_path = window.to_tcl()
     assert isinstance(widget_path, str)
 
-    assert tk.Window.from_tcl(widget_path) is window
-    assert tk.Widget.from_tcl(widget_path) is window
+    assert teek.Window.from_tcl(widget_path) is window
+    assert teek.Widget.from_tcl(widget_path) is window
 
     with pytest.raises(TypeError) as error:
-        tk.Label.from_tcl(widget_path)
+        teek.Label.from_tcl(widget_path)
     assert str(error.value).endswith(" is a Window, not a Label")
 
 
-@pytest.mark.skipif(tk.TK_VERSION < (8, 6), reason="busy is new in Tk 8.6")
+@pytest.mark.skipif(teek.TK_VERSION < (8, 6), reason="busy is new in Tk 8.6")
 def test_busy(all_widgets):
     for widget in all_widgets:
         assert widget.busy_status() is False
@@ -392,18 +392,18 @@ def get_counter_value(widget):
 
 def test_widget_name_bug():
     # this bug occurs when we have 2 classes with the same name
-    class Asd(tk.Label):
+    class Asd(teek.Label):
         pass
 
     AsdLabel = Asd
 
-    class Asd(tk.Button):
+    class Asd(teek.Button):
         pass
 
     AsdButton = Asd
 
     # it must not be possible to have two Asds with same to_tcl() widget path,
-    window = tk.Window()
+    window = teek.Window()
     label = AsdLabel(window)
     button = AsdButton(window)
 
@@ -417,17 +417,17 @@ def test_widget_name_bug():
 
 
 def test_winfo_ismapped():
-    window = tk.Window()
-    tk.update()
+    window = teek.Window()
+    teek.update()
     assert window.winfo_ismapped() is True
 
-    frame = tk.Frame(window)
+    frame = teek.Frame(window)
     assert frame.winfo_ismapped() is False
-    tk.update()
+    teek.update()
     assert frame.winfo_ismapped() is False
 
     frame.pack()
-    tk.update()
+    teek.update()
     assert frame.winfo_ismapped() is True
 
 
@@ -443,13 +443,13 @@ def test_winfo_x_y_rootx_rooty_width_height_reqwidth_reqheight():
     #    |________|___
     #      123px  | a |
     #             `---'
-    window = tk.Window()
-    spacer = tk.Frame(window, width=123, height=456)
+    window = teek.Window()
+    spacer = teek.Frame(window, width=123, height=456)
     spacer.grid(row=1, column=1)
-    label = tk.Label(window, text='a')
+    label = teek.Label(window, text='a')
     label.grid(row=2, column=2)
     window.geometry(100, 200)
-    tk.update()
+    teek.update()
 
     assert window.toplevel.winfo_x() == window.toplevel.winfo_rootx()
     assert window.toplevel.winfo_y() == window.toplevel.winfo_rooty()
@@ -478,7 +478,7 @@ def test_winfo_x_y_rootx_rooty_width_height_reqwidth_reqheight():
 
 
 def test_focus(fake_command):
-    widget = tk.Window()
+    widget = teek.Window()
 
     with fake_command('focus') as called:
         widget.focus()
@@ -490,10 +490,10 @@ def test_focus(fake_command):
 
 
 def test_state():
-    assert tk.Menu().state is None
-    assert tk.Toplevel().state is None
+    assert teek.Menu().state is None
+    assert teek.Toplevel().state is None
 
-    state = tk.Button(tk.Window()).state
+    state = teek.Button(teek.Window()).state
     assert state is not None
     assert isinstance(state, collections.abc.Set)
     assert isinstance(state, collections.abc.MutableSet)

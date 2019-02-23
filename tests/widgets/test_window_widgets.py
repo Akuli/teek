@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-import teek as tk
+import teek
 
 
 SMILEY_PATH = os.path.join(
@@ -13,14 +13,14 @@ SMILEY_PATH = os.path.join(
 
 def test_window():
     windows = [
-        (tk.Window("hello hello"), "hello hello"),
-        (tk.Window(), None),
+        (teek.Window("hello hello"), "hello hello"),
+        (teek.Window(), None),
     ]
 
     for window, default_title in windows:
         assert window.winfo_toplevel() is window.toplevel
-        assert isinstance(window.toplevel, tk.Toplevel)
-        tk.update()     # you can add more of these if the tests don't work
+        assert isinstance(window.toplevel, teek.Toplevel)
+        teek.update()     # you can add more of these if the tests don't work
 
         assert window.wm_state == 'normal'
         if default_title is not None:
@@ -30,7 +30,7 @@ def test_window():
         window.title = "hello hello"
         assert window.title == "hello hello"
 
-    not_a_window = tk.Frame(tk.Window())
+    not_a_window = teek.Frame(teek.Window())
     assert not hasattr(not_a_window, 'title')
 
 
@@ -38,31 +38,31 @@ def test_window():
                     reason=("relies on non-guaranteed details about how "
                             "window managers work or something like that"))
 def test_window_states():
-    window = tk.Window()
+    window = teek.Window()
     for method, state in [(window.withdraw, 'withdrawn'),
                           (window.iconify, 'iconic')]:
         method()
-        tk.update()
+        teek.update()
         assert window.wm_state == state
         assert ("wm_state='%s'" % state) in repr(window)
         window.deiconify()
-        tk.update()
+        teek.update()
         assert window.wm_state == 'normal'
         assert "wm_state='normal'" not in repr(window)
 
         window.wm_state = state        # should do same as method()
-        tk.update()
+        teek.update()
         assert window.wm_state == state
         window.deiconify()
-        tk.update()
+        teek.update()
         assert window.wm_state == 'normal'
 
 
 def test_window_closing():
-    for window in [tk.Window(), tk.Toplevel()]:
+    for window in [teek.Window(), teek.Toplevel()]:
         # on_delete_window should NOT be connected to anything by default
         with pytest.raises(ValueError):
-            window.on_delete_window.disconnect(tk.quit)
+            window.on_delete_window.disconnect(teek.quit)
         with pytest.raises(ValueError):
             window.on_delete_window.disconnect(window.destroy)
 
@@ -78,7 +78,7 @@ def test_window_closing():
 
 
 def test_geometry():
-    window = tk.Window()
+    window = teek.Window()
 
     # namedtuple features
     geometry = window.geometry()
@@ -95,7 +95,7 @@ def test_geometry():
 
 
 def test_geometry_tkinter_error():
-    window = tk.Window()
+    window = teek.Window()
     with pytest.raises(TypeError) as error:
         window.geometry('200x300')
     assert "use widget.geometry(width, height)" in str(error.value)
@@ -105,23 +105,23 @@ def test_geometry_tkinter_error():
                     reason=("actual windows window manager behavior"
                             "is different than the test expects"))
 def test_geometry_changes():
-    window = tk.Window()
+    window = teek.Window()
 
     window.geometry(300, 400)
-    tk.update()
+    teek.update()
     assert window.geometry()[:2] == (300, 400)
 
     window.geometry(x=123, y=456)
-    tk.update()
+    teek.update()
     assert window.geometry() == (300, 400, 123, 456)
 
     window.geometry(100, 200, 300, 400)
-    tk.update()
+    teek.update()
     assert window.geometry() == (100, 200, 300, 400)
 
 
 def test_minsize_maxsize():
-    window = tk.Window()
+    window = teek.Window()
     assert isinstance(window.minsize, tuple)
     assert isinstance(window.maxsize, tuple)
     assert len(window.minsize) == 2
@@ -138,10 +138,10 @@ def test_minsize_maxsize():
 
 
 def test_iconphoto(fake_command):
-    image1 = tk.Image(file=SMILEY_PATH)
+    image1 = teek.Image(file=SMILEY_PATH)
     image2 = image1.copy()
 
-    widget = tk.Toplevel()
+    widget = teek.Toplevel()
 
     with fake_command('wm') as called:
         widget.iconphoto(image1)
@@ -153,9 +153,9 @@ def test_iconphoto(fake_command):
 
 
 def test_transient():
-    window1 = tk.Window()
-    window2 = tk.Window()
-    toplevel = tk.Toplevel()
+    window1 = teek.Window()
+    window2 = teek.Window()
+    toplevel = teek.Toplevel()
 
     window1.transient = window2
     assert window1.transient is window2.toplevel
@@ -165,10 +165,10 @@ def test_transient():
 
 @pytest.mark.slow
 def test_wait_window():
-    window = tk.Window()
+    window = teek.Window()
 
     start = time.time()
-    tk.after(500, window.destroy)
+    teek.after(500, window.destroy)
     window.wait_window()
     end = time.time()
 
@@ -178,10 +178,10 @@ def test_wait_window():
 # 'menu' is an option that Toplevel has and Frame doesn't have, so Window must
 # use its toplevel's menu option
 def test_window_menu_like_options_fallback_to_toplevel_options():
-    window = tk.Window()
+    window = teek.Window()
     toplevel = window.toplevel
-    frame = tk.Frame(window)
-    menu = tk.Menu()
+    frame = teek.Frame(window)
+    menu = teek.Menu()
 
     assert 'menu' not in frame.config
     assert 'menu' in toplevel.config
@@ -199,4 +199,4 @@ def test_window_menu_like_options_fallback_to_toplevel_options():
         frame.config['menu']
 
     window.config['width'] = 100
-    assert isinstance(window.config['width'], tk.ScreenDistance)
+    assert isinstance(window.config['width'], teek.ScreenDistance)

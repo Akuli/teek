@@ -3,15 +3,15 @@ import time
 
 import pytest
 
-import teek as tk
+import teek
 
 
-class IntListVar(tk.TclVariable):
+class IntListVar(teek.TclVariable):
     type_spec = [int]
 
 
 def test_basic_stuff():
-    var = tk.IntVar()
+    var = teek.IntVar()
     var.set('123')      # doesn't need to be of same type
     assert var.get() == 123
 
@@ -21,10 +21,10 @@ def test_basic_stuff():
 
 
 def test_eq_hash():
-    stringvar1 = tk.StringVar(name='test_var')
-    stringvar2 = tk.StringVar(name='test_var')
-    lol = tk.StringVar(name='lol_var')
-    intvar = tk.IntVar(name='test_var')
+    stringvar1 = teek.StringVar(name='test_var')
+    stringvar2 = teek.StringVar(name='test_var')
+    lol = teek.StringVar(name='lol_var')
+    intvar = teek.IntVar(name='test_var')
 
     assert stringvar1 == stringvar1
     assert stringvar1 == stringvar2
@@ -55,17 +55,17 @@ def test_write_trace(handy_callback):
 
 def test_creating_var_objects_from_name():
     asd = []
-    var = tk.StringVar()
+    var = teek.StringVar()
     var.write_trace.connect(lambda junk: asd.append(var.get()))
 
     var.set('a')
-    tk.StringVar(name=var.to_tcl()).set('b')
-    tk.StringVar.from_tcl(var.to_tcl()).set('c')
+    teek.StringVar(name=var.to_tcl()).set('b')
+    teek.StringVar.from_tcl(var.to_tcl()).set('c')
     assert asd == ['a', 'b', 'c']
 
 
 def test_repr():
-    var = tk.StringVar(name='testie_var')
+    var = teek.StringVar(name='testie_var')
     assert repr(var) == "<StringVar 'testie_var': no value has been set>"
     var.set('asd')
     assert repr(var) == "<StringVar 'testie_var': 'asd'>"
@@ -73,9 +73,9 @@ def test_repr():
 
 @pytest.mark.slow
 def test_wait():
-    var = tk.StringVar()
+    var = teek.StringVar()
     start = time.time()
-    tk.after(500, functools.partial(var.set, "boo"))
+    teek.after(500, functools.partial(var.set, "boo"))
     var.wait()          # should run the event loop ==> after callback works
     end = time.time()
     assert (end - start) > 0.5
@@ -83,7 +83,7 @@ def test_wait():
 
 def test_not_subclassed():
     with pytest.raises(TypeError) as error:
-        tk.TclVariable()
+        teek.TclVariable()
     assert "cannot create instances of TclVariable" in str(error.value)
     assert "subclass TclVariable" in str(error.value)
     assert "'type_spec' class attribute" in str(error.value)

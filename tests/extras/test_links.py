@@ -1,12 +1,12 @@
 import functools
 import webbrowser
 
-import teek as tk
+import teek
 from teek.extras import links
 
 
 def test_links_clicking():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
 
     stuff = []
     links.add_function_link(
@@ -26,7 +26,7 @@ def test_links_clicking():
 
 
 def test_links_cursor_changes():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     text.config['cursor'] = 'clock'
 
     links.add_function_link(text, 'abc', print)
@@ -46,7 +46,7 @@ def test_add_url_link(monkeypatch, handy_callback):
     stuff = []
     monkeypatch.setattr(webbrowser, 'open', stuff.append)
 
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     links.add_url_link(text, 'asd', URL)
     text.get_tag('teek-extras-link-1').bindings['<1>'].run(None)
     assert stuff == [URL]

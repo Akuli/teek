@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-import teek as tk
+import teek
 
 
 @pytest.mark.slow
@@ -11,10 +11,10 @@ import teek as tk
                     reason="this fails randomly in travis, no idea why")
 def test_after():
     start = time.time()
-    timeout = tk.after(200, tk.quit)
+    timeout = teek.after(200, teek.quit)
     assert repr(timeout).startswith("<pending 'quit' timeout")
 
-    tk.run()
+    teek.run()
     end = time.time()
 
     # the upper bound used to be 0.21, but it failed once
@@ -26,9 +26,9 @@ def test_after():
 def test_after_idle():
     stuff = []
     for i in range(5):
-        tk.after_idle(stuff.append, [i])        # test positional args
-    tk.after_idle(tk.quit)
-    tk.run()
+        teek.after_idle(stuff.append, [i])        # test positional args
+    teek.after_idle(teek.quit)
+    teek.run()
     assert stuff == list(range(5))
 
 
@@ -37,20 +37,20 @@ def test_errors(capsys):
         assert kwargs == {'lol': 'wut'}
         raise RuntimeError("\N{pile of poo}")
 
-    timeout = tk.after_idle(thingy, kwargs={'lol': 'wut'})
+    timeout = teek.after_idle(thingy, kwargs={'lol': 'wut'})
     assert repr(timeout).startswith("<pending 'thingy' timeout")
-    tk.after_idle(tk.quit)
-    tk.run()
+    teek.after_idle(teek.quit)
+    teek.run()
     assert repr(timeout).startswith("<failed 'thingy' timeout")
 
     output, errors = capsys.readouterr()
     assert not output
-    assert "timeout = tk.after_idle(thingy, kwargs={'lol': 'wut'})" in errors
+    assert "timeout = teek.after_idle(thingy, kwargs={'lol': 'wut'})" in errors
     assert "\N{pile of poo}" in errors
 
 
 def test_cancel():
-    timeout = tk.after(1000, print, args=["it didn't work"])
+    timeout = teek.after(1000, print, args=["it didn't work"])
     timeout.cancel()
     assert repr(timeout).startswith("<cancelled 'print' timeout")
 
@@ -64,7 +64,7 @@ def test_cancel():
         assert str(error.value) == ("cannot cancel a successfully " +
                                     "completed timeout")
 
-    timeout = tk.after_idle(lambda: None)
-    tk.after(50, try_to_cancel_the_completed_timeout)
-    tk.after(100, tk.quit)
-    tk.run()
+    timeout = teek.after_idle(lambda: None)
+    teek.after(50, try_to_cancel_the_completed_timeout)
+    teek.after(100, teek.quit)
+    teek.run()

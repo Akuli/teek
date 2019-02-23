@@ -1,4 +1,4 @@
-import teek as tk
+import teek
 from teek._tcl_calls import from_tcl, make_thread_safe
 from teek._widgets.base import Widget, ChildMixin
 
@@ -14,11 +14,11 @@ class Button(ChildMixin, Widget):
     this...
     ::
 
-        button = tk.Button(some_widget, "Click me", do_something)
+        button = teek.Button(some_widget, "Click me", do_something)
 
     ...does the same thing as this::
 
-        button = tk.Button(some_widget, "Click me")
+        button = teek.Button(some_widget, "Click me")
         button.config['command'].connect(do_something)
 
     See :meth:`.Callback.connect` documentation if you need to pass arguments
@@ -40,13 +40,13 @@ class Button(ChildMixin, Widget):
         super()._init_config()
         self.config._types.update({
             'default': str,
-            'width': tk.ScreenDistance,
+            'width': teek.ScreenDistance,
         })
         self.config._special['command'] = self._create_click_command
 
     def _create_click_command(self):
-        result = tk.Callback()
-        command_string = tk.create_command(result.run)
+        result = teek.Callback()
+        command_string = teek.create_command(result.run)
         self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
@@ -78,7 +78,7 @@ class Checkbutton(ChildMixin, Widget):
 
     Example::
 
-        import teek as tk
+        import teek
 
         def on_check_or_uncheck(checked):
             if checked:
@@ -86,10 +86,10 @@ class Checkbutton(ChildMixin, Widget):
             else:
                 print("Unchecked")
 
-        window = tk.Window("Checkbutton Example")
-        tk.Checkbutton(window, "Check me", on_check_or_uncheck).pack()
-        window.on_delete_window.connect(tk.quit)
-        tk.run()
+        window = teek.Window("Checkbutton Example")
+        teek.Checkbutton(window, "Check me", on_check_or_uncheck).pack()
+        window.on_delete_window.connect(teek.quit)
+        teek.run()
 
     Manual page: :man:`ttk_checkbutton(3tk)`
     """
@@ -108,8 +108,8 @@ class Checkbutton(ChildMixin, Widget):
         self.config._types.update({
             'onvalue': bool,
             'offvalue': bool,
-            'variable': tk.BooleanVar,
-            'width': tk.ScreenDistance,
+            'variable': teek.BooleanVar,
+            'width': teek.ScreenDistance,
         })
         self.config._special['command'] = self._create_check_command
 
@@ -117,8 +117,8 @@ class Checkbutton(ChildMixin, Widget):
         self.config['command'].run(self.config['variable'].get())
 
     def _create_check_command(self):
-        result = tk.Callback()
-        command_string = tk.create_command(self._command_runner)
+        result = teek.Callback()
+        command_string = teek.create_command(self._command_runner)
         self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
@@ -235,8 +235,8 @@ class Spinbox(Entry):
         self.config._special['command'] = self._create_spin_command
 
     def _create_spin_command(self):
-        result = tk.Callback()
-        command_string = tk.create_command(result.run)
+        result = teek.Callback()
+        command_string = teek.create_command(result.run)
         self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
         return result
@@ -277,9 +277,9 @@ class Frame(ChildMixin, Widget):
 
         # if you change these, also change Window's types in windows.py
         self.config._types.update({
-            'height': tk.ScreenDistance,
-            'padding': tk.ScreenDistance,
-            'width': tk.ScreenDistance,
+            'height': teek.ScreenDistance,
+            'padding': teek.ScreenDistance,
+            'width': teek.ScreenDistance,
         })
 
 
@@ -287,8 +287,8 @@ class Label(ChildMixin, Widget):
     """A widget that displays text.
 
     For convenience, the ``text`` option can be also given as a positional
-    initialization argument, so ``tk.Label(parent, "hello")`` and
-    ``tk.Label(parent, text="hello")`` do the same thing.
+    initialization argument, so ``teek.Label(parent, "hello")`` and
+    ``teek.Label(parent, text="hello")`` do the same thing.
 
     Manual page: :man:`ttk_label(3tk)`
     """
@@ -302,7 +302,7 @@ class Label(ChildMixin, Widget):
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
-            'width': tk.ScreenDistance,
+            'width': teek.ScreenDistance,
         })
 
     def _repr_parts(self):
@@ -326,10 +326,10 @@ class LabelFrame(ChildMixin, Widget):
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
-            'height': tk.ScreenDistance,
+            'height': teek.ScreenDistance,
             'labelanchor': str,
             'labelwidget': Widget,
-            'width': tk.ScreenDistance,
+            'width': teek.ScreenDistance,
         })
 
     def _repr_parts(self):
@@ -398,7 +398,7 @@ class Progressbar(ChildMixin, Widget):
     this...
     ::
 
-        progress_bar = tk.Progressbar(parent_widget, maximum=1)
+        progress_bar = teek.Progressbar(parent_widget, maximum=1)
 
     ...and then set numbers between 0 and 1 to
     ``progress_bar.config['value']``::
@@ -418,12 +418,12 @@ class Progressbar(ChildMixin, Widget):
         super()._init_config()
         self.config._types.update({
             'orient': str,
-            'length': tk.ScreenDistance,    # undocumented but true
+            'length': teek.ScreenDistance,    # undocumented but true
             'maximum': float,
             'mode': str,
             #'phase': ???,
             'value': float,
-            'variable': tk.FloatVar,
+            'variable': teek.FloatVar,
         })
 
     def _repr_parts(self):
@@ -458,20 +458,20 @@ class Scrollbar(ChildMixin, Widget):
 
     For example::
 
-        import teek as tk
+        import teek
 
-        window = tk.Window()
+        window = teek.Window()
 
-        text = tk.Text(window)
+        text = teek.Text(window)
         text.pack(side='left', fill='both', expand=True)
-        scrollbar = tk.Scrollbar(window)
+        scrollbar = teek.Scrollbar(window)
         scrollbar.pack(side='left', fill='y')
 
         text.config['yscrollcommand'].connect(scrollbar.set)  # 1.
         scrollbar.config['command'].connect(text.yview)       # 2.
 
-        window.on_delete_window.connect(tk.quit)
-        tk.run()
+        window.on_delete_window.connect(teek.quit)
+        teek.run()
 
     The value of the scrollbar's ``'command'`` option is a :class:`.Callback`
     that runs when the scrollbar is scrolled. It runs with arguments suitable
@@ -503,8 +503,8 @@ class Scrollbar(ChildMixin, Widget):
                              "arguments: " + repr(args))
 
     def _create_scrolling_command(self):
-        result = tk.Callback()
-        command_string = tk.create_command(
+        result = teek.Callback()
+        command_string = teek.create_command(
             self._command_runner, extra_args_type=str)
         self.command_list.append(command_string)
         self._call(None, self, 'configure', '-command', command_string)
@@ -531,12 +531,12 @@ class Separator(ChildMixin, Widget):
     Create a horizontal separator like this...
     ::
 
-        separator = tk.Separator(some_widget, orient='horizontal')
+        separator = teek.Separator(some_widget, orient='horizontal')
         separator.pack(fill='x')    # default is side='top'
 
     ...and create a vertical separator like this::
 
-        separator = tk.Separator(some_widget, orient='vertical')
+        separator = teek.Separator(some_widget, orient='vertical')
         separator.pack(fill='y', side='left')   # can also use side='right'
 
     Manual page: :man:`ttk_separator(3tk)`

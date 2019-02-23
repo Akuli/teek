@@ -107,15 +107,15 @@ work as well. The return types can be nested arbitrarily; for example,
 
 Examples:
 
->>> tk.tcl_call([str], 'list', 'a', 'b', 'c')
+>>> teek.tcl_call([str], 'list', 'a', 'b', 'c')
 ['a', 'b', 'c']
->>> tk.tcl_call((str, int, float), 'list', 'hello', '3', '3.14')
+>>> teek.tcl_call((str, int, float), 'list', 'hello', '3', '3.14')
 ('hello', 3, 3.14)
->>> tk.tcl_call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
+>>> teek.tcl_call([bool], 'list', 'yes', 'ye', 'true', 't', 'on', '1')
 [True, True, True, True, True, True]
->>> tk.tcl_call({}, 'dict', 'create', 'a', 1, 'b', 2)  # doctest: +SKIP
+>>> teek.tcl_call({}, 'dict', 'create', 'a', 1, 'b', 2)  # doctest: +SKIP
 {'a': '1', 'b': '2'}
->>> tk.tcl_call([str], 'list', 123, 3.14, None, 'hello')
+>>> teek.tcl_call([str], 'list', 123, 3.14, None, 'hello')
 ['123', '3.14', '', 'hello']
 
 

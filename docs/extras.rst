@@ -7,13 +7,13 @@ Big tkinter projects often have their own implementations of some commonly
 needed things that tkinter doesn't come with. The ``teek.extras`` module
 contains a collection of them.
 
-To use the extras, ``import teek as tk`` is not enough; that doesn't import
+To use the extras, ``import teek`` is not enough; that doesn't import
 any extras. This is good because most teek programs don't need the extras,
-and for them, ``import teek as tk`` may run a little bit faster if it
+and for them, ``import teek`` may run a little bit faster if it
 doesn't import the extras. Instead, you typically need to do something like
 this to use the extras::
 
-    import teek as tk
+    import teek
     from teek.extras import tooltips
 
     # now some code that uses tooltips.set_tooltip

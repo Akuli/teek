@@ -2,13 +2,13 @@ import contextlib
 
 import pytest
 
-import teek as tk
+import teek
 
 
 # https://docs.pytest.org/en/latest/doctest.html#the-doctest-namespace-fixture
 @pytest.fixture(autouse=True)
-def add_tk(doctest_namespace):
-    doctest_namespace['tk'] = tk
+def add_teek(doctest_namespace):
+    doctest_namespace['teek'] = teek
 
 
 # the following url is on 2 lines because pep8 line length
@@ -36,15 +36,15 @@ def deinit_threads():
     If you have a test like this...
 
         def test_tootie():
-            tk.init_threads()
+            teek.init_threads()
 
     ...the test will cause problems for any other tests that also call
     init_threads(), because it can't be called twice. Using this fixture in
     test_tootie() would fix that problem.
     """
     yield
-    tk.after_idle(tk.quit)
-    tk.run()
+    teek.after_idle(teek.quit)
+    teek.run()
 
 
 @pytest.fixture
@@ -81,23 +81,23 @@ def check_config_types():
 # this is tested in test_widgets.py
 @pytest.fixture
 def all_widgets():
-    window = tk.Window()
+    window = teek.Window()
     return [
-        tk.Button(window),
-        tk.Checkbutton(window),
-        tk.Combobox(window),
-        tk.Entry(window),
-        tk.Frame(window),
-        tk.Label(window),
-        tk.LabelFrame(window),
-        tk.Notebook(window),
-        tk.Menu(),
-        tk.Progressbar(window),
-        tk.Scrollbar(window),
-        tk.Separator(window),
-        tk.Spinbox(window),
-        tk.Text(window),
-        tk.Toplevel(),
+        teek.Button(window),
+        teek.Checkbutton(window),
+        teek.Combobox(window),
+        teek.Entry(window),
+        teek.Frame(window),
+        teek.Label(window),
+        teek.LabelFrame(window),
+        teek.Notebook(window),
+        teek.Menu(),
+        teek.Progressbar(window),
+        teek.Scrollbar(window),
+        teek.Separator(window),
+        teek.Spinbox(window),
+        teek.Text(window),
+        teek.Toplevel(),
         window,
     ]
 
@@ -112,17 +112,17 @@ def fake_command():
             called.append(list(args))
             return return_value
 
-        fake = tk.create_command(command_func, [], extra_args_type=str)
+        fake = teek.create_command(command_func, [], extra_args_type=str)
 
-        tk.tcl_call(None, 'rename', name, name + '_real')
+        teek.tcl_call(None, 'rename', name, name + '_real')
         try:
-            tk.tcl_call(None, 'rename', fake, name)
+            teek.tcl_call(None, 'rename', fake, name)
             yield called
         finally:
             try:
-                tk.delete_command(name)
-            except tk.TclError:
+                teek.delete_command(name)
+            except teek.TclError:
                 pass
-            tk.tcl_call(None, 'rename', name + '_real', name)
+            teek.tcl_call(None, 'rename', name + '_real', name)
 
     return faker

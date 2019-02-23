@@ -7,7 +7,7 @@ import os
 import sys
 import traceback
 
-import teek as tk
+import teek
 from teek._tcl_calls import make_thread_safe
 
 
@@ -18,7 +18,7 @@ def _is_from_teek(traceback_frame_summary):
         # python 3.4 or older, the frame summary is a tuple
         filename = traceback_frame_summary[0]
 
-    teek_prefix = os.path.normcase(tk.__path__[0]).rstrip(os.sep) + os.sep
+    teek_prefix = os.path.normcase(teek.__path__[0]).rstrip(os.sep) + os.sep
     return filename.startswith(teek_prefix)
 
 
@@ -315,7 +315,7 @@ class Color:
 
         # any widget will do, i'm using the '.' root window because it
         # always exists
-        rgb = tk.tcl_call([int], 'winfo', 'rgb', '.', self._color_string)
+        rgb = teek.tcl_call([int], 'winfo', 'rgb', '.', self._color_string)
 
         # tk uses 16-bit colors for some reason, but most people are more
         # familiar with 8-bit colors so we'll shift away the "useless" bits
@@ -410,8 +410,8 @@ class TclVariable:
 
     def __repr__(self):
         try:
-            value_repr = repr(tk.tcl_call(str, 'set', self))
-        except tk.TclError:
+            value_repr = repr(teek.tcl_call(str, 'set', self))
+        except teek.TclError:
             value_repr = 'no value has been set'
 
         return '<%s %r: %s>' % (type(self).__name__, self.to_tcl(), value_repr)
@@ -443,11 +443,11 @@ class TclVariable:
         The value does not need to be of the variable's type; it can be
         anything that can be :ref:`converted to tcl <to-tcl>`.
         """
-        tk.tcl_call(None, 'set', self, new_value)
+        teek.tcl_call(None, 'set', self, new_value)
 
     def get(self):
         """Returns the value of the variable."""
-        return tk.tcl_call(type(self).type_spec, 'set', self._name)
+        return teek.tcl_call(type(self).type_spec, 'set', self._name)
 
     def wait(self):
         """Waits for this variable to be modified.
@@ -455,7 +455,7 @@ class TclVariable:
         The GUI remains responsive during the waiting. See ``tkwait variable``
         in :man:`tkwait(3tk)` for details.
         """
-        tk.tcl_call(None, 'tkwait', 'variable', self)
+        teek.tcl_call(None, 'tkwait', 'variable', self)
 
     @property
     def write_trace(self):
@@ -472,8 +472,8 @@ class TclVariable:
             def runner(*junk):
                 self._write_trace.run(self)
 
-            command = tk.create_command(runner, [str, str, str])
-            tk.tcl_call(None, 'trace', 'add', 'variable',
+            command = teek.create_command(runner, [str, str, str])
+            teek.tcl_call(None, 'trace', 'add', 'variable',
                         self, 'write', command)
 
         return self._write_trace
@@ -524,8 +524,8 @@ class ScreenDistance:
 
         # creating a ScreenDistance object must fail if the screen distance
         # is invalid, that's why this is here
-        self.pixels = tk.tcl_call(int, 'winfo', 'pixels', '.', self._value)
-        self.fpixels = tk.tcl_call(float, 'winfo', 'fpixels', '.', self._value)
+        self.pixels = teek.tcl_call(int, 'winfo', 'pixels', '.', self._value)
+        self.fpixels = teek.tcl_call(float, 'winfo', 'fpixels', '.', self._value)
 
     def __repr__(self):
         return '%s(%r)' % (type(self).__name__, self._value)
@@ -570,7 +570,8 @@ class Image:
     If you want to display an image to the user, use :class:`.Label` with its
     ``image`` option::
 
-        label = tk.Label(some_widget, image=tk.Image(file="path/to/pic.gif"))
+        label = teek.Label(some_widget, image=teek.Image(file="path/to/pic.gif\
+"))
 
     Image objects are wrappers for things documented in :man:`image(3tk)` and
     :man:`photo(3tk)`. They are mutable, so you can e.g. set a label's image to
@@ -608,13 +609,14 @@ class Image:
         else:
             self._repr_info = ''
 
-        name = tk.tcl_call(str, 'image', 'create', 'photo', *_options(kwargs))
+        name = teek.tcl_call(str, 'image', 'create', 'photo',
+                             *_options(kwargs))
         self._init_from_name(name)
 
     def _init_from_name(self, name):
         self._name = name
         self.config = CgetConfigureConfigDict(
-            lambda returntype, *args: tk.tcl_call(returntype, self, *args))
+            lambda returntype, *args: teek.tcl_call(returntype, self, *args))
         self.config._types.update({
             'data': str,
             'format': str,
@@ -642,7 +644,7 @@ class Image:
     def __repr__(self):
         try:
             size = '%dx%d' % (self.width, self.height)
-        except tk.TclError:
+        except teek.TclError:
             size = 'deleted'
         return '<%s: %s%s>' % (type(self).__name__, self._repr_info, size)
 
@@ -660,23 +662,23 @@ class Image:
         The image object is useless after this, and most things will raise
         :exc:`.TclError`.
         """
-        tk.tcl_call(None, 'image', 'delete', self)
+        teek.tcl_call(None, 'image', 'delete', self)
 
     def in_use(self):
         """True if any widget uses this image, or False if not.
 
         This calls ``image inuse`` documented in :man:`image(3tk)`.
         """
-        return tk.tcl_call(bool, 'image', 'inuse', self)
+        return teek.tcl_call(bool, 'image', 'inuse', self)
 
     @classmethod
     def get_all_images(cls):
         """Return all existing images as a list of :class:`.Image` objects."""
-        return tk.tcl_call([cls], 'image', 'names')
+        return teek.tcl_call([cls], 'image', 'names')
 
     def blank(self):
         """See ``imageName blank`` in :man:`photo(3tk)`."""
-        tk.tcl_call(None, self, 'blank')
+        teek.tcl_call(None, self, 'blank')
 
     def copy_from(self, source_image, **kwargs):
         """See ``imageName copy sourceImage`` documented in :man:`photo(3tk)`.
@@ -687,7 +689,7 @@ class Image:
         :man:`photo(3tk)` means ``image1``, and ``sourceImage`` means
         ``image2``.
         """
-        tk.tcl_call(None, self, 'copy', source_image, *_options(kwargs))
+        teek.tcl_call(None, self, 'copy', source_image, *_options(kwargs))
 
     def copy(self, **kwargs):
         """
@@ -702,7 +704,7 @@ class Image:
 
         ...does the same thing as this::
 
-            image2 = tk.Image()
+            image2 = teek.Image()
             image2.copy_from(image1)
 
         Keyword arguments passed to ``image1.copy()`` are passed to
@@ -724,27 +726,27 @@ class Image:
         when it was first created. **tl;dr:** Usually it's best to use
         ``image.width`` instead of ``image.config['width']``.
         """
-        return tk.tcl_call(int, 'image', 'width', self)
+        return teek.tcl_call(int, 'image', 'width', self)
 
     @property
     def height(self):
         """See :attr:`width`."""
-        return tk.tcl_call(int, 'image', 'height', self)
+        return teek.tcl_call(int, 'image', 'height', self)
 
     # TODO: data and put methods, will be hard because passing around binary
 
     def get(self, x, y):
         """Returns the :class:`.Color` of the pixel at (x,y)."""
-        r, g, b = tk.tcl_call([int], self, 'get', x, y)
+        r, g, b = teek.tcl_call([int], self, 'get', x, y)
         return Color(r, g, b)
 
     def read(self, filename, **kwargs):
         """See ``imageName read filename`` in :man:`photo(3tk)`."""
-        tk.tcl_call(None, self, 'read', filename, *_options(kwargs))
+        teek.tcl_call(None, self, 'read', filename, *_options(kwargs))
 
     def redither(self):
         """See ``imageName redither`` in :man:`photo(3tk)`."""
-        tk.tcl_call(None, self, 'redither')
+        teek.tcl_call(None, self, 'redither')
 
     def transparency_get(self, x, y):
         """Check if the pixel at (x,y) is transparent, and return a bool.
@@ -752,7 +754,7 @@ class Image:
         The *x* and *y* are pixels, as integers. See
         ``imageName transparency get`` in :man:`photo(3tk)`.
         """
-        return tk.tcl_call(bool, self, 'transparency', 'get', x, y)
+        return teek.tcl_call(bool, self, 'transparency', 'get', x, y)
 
     def transparency_set(self, x, y, is_transparent):
         """Make the pixel at (x,y) transparent or not transparent.
@@ -760,8 +762,8 @@ class Image:
         See ``imageName transparency set`` in :man:`photo(3tk)` and
         :meth:`transparency_get`.
         """
-        tk.tcl_call(None, self, 'transparency', 'set', x, y, is_transparent)
+        teek.tcl_call(None, self, 'transparency', 'set', x, y, is_transparent)
 
     def write(self, filename, **kwargs):
         """See ``imageName write`` in :man:`photo(3tk)`."""
-        tk.tcl_call(None, self, 'write', filename, *_options(kwargs))
+        teek.tcl_call(None, self, 'write', filename, *_options(kwargs))

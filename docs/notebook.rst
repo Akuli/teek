@@ -10,27 +10,27 @@ This widget is useful for creating tabs as in the tabs of your web browser, not
 
 ::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window("Notebook Example")
-    notebook = tk.Notebook(window)
+    window = teek.Window("Notebook Example")
+    notebook = teek.Notebook(window)
     notebook.pack(fill='both', expand=True)
 
     for number in [1, 2, 3]:
-        label = tk.Label(notebook, "Hello {}!".format(number))
-        tab = tk.NotebookTab(label, text="Tab {}".format(number))
+        label = teek.Label(notebook, "Hello {}!".format(number))
+        tab = teek.NotebookTab(label, text="Tab {}".format(number))
         notebook.append(tab)
 
     window.geometry(300, 200)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 This program displays a notebook widget with 3 tabs. Let's go trough some of
 the code.
 
 ::
 
-    label = tk.Label(notebook, "Hello {}!".format(number))
+    label = teek.Label(notebook, "Hello {}!".format(number))
 
 The label is created as a child widget of the notebook, because it will be
 added to the notebook eventually. However, we *don't* use a
@@ -39,7 +39,7 @@ showing the widget.
 
 ::
 
-    tab = tk.NotebookTab(label, text="Tab {}".format(number))
+    tab = teek.NotebookTab(label, text="Tab {}".format(number))
 
 We need to create a :class:`.NotebookTab` object in order to add a tab to the
 notebook. The :class:`.NotebookTab` objects themselves are **not** widgets. A
@@ -73,15 +73,15 @@ Note that instead of this...
 
 ::
 
-    label = tk.Label(notebook, "Hello {}!".format(number))
-    tab = tk.NotebookTab(label, text="Tab {}".format(number))
+    label = teek.Label(notebook, "Hello {}!".format(number))
+    tab = teek.NotebookTab(label, text="Tab {}".format(number))
     notebook.append(tab)
 
 ...you can also do this::
 
     notebook.append(
-        tk.NotebookTab(
-            tk.Label(notebook, "Hello {}!".format(number)),
+        teek.NotebookTab(
+            teek.Label(notebook, "Hello {}!".format(number)),
             text="Tab {}".format(number)
         )
     )

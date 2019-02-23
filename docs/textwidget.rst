@@ -25,15 +25,15 @@ Hello World!
 
 ::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window()
-    text = tk.Text(window)
+    window = teek.Window()
+    text = teek.Text(window)
     text.pack()
     text.insert(text.start, 'Hello World!')
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 This program displays a window with a ``Hello World!`` text in it displayed
 using a monospace font. It lets you edit the text.
@@ -52,8 +52,8 @@ the hello world to the beginning of the text widget by passing it
 ``text.start``. Here ``text.start`` was a text index
 :any:`namedtuple <collections.namedtuple>`:
 
->>> window = tk.Window()
->>> text = tk.Text(window)
+>>> window = teek.Window()
+>>> text = teek.Text(window)
 >>> text.start
 TextIndex(line=1, column=0)
 
@@ -244,24 +244,24 @@ You can use tags to change things like color of *some* of the text without
 changing all of it. For example, this code displays a ``Hello World`` with a
 red ``Hello`` and a green ``World``::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window("Text Widget Demo")
+    window = teek.Window("Text Widget Demo")
 
-    text = tk.Text(window)
+    text = teek.Text(window)
     text.pack(fill='both', expand=True)
     text.insert(text.start, "hello world")
 
     hello_tag = text.get_tag('hello_tag')
-    hello_tag['foreground'] = tk.Color('red')
+    hello_tag['foreground'] = teek.Color('red')
     hello_tag.add(text.start, text.start.forward(chars=len('hello')))
 
     world_tag = text.get_tag('world_tag')
-    world_tag['foreground'] = tk.Color('green')
+    world_tag['foreground'] = teek.Color('green')
     world_tag.add(text.end.back(chars=len('world')), text.end)
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Each tag has a name which is mostly useful for debugging. If you want to create
 a tag, call :meth:`~.Text.get_tag` with whatever name you want; a new tag is
@@ -334,9 +334,9 @@ Tag objects have these attributes and methods. Search for ``pathName tag`` in
     For example, if you have code like this...
     ::
 
-        import teek as tk
+        import teek
 
-        text = tk.Text(tk.Window())
+        text = teek.Text(teek.Window())
         text.pack()
 
         red_tag = text.get_tag('red')

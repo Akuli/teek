@@ -1,12 +1,12 @@
-import teek as tk
+import teek
 
 
 def on_click():
     print("You clicked me!")
 
 
-window = tk.Window()
-button = tk.Button(window, "Click me", command=on_click)
+window = teek.Window()
+button = teek.Button(window, "Click me", command=on_click)
 button.pack()
-window.on_delete_window.connect(tk.quit)
-tk.run()
+window.on_delete_window.connect(teek.quit)
+teek.run()

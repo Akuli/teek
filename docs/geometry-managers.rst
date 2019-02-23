@@ -68,10 +68,10 @@ Grid
 This geometry manager is useful for making griddy things that would be hard or
 impossible to do with pack. Here is an example::
 
-    import teek as tk
+    import teek
 
 
-    window = tk.Window("Calculator")
+    window = teek.Window("Calculator")
 
     rows = [
         ['7', '8', '9', '*', '/'],
@@ -83,19 +83,19 @@ impossible to do with pack. Here is an example::
     for row_number, row in enumerate(rows):
         for column_number, text in enumerate(row):
             if text is not None:
-                button = tk.Button(window, text, width=3)
+                button = teek.Button(window, text, width=3)
                 button.grid(row=row_number, column=column_number, sticky='nswe')
 
-    zerobutton = tk.Button(window, '0')
+    zerobutton = teek.Button(window, '0')
     zerobutton.grid(row=3, column=0, columnspan=2, sticky='nswe')
-    equalbutton = tk.Button(window, '=')
+    equalbutton = teek.Button(window, '=')
     equalbutton.grid(row=2, column=3, rowspan=2, columnspan=2, sticky='nswe')
 
     for row_or_column in (window.grid_rows + window.grid_columns):
         row_or_column.config['weight'] = 1
 
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 Let's go through some of that line by line.
 ::
@@ -173,10 +173,10 @@ Grid Row and Column Objects
 Tk has some options and other things that can be done to rows or columns of a
 grid. These are represented with row objects and column objects in teek.
 
->>> window = tk.Window()
+>>> window = teek.Window()
 >>> window.grid_rows
 []
->>> tk.Label(window, "label text").grid()    # goes to row 0, column 0
+>>> teek.Label(window, "label text").grid()    # goes to row 0, column 0
 >>> window.grid_rows
 [<grid row 0: has a config attribute and a get_slaves() method>]
 >>> window.grid_columns

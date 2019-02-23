@@ -1,6 +1,6 @@
 import collections.abc
 
-import teek as tk
+import teek
 from teek._structures import CgetConfigureConfigDict
 from teek._tcl_calls import make_thread_safe
 from teek._widgets.base import Widget
@@ -27,12 +27,12 @@ class MenuItem:
 
     Here's an example:
 
-    >>> item = tk.MenuItem("Click me", print)
+    >>> item = teek.MenuItem("Click me", print)
     >>> item.config['label'] = "New text"
     Traceback (most recent call last):
         ...
     RuntimeError: the MenuItem hasn't been added to a Menu yet
-    >>> menu = tk.Menu()
+    >>> menu = teek.Menu()
     >>> menu.append(item)
     >>> item.config['label'] = "New text"
     >>> item.config['label']
@@ -47,7 +47,7 @@ class MenuItem:
         example, the ``'command'`` of a :class:`.Button` widget is a
         :class:`.Callback` object connected to a function passed to
         :class:`.Button`, and so is the ``'command'`` of
-        ``tk.MenuItem("Click me", some_function)``.
+        ``teek.MenuItem("Click me", some_function)``.
 
     .. attribute:: type
 
@@ -64,7 +64,7 @@ class MenuItem:
             self.type = 'separator'
         elif len(args) == 2:
             self._options['label'], second_object = args
-            if isinstance(second_object, tk.BooleanVar):
+            if isinstance(second_object, teek.BooleanVar):
                 self.type = 'checkbutton'
                 self._options['variable'] = second_object
             elif callable(second_object):
@@ -92,29 +92,29 @@ class MenuItem:
 
         self.config = CgetConfigureConfigDict(self._config_entrycommand_caller)
         self.config._types.update({
-            'activebackground': tk.Color,
-            'activeforeground': tk.Color,
+            'activebackground': teek.Color,
+            'activeforeground': teek.Color,
             'accelerator': str,
-            'background': tk.Color,
+            'background': teek.Color,
             #'bitmap': ???,
             'columnbreak': bool,
             'compound': str,
-            'font': tk.Font,
-            'foreground': tk.Color,
+            'font': teek.Font,
+            'foreground': teek.Color,
             'hidemargin': bool,
-            'image': tk.Image,
+            'image': teek.Image,
             'indicatoron': bool,
             'label': str,
             'menu': Menu,
             'offvalue': bool,
             'onvalue': bool,
-            'selectcolor': tk.Color,
-            'selectimage': tk.Image,
+            'selectcolor': teek.Color,
+            'selectimage': teek.Image,
             'state': str,
             'underline': bool,
             'value': str,
-            'variable': (tk.BooleanVar if self.type == 'checkbutton'
-                         else tk.StringVar),
+            'variable': (teek.BooleanVar if self.type == 'checkbutton'
+                         else teek.StringVar),
         })
         self.config._special['command'] = self._create_command
 
@@ -154,15 +154,15 @@ class MenuItem:
     def _config_entrycommand_caller(self, returntype, subcommand, *args):
         assert subcommand in {'cget', 'configure'}
         self._check_in_menu()
-        return tk.tcl_call(returntype, self._menu, 'entry' + subcommand,
-                           self._index, *args)
+        return teek.tcl_call(returntype, self._menu, 'entry' + subcommand,
+                             self._index, *args)
 
     def _create_command(self):
         self._check_in_menu()
-        result = tk.Callback()
-        command_string = tk.create_command(result.run)
-        tk.tcl_call(None, self._menu, 'entryconfigure', self._index,
-                    '-command', command_string)
+        result = teek.Callback()
+        command_string = teek.create_command(result.run)
+        teek.tcl_call(None, self._menu, 'entryconfigure', self._index,
+                      '-command', command_string)
         self._menu.command_list.append(command_string)
         return result
 
@@ -177,16 +177,16 @@ class Menu(Widget, collections.abc.MutableSequence):
     treated so that this...
     ::
 
-        menu = tk.Menu([
-            tk.MenuItem("Click me", print),
-            tk.MenuItem("No, click me instead", print),
+        menu = teek.Menu([
+            teek.MenuItem("Click me", print),
+            teek.MenuItem("No, click me instead", print),
         ])
 
     ...does the same thing as this::
 
-        menu = tk.Menu()
-        menu.append(tk.MenuItem("Click me", print))
-        menu.append(tk.MenuItem("No, click me instead", print))
+        menu = teek.Menu()
+        menu.append(teek.MenuItem("Click me", print))
+        menu.append(teek.MenuItem("No, click me instead", print))
 
     Menu widgets behave like lists of menu items, so if you can do something to
     a list of :class:`.MenuItem` objects, you can probably do it directly to a
@@ -194,10 +194,10 @@ class Menu(Widget, collections.abc.MutableSequence):
 
     However, menu widgets don't support slicing, like lists do:
 
-    >>> menu = tk.Menu([
-    ...     tk.MenuItem("Click me", print),
+    >>> menu = teek.Menu([
+    ...     teek.MenuItem("Click me", print),
     ... ])
-    >>> menu.append(tk.MenuItem("No, click me instead", print))
+    >>> menu.append(teek.MenuItem("No, click me instead", print))
     >>> menu
     <teek.Menu widget: contains 2 items>
     >>> menu[0]     # this works
@@ -220,12 +220,13 @@ d', added to a menu>
     :class:`.Menu` objects assume that nothing changes the underlying Tk menu
     widget without the :class:`.Menu` object. For example:
 
-    >>> menu = tk.Menu()
+    >>> menu = teek.Menu()
     >>> command = menu.to_tcl()
     >>> command      # doctest: +SKIP
     '.menu1'
     >>> # DON'T DO THIS, this is a bad idea
-    >>> tk.tcl_eval(None, '%s add checkbutton -command {puts hello}' % command)
+    >>> teek.tcl_eval(None, '%s add checkbutton -command {puts hello}' % comma\
+nd)
     >>> len(menu)   # the menu widget doesn't know that we added an item
     0
 
@@ -247,7 +248,7 @@ d', added to a menu>
     def _init_config(self):
         super()._init_config()
         self.config._types.update({
-            'selectcolor': tk.Color,
+            'selectcolor': teek.Color,
             'tearoff': bool,
             'title': str,
             'type': str,
@@ -325,7 +326,7 @@ ps://books.google.fi/books?id=BWf6mdwHjDMC&printsec=frontcover&hl=fi#v=onepage\
         Ousterhout, the creator of Tcl and Tk.
         """
         if menu_item is None:
-            tk.tcl_call(None, 'tk_popup', self, x, y)
+            teek.tcl_call(None, 'tk_popup', self, x, y)
         else:
             menu_item._check_in_menu()
-            tk.tcl_call(None, 'tk_popup', self, x, y, menu_item._index)
+            teek.tcl_call(None, 'tk_popup', self, x, y, menu_item._index)

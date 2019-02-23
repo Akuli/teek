@@ -1,6 +1,6 @@
 import itertools
 
-import teek as tk
+import teek
 
 flatten = itertools.chain.from_iterable
 
@@ -8,14 +8,14 @@ flatten = itertools.chain.from_iterable
 def _font_property(type_spec, option):
 
     def getter(self):
-        return tk.tcl_call(type_spec, "font", "actual", self, "-" + option)
+        return teek.tcl_call(type_spec, "font", "actual", self, "-" + option)
 
     def setter(self, value):
         if not isinstance(self, NamedFont):
             raise AttributeError(
                 "cannot change options of non-named fonts, but you can use "
                 "the_font.to_named_font() to create a mutable font object")
-        tk.tcl_call(None, "font", "configure", self, "-" + option, value)
+        teek.tcl_call(None, "font", "configure", self, "-" + option, value)
 
     return property(getter, setter)
 
@@ -25,8 +25,8 @@ def _anonymous_font_new_helper(font_description):
     # is the font description a font name? configure works only with
     # font names, not other kinds of font descriptions
     try:
-        tk.tcl_call(None, 'font', 'configure', font_description)
-    except tk.TclError:
+        teek.tcl_call(None, 'font', 'configure', font_description)
+    except teek.TclError:
         return None
 
     # it is a font name
@@ -39,11 +39,11 @@ class Font:
     Creating a :class:`.Font` object with a valid font name as an argument
     returns a :class:`.NamedFont` object. For example:
 
-    >>> tk.Font('Helvetica 12')  # not a font name
+    >>> teek.Font('Helvetica 12')  # not a font name
     Font('Helvetica 12')
-    >>> tk.Font('TkFixedFont')   # special font name for default monospace font
+    >>> teek.Font('TkFixedFont')   # special font name for default monospace font
     NamedFont('TkFixedFont')
-    >>> tk.NamedFont('TkFixedFont')    # does the same thing
+    >>> teek.NamedFont('TkFixedFont')    # does the same thing
     NamedFont('TkFixedFont')
 
     .. attribute:: family
@@ -64,7 +64,7 @@ class Font:
         Helvetica-like font, so this line of code gives different values
         platform-specifically:
 
-        >>> tk.Font('Helvetica 12').family     # doctest: +SKIP
+        >>> teek.Font('Helvetica 12').family     # doctest: +SKIP
         'Nimbus Sans L'
     """
 
@@ -119,7 +119,7 @@ class Font:
         Calls ``font measure`` documented in :man:`font(3tk)`, and returns an
         integer.
         """
-        return tk.tcl_call(int, "font", "measure", self, text)
+        return teek.tcl_call(int, "font", "measure", self, text)
 
     def metrics(self):
         """
@@ -130,7 +130,7 @@ class Font:
           integers.
         * The value of ``'fixed'`` is True or False.
         """
-        result = tk.tcl_call(
+        result = teek.tcl_call(
             {"-ascent": int, "-descent": int,
              "-linespace": int, "-fixed": bool},
             "font", "metrics", self)
@@ -142,7 +142,7 @@ class Font:
         If this font is already a :class:`.NamedFont`, a copy of it is created
         and returned.
         """
-        options = tk.tcl_call({}, 'font', 'actual', self)
+        options = teek.tcl_call({}, 'font', 'actual', self)
         kwargs = {name.lstrip('-'): value for name, value in options.items()}
         return NamedFont(**kwargs)
 
@@ -156,7 +156,7 @@ class Font:
         by default. Pass ``allow_at_prefix=True`` to get a list that includes
         the ``'@'`` fonts.
         """
-        result = tk.tcl_call([str], "font", "families")
+        result = teek.tcl_call([str], "font", "families")
         if allow_at_prefix:
             return result
         return [family for family in result if not family.startswith('@')]
@@ -168,9 +168,9 @@ class NamedFont(Font):
     :class:`.NamedFont` is a subclass of :class:`.Font`; that is, all
     NamedFonts are Fonts, but not all Fonts are NamedFonts:
 
-    >>> isinstance(tk.NamedFont('toot'), tk.Font)
+    >>> isinstance(teek.NamedFont('toot'), teek.Font)
     True
-    >>> isinstance(tk.Font('Helvetica 12'), tk.NamedFont)
+    >>> isinstance(teek.Font('Helvetica 12'), teek.NamedFont)
     False
 
     If ``name`` is not given, Tk will choose a font name that is not in use
@@ -181,11 +181,11 @@ class NamedFont(Font):
     ``underline`` and ``overstrike`` attributes. For example, this...
     ::
 
-        shouting_font = tk.NamedFont(size=30, weight='bold')
+        shouting_font = teek.NamedFont(size=30, weight='bold')
 
     ...does the same thing as this::
 
-        shouting_font = tk.NamedFont()
+        shouting_font = teek.NamedFont()
         shouting_font.size = 30
         shouting_font.weight = 'bold'
     """
@@ -197,16 +197,17 @@ class NamedFont(Font):
 
         if name is None:
             # let tk choose a name that's not used yet
-            name = tk.tcl_call(str, 'font', 'create', *options_with_dashes)
+            name = teek.tcl_call(str, 'font', 'create', *options_with_dashes)
         else:
             # do we need to create a font with the given name?
             try:
-                tk.tcl_call(None, 'font', 'create', name, *options_with_dashes)
-            except tk.TclError:
+                teek.tcl_call(None, 'font', 'create', name,
+                              *options_with_dashes)
+            except teek.TclError:
                 # no, it exists already, but we must do something with the
                 # options
-                tk.tcl_call(None, 'font', 'configure', name,
-                            *options_with_dashes)
+                teek.tcl_call(None, 'font', 'configure', name,
+                              *options_with_dashes)
 
         super().__init__(name)
 
@@ -218,7 +219,7 @@ class NamedFont(Font):
     @classmethod
     def get_all_named_fonts(cls):
         """Returns a list of all :class:`.NamedFont` objects."""
-        return list(map(cls, tk.tcl_call([str], 'font', 'names')))
+        return list(map(cls, teek.tcl_call([str], 'font', 'names')))
 
     def delete(self):
         """Calls ``font delete``.
@@ -226,4 +227,4 @@ class NamedFont(Font):
         The font object is useless after this, and most things will raise
         :exc:`.TclError`.
         """
-        tk.tcl_call(None, "font", "delete", self)
+        teek.tcl_call(None, "font", "delete", self)

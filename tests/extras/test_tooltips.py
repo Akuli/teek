@@ -2,7 +2,7 @@ import time
 import types
 import pytest
 
-import teek as tk
+import teek
 from teek.extras import tooltips
 
 
@@ -10,12 +10,12 @@ def run_event_loop(for_how_long):
     # this is dumb
     start = time.time()
     while time.time() < start + for_how_long:
-        tk.update()
+        teek.update()
 
 
 @pytest.mark.slow
 def test_set_tooltip():
-    window = tk.Window()
+    window = teek.Window()
     assert not hasattr(window, '_tooltip_manager')
 
     tooltips.set_tooltip(window, None)

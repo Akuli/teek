@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-import teek as tk
+import teek
 
 
 SMILEY_PATH = os.path.join(
@@ -12,7 +12,7 @@ SMILEY_PATH = os.path.join(
 
 
 def test_width_and_height():
-    image = tk.Image(file=SMILEY_PATH)
+    image = teek.Image(file=SMILEY_PATH)
     assert image.width == 32
     assert image.height == 32
 
@@ -34,17 +34,17 @@ def slow_content_eq_check(image1, image2):
 
 @pytest.mark.slow
 def test_images_contain_same_data_util():
-    image1 = tk.Image(file=SMILEY_PATH)
-    image2 = tk.Image(file=SMILEY_PATH)
+    image1 = teek.Image(file=SMILEY_PATH)
+    image2 = teek.Image(file=SMILEY_PATH)
     assert slow_content_eq_check(image1, image1)
     assert slow_content_eq_check(image1, image2)
 
-    image3 = tk.Image(width=1, height=2)
+    image3 = teek.Image(width=1, height=2)
     assert not slow_content_eq_check(image1, image3)
 
 
 def test_config(check_config_types):
-    check_config_types(tk.Image(file=SMILEY_PATH).config, 'Image')
+    check_config_types(teek.Image(file=SMILEY_PATH).config, 'Image')
 
 
 @pytest.mark.slow
@@ -52,24 +52,24 @@ def test_data_base64():
     with open(SMILEY_PATH, 'rb') as file:
         binary_data = file.read()
 
-    assert slow_content_eq_check(tk.Image(file=SMILEY_PATH),
-                                 tk.Image(data=binary_data))
+    assert slow_content_eq_check(teek.Image(file=SMILEY_PATH),
+                                 teek.Image(data=binary_data))
 
 
 @pytest.mark.slow
 def test_from_to_tcl():
-    image1 = tk.Image(file=SMILEY_PATH)
-    tk.tcl_eval(None, 'proc returnArg {arg} {return $arg}')
-    image2 = tk.tcl_call(tk.Image, 'returnArg', image1)
+    image1 = teek.Image(file=SMILEY_PATH)
+    teek.tcl_eval(None, 'proc returnArg {arg} {return $arg}')
+    image2 = teek.tcl_call(teek.Image, 'returnArg', image1)
     assert image1.to_tcl() == image2.to_tcl()   # no implicit copying
     assert image1 is not image2                 # no implicit cache
     assert slow_content_eq_check(image1, image2)
 
 
 def test_eq_hash():
-    image1 = tk.Image(file=SMILEY_PATH)
-    image2 = tk.Image.from_tcl(image1.to_tcl())
-    image3 = tk.Image(file=SMILEY_PATH)
+    image1 = teek.Image(file=SMILEY_PATH)
+    image2 = teek.Image.from_tcl(image1.to_tcl())
+    image3 = teek.Image(file=SMILEY_PATH)
 
     assert image1 == image2
     assert {image1: 'woot'}[image2] == 'woot'
@@ -79,34 +79,34 @@ def test_eq_hash():
 
 
 def test_delete_and_all_images():
-    old_images = set(tk.Image.get_all_images())
-    new_image = tk.Image()
-    assert set(tk.Image.get_all_images()) == old_images | {new_image}
+    old_images = set(teek.Image.get_all_images())
+    new_image = teek.Image()
+    assert set(teek.Image.get_all_images()) == old_images | {new_image}
     new_image.delete()
-    assert set(tk.Image.get_all_images()) == old_images
+    assert set(teek.Image.get_all_images()) == old_images
 
 
 def test_repr():
-    image = tk.Image(file=SMILEY_PATH)
+    image = teek.Image(file=SMILEY_PATH)
     assert repr(image) == '<Image: from %s, 32x32>' % repr(SMILEY_PATH)
     image.delete()
     assert repr(image) == '<Image: from %s, deleted>' % repr(SMILEY_PATH)
 
-    image2 = tk.Image(width=123, height=456)
+    image2 = teek.Image(width=123, height=456)
     assert repr(image2) == '<Image: 123x456>'
     image2.delete()
     assert repr(image2) == '<Image: deleted>'
 
 
 def test_in_use():
-    image = tk.Image(file=SMILEY_PATH)
+    image = teek.Image(file=SMILEY_PATH)
     assert image.in_use() is False
-    window = tk.Window()
+    window = teek.Window()
     assert image.in_use() is False
 
-    widget = tk.Label(window, image=image)
+    widget = teek.Label(window, image=image)
     assert image.in_use() is True
-    widget2 = tk.Label(window, image=image)
+    widget2 = teek.Label(window, image=image)
     assert image.in_use() is True
     widget.destroy()
     assert image.in_use() is True
@@ -115,7 +115,7 @@ def test_in_use():
 
 
 def test_blank():
-    image1 = tk.Image(file=SMILEY_PATH)
+    image1 = teek.Image(file=SMILEY_PATH)
     image2 = image1.copy()
     image2.blank()
     assert not slow_content_eq_check(image1, image2)      # not slow
@@ -123,10 +123,10 @@ def test_blank():
 
 @pytest.mark.slow
 def test_read():
-    image1 = tk.Image(file=SMILEY_PATH)
+    image1 = teek.Image(file=SMILEY_PATH)
     assert image1.width > 0 and image1.height > 0
 
-    image2 = tk.Image()
+    image2 = teek.Image()
     assert image2.width == image2.height == 0
     image2.read(SMILEY_PATH)
     assert (image2.width, image2.height) == (image1.width, image1.height)
@@ -138,13 +138,13 @@ def test_redither():
     # except that it doesn't seem to actually do anything to the smiley, so
     # just test that it calls the Tcl redither command
     called = []
-    fake_image = tk.create_command(called.append, [str])
-    tk.Image.from_tcl(fake_image).redither()
+    fake_image = teek.create_command(called.append, [str])
+    teek.Image.from_tcl(fake_image).redither()
     assert called == ['redither']
 
 
 def test_transparency():
-    image = tk.Image(file=SMILEY_PATH)
+    image = teek.Image(file=SMILEY_PATH)
     x = random.randint(0, image.width - 1)
     y = random.randint(0, image.height - 1)
     assert image.transparency_get(x, y) is False
@@ -156,9 +156,9 @@ def test_transparency():
 
 @pytest.mark.slow
 def test_write():
-    image1 = tk.Image(file=SMILEY_PATH)
+    image1 = teek.Image(file=SMILEY_PATH)
     with tempfile.TemporaryDirectory() as tmpdir:
         asd = os.path.join(tmpdir, 'asd.gif')
         image1.write(asd, format='gif')
-        image2 = tk.Image(file=asd)
+        image2 = teek.Image(file=asd)
     assert slow_content_eq_check(image1, image2)

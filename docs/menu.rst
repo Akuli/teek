@@ -13,30 +13,30 @@ You can use menu widges for a few different things:
 
 Here is an example of a menu bar::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window()
+    window = teek.Window()
 
     def hello():
         print("hello")
 
-    window.config['menu'] = tk.Menu([
-        tk.MenuItem("File", [
-            tk.MenuItem("New", hello),
-            tk.MenuItem("Open", hello),
-            tk.MenuItem("Save", hello),
-            tk.MenuItem("Quit", hello),
+    window.config['menu'] = teek.Menu([
+        teek.MenuItem("File", [
+            teek.MenuItem("New", hello),
+            teek.MenuItem("Open", hello),
+            teek.MenuItem("Save", hello),
+            teek.MenuItem("Quit", hello),
         ]),
-        tk.MenuItem("Edit", [
-            tk.MenuItem("Cut", hello),
-            tk.MenuItem("Copy", hello),
-            tk.MenuItem("Paste", hello),
+        teek.MenuItem("Edit", [
+            teek.MenuItem("Cut", hello),
+            teek.MenuItem("Copy", hello),
+            teek.MenuItem("Paste", hello),
         ]),
     ])
 
     window.geometry(300, 200)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 As you can see, :class:`.Menu` takes one argument, which is a list of
 :class:`.MenuItem` objects. This example uses two kinds of menu items; some
@@ -48,23 +48,23 @@ Here is a pop-up menu example. See :ref:`bind documentation <binding>` for more
 details about the binding stuff.
 ::
 
-    import teek as tk
+    import teek
 
-    window = tk.Window()
+    window = teek.Window()
 
     def hello():
         print("hello")
 
-    menu = tk.Menu([
-        tk.MenuItem("Cut", hello),
-        tk.MenuItem("Copy", hello),
-        tk.MenuItem("Paste", hello),
+    menu = teek.Menu([
+        teek.MenuItem("Cut", hello),
+        teek.MenuItem("Copy", hello),
+        teek.MenuItem("Paste", hello),
     ])
 
     def on_right_click(event):
         menu.popup(event.rootx, event.rooty)
 
-    if tk.windowingsystem() == 'aqua':
+    if teek.windowingsystem() == 'aqua':
         # running on Mac OSX, there's no right-click so this must be done a bit
         # differently
         window.bind('<Button-2>', on_right_click, event=True)
@@ -73,8 +73,8 @@ details about the binding stuff.
         window.bind('<Button-3>', on_right_click, event=True)
 
     window.geometry(300, 200)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 I found the Mac OSX specific code from here_.
 
@@ -130,7 +130,7 @@ Here is an example that demonstrates most things. See :class:`.StringVar` and
 :class:`.BooleanVar` documentation for more info about them.
 ::
 
-    import teek as tk
+    import teek
 
 
     def on_click():
@@ -143,33 +143,33 @@ Here is an example that demonstrates most things. See :class:`.StringVar` and
         print("chose", repr(choice))
 
 
-    window = tk.Window()
+    window = teek.Window()
 
-    submenu = tk.Menu([
-        tk.MenuItem("Asd", on_click),
-        tk.MenuItem("Toot", on_click),
+    submenu = teek.Menu([
+        teek.MenuItem("Asd", on_click),
+        teek.MenuItem("Toot", on_click),
     ])
 
-    check_var = tk.BooleanVar()
+    check_var = teek.BooleanVar()
     check_var.write_trace.connect(on_check)
-    choice_var = tk.StringVar()
+    choice_var = teek.StringVar()
     choice_var.write_trace.connect(on_choice)
 
-    window.config['menu'] = tk.Menu([
-        tk.MenuItem("Stuff", [
-            tk.MenuItem("Click me", on_click),
-            tk.MenuItem("Check me", check_var),
-            tk.MenuItem("More stuff", submenu),
-            tk.MenuItem(),      # separator
-            tk.MenuItem("Choice 1", choice_var, "one"),
-            tk.MenuItem("Choice 2", choice_var, "two"),
-            tk.MenuItem("Choice 3", choice_var, "three"),
+    window.config['menu'] = teek.Menu([
+        teek.MenuItem("Stuff", [
+            teek.MenuItem("Click me", on_click),
+            teek.MenuItem("Check me", check_var),
+            teek.MenuItem("More stuff", submenu),
+            teek.MenuItem(),      # separator
+            teek.MenuItem("Choice 1", choice_var, "one"),
+            teek.MenuItem("Choice 2", choice_var, "two"),
+            teek.MenuItem("Choice 3", choice_var, "three"),
         ]),
     ])
 
     window.geometry(300, 200)
-    window.on_delete_window.connect(tk.quit)
-    tk.run()
+    window.on_delete_window.connect(teek.quit)
+    teek.run()
 
 
 Reference

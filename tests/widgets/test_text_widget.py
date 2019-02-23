@@ -3,11 +3,11 @@ import os
 
 import pytest
 
-import teek as tk
+import teek
 
 
 def test_between_start_end():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     text.insert(text.start, 'lol')
     assert tuple(text.TextIndex(-10, -10)) == (-10, -10)
     assert tuple(text.TextIndex(10, 10)) == (10, 10)
@@ -21,7 +21,7 @@ def test_between_start_end():
 
 
 def test_basic_stuff():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
 
     # start and end should be namedtuples
     assert isinstance(text.start, tuple)
@@ -68,7 +68,7 @@ def test_basic_stuff():
 
 
 def test_tkinter_index_string_error():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     with pytest.raises(TypeError) as error:
         text.get('1.0', 'end')
     assert "use (line, column) int tuples or TextIndex objects" in str(
@@ -76,34 +76,34 @@ def test_tkinter_index_string_error():
 
 
 def test_delete():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     text.insert(text.end, 'wat batman')
     text.delete((1, 1), text.end.back(chars=5))
     assert text.get(text.start, text.end) == 'watman'
 
 
 def test_see():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     for i in range(1, 1000):
         text.insert(text.end, 'toot %d\n' % i)
 
-    tk.update()
+    teek.update()
     yview1 = text.yview()
     text.see(text.end)
-    tk.update()
+    teek.update()
     yview2 = text.yview()
     assert max(yview1) < 0.5 and min(yview2) > 0.5
 
 
 # see text(3tk) with different tk versions
 def test_config_types(check_config_types):
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     check_config_types(text.config, 'Text')
     check_config_types(text.get_tag('asdfasdf'), 'Text tag')
 
 
 def test_tags():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     text.insert(text.start, "asd toot boo")
 
     assert {tag.name for tag in text.get_all_tags()} == {'sel'}
@@ -155,15 +155,15 @@ def test_tags():
     # if it's set to a string, it must still be a Color object when getting
     toot['foreground'] = 'black'
     assert toot in text.get_all_tags()
-    assert isinstance(toot['foreground'], tk.Color)
-    assert toot['foreground'] == tk.Color(0, 0, 0)
+    assert isinstance(toot['foreground'], teek.Color)
+    assert toot['foreground'] == teek.Color(0, 0, 0)
 
-    toot['foreground'] = tk.Color('blue')
-    assert toot['foreground'] == tk.Color('blue')
+    toot['foreground'] = teek.Color('blue')
+    assert toot['foreground'] == teek.Color('blue')
 
     # misc other tag properties
     assert toot == toot
-    assert toot != tk.Text(tk.Window()).get_tag('toot')   # different widget
+    assert toot != teek.Text(teek.Window()).get_tag('toot')   # different widget
     assert toot != 123
     assert hash(toot) == hash(toot)
     assert repr(toot) == "<Text widget tag 'toot'>"
@@ -177,13 +177,13 @@ def test_tags():
 
 
 def test_tag_creating_bug():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     a = text.get_tag('a')
     assert a in text.get_all_tags()
 
 
 def test_tag_lower_raise():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     a = text.get_tag('a')
     b = text.get_tag('b')
 
@@ -196,7 +196,7 @@ def test_tag_lower_raise():
 
 def test_tag_bind():
     # i can't think of a better way to test this
-    tag = tk.Text(tk.Window()).get_tag('asd')
+    tag = teek.Text(teek.Window()).get_tag('asd')
     tag.bind('<Button-1>', print, event=True)
     tag.bindings['<1>'].disconnect(print)
     with pytest.raises(ValueError):
@@ -204,7 +204,7 @@ def test_tag_bind():
 
 
 def test_marks():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     assert text.marks.keys() == {'insert', 'current'}
     assert text.marks['insert'] == text.start
     assert text.marks['current'] == text.start
@@ -217,7 +217,7 @@ def test_marks():
 
 
 def test_scrolling():
-    text = tk.Text(tk.Window())
+    text = teek.Text(teek.Window())
     asd = []
 
     def callback(x, y):
@@ -229,7 +229,7 @@ def test_scrolling():
     # scroll to end, and make sure everything is visible
     text.yview('moveto', 1)
     text.pack()
-    tk.update()
+    teek.update()
 
     # this fails consistently in travis for some reason, but if i run this
     # locally in xvfb-run, it works fine 0_o

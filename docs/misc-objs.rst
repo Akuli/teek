@@ -34,8 +34,8 @@ There are different kinds of fonts in Tk:
 
 For example, if you have :class:`.Label`...
 
->>> window = tk.Window()
->>> label = tk.Label(window, "Hello World")
+>>> window = teek.Window()
+>>> label = teek.Label(window, "Hello World")
 >>> label.pack()
 
 ...and you want to make its text bigger, you can do this::
@@ -53,7 +53,7 @@ Font('Helvetica 20')
 
 With a named font, the code looks like this:
 
->>> named_font = tk.NamedFont(family='Helvetica', size=20)
+>>> named_font = teek.NamedFont(family='Helvetica', size=20)
 >>> label.config['font'] = named_font
 >>> named_font.size = 50    # even bigger! label will use this new size automatically
 

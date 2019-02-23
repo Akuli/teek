@@ -1,4 +1,4 @@
-import teek as tk
+import teek
 
 
 class _TooltipManager:
@@ -7,7 +7,7 @@ class _TooltipManager:
     # mouse pointer.
     tipwindow = None
 
-    def __init__(self, widget: tk.Widget):
+    def __init__(self, widget: teek.Widget):
         widget.bind('<Enter>', self.enter, event=True)
         widget.bind('<Leave>', self.leave, event=True)
         widget.bind('<Motion>', self.motion, event=True)
@@ -27,7 +27,7 @@ class _TooltipManager:
         if event.widget is self.widget:
             self.destroy_tipwindow()
             self.got_mouse = True
-            tk.after(1000, self.show)
+            teek.after(1000, self.show)
 
             # these are important, it's possible to enter without mouse move
             self.mousex = event.rootx
@@ -51,12 +51,12 @@ class _TooltipManager:
             # the label and the tipwindow are not ttk widgets because that way
             # they can look different than other widgets, which is what
             # tooltips are usually like
-            tipwindow = type(self).tipwindow = tk.Toplevel()
+            tipwindow = type(self).tipwindow = teek.Toplevel()
             tipwindow.geometry(x=(self.mousex + 10), y=(self.mousey - 10))
             tipwindow.bind('<Motion>', self.destroy_tipwindow)
 
             # TODO: add overrideredirect to teek
-            tk.tcl_call(None, 'wm', 'overrideredirect', tipwindow, 1)
+            teek.tcl_call(None, 'wm', 'overrideredirect', tipwindow, 1)
 
             # i don't think there's a need to add better support for things
             # like non-ttk labels because they are not needed very often
@@ -66,10 +66,10 @@ class _TooltipManager:
             # with no fg gives white text on white background on systems with
             # white default foreground, but works fine on systems with black
             # default foreground
-            label = tk.tcl_call(str, 'label', tipwindow.to_tcl() + '.label',
+            label = teek.tcl_call(str, 'label', tipwindow.to_tcl() + '.label',
                                 '-text', self.text, '-border', 3,
                                 '-fg', 'black', '-bg', '#ffc')
-            tk.tcl_call(None, 'pack', label)
+            teek.tcl_call(None, 'pack', label)
 
 
 def set_tooltip(widget, text):

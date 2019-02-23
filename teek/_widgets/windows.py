@@ -1,7 +1,7 @@
 import collections.abc
 import re
 
-import teek as tk
+import teek
 from teek._structures import ConfigDict
 from teek._tcl_calls import make_thread_safe
 from teek._widgets.base import ChildMixin, Widget
@@ -16,16 +16,16 @@ class WmMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.on_delete_window = tk.Callback()
-        self.on_take_focus = tk.Callback()
+        self.on_delete_window = teek.Callback()
+        self.on_take_focus = teek.Callback()
 
         # TODO: delete the commands when they are no longer needed, mem leak
         self._call(
             None, 'wm', 'protocol', self._get_wm_widget(), 'WM_DELETE_WINDOW',
-            tk.create_command(self.on_delete_window.run))
+            teek.create_command(self.on_delete_window.run))
         self._call(
             None, 'wm', 'protocol', self._get_wm_widget(), 'WM_TAKE_FOCUS',
-            tk.create_command(self.on_take_focus.run))
+            teek.create_command(self.on_take_focus.run))
 
     def _repr_parts(self):
         result = ['title=' + repr(self.title)]
@@ -56,7 +56,7 @@ class WmMixin:
 
     @property
     def transient(self):
-        return self._call(tk.Widget, 'wm', 'transient', self._get_wm_widget())
+        return self._call(teek.Widget, 'wm', 'transient', self._get_wm_widget())
 
     @transient.setter
     def transient(self, widget):
@@ -152,8 +152,8 @@ class Toplevel(WmMixin, Widget):
 
         Examples::
 
-            >>> import teek as tk
-            >>> window = tk.Window()
+            >>> import teek
+            >>> window = teek.Window()
             >>> window.geometry(300, 200)    # resize to 300px wide, 200px high
             >>> window.geometry(x=0, y=0)    # move to upper left corner
             >>> window.geometry()            # doctest: +SKIP
@@ -238,12 +238,12 @@ class Toplevel(WmMixin, Widget):
         self.config._types.update({
             'colormap': str,    # 'new' or a widget name, didn't bother
             'container': bool,
-            'height': tk.ScreenDistance,
-            'menu': tk.Menu,
+            'height': teek.ScreenDistance,
+            'menu': teek.Menu,
             'screen': str,
             'use': int,
             'visual': str,      # didn't bother
-            'width': tk.ScreenDistance,
+            'width': teek.ScreenDistance,
         })
 
     def _get_wm_widget(self):
@@ -341,9 +341,9 @@ class Window(WmMixin, Widget):
     def _init_config(self):
         # if you change these, also change Frame's types in misc.py
         self.config._types.update({
-            'height': tk.ScreenDistance,
-            'padding': tk.ScreenDistance,
-            'width': tk.ScreenDistance,
+            'height': teek.ScreenDistance,
+            'padding': teek.ScreenDistance,
+            'width': teek.ScreenDistance,
         })
 
     def _get_wm_widget(self):

@@ -45,12 +45,15 @@ To Get Started
 
 If you find a file that contains ``from tkinter import *``, you should
 immediately fix that. It is very bad style. Change the import to
-``import teek as tk``, and then replace things like ``Label`` with
-``tk.Label``.
+``import teek``, and then replace things like ``Label`` with
+``teek.Label``.
 
-If you find code like ``import tkinter as tk``, just change ``tkinter`` to
-``teek``. If there is ``import tkinter``, replace ``tkinter.something`` with
-``tk.something`` everywhere and ``import teek as tk``.
+If you find code like ``import tkinter as tk``, you can just change ``tkinter``
+to ``teek``, but I prefer changing it to ``import teek`` and then replacing
+``tk`` with ``teek`` everywhere. That way, if you see ``teek.Label`` somewhere
+in the code you know right away that it's not a tkinter label. If there is
+``import tkinter``, change it to ``import teek`` and replace
+``tkinter.something`` with ``teek.something`` everywhere.
 
 Sometimes you may see this::
 
@@ -63,8 +66,9 @@ Or much worse::
     from tkinter.ttk import *
 
 In these cases, you should replace both ``tkinter.something`` and
-``tkinter.ttk.something`` with ``tk.something`` and do the
-``import teek as tk``. The ``teek`` module contains everything you need.
+``tkinter.ttk.something`` with ``teek.something`` and do the
+``import teek``. The ``teek`` module contains everything you need, including
+Ttk widgets and a few non-Ttk widgets.
 
 After this, try it out. It probably doesn't work yet, so keep reading.
 
@@ -79,7 +83,7 @@ explained in :class:`.Window` documentation. You can create as many teek
 windows as you want, and they actually use toplevels under the hood.
 
 If the tkinter code creates multiple ``tkinter.Tk`` instances, it is probably
-broken. Replace all of them with :class:`tk.Window <.Window>`.
+broken. Replace all of them with :class:`teek.Window <.Window>`.
 
 If you have code that uses ``tkinter.Message``, you should use a ``Label``
 instead. I believe message widgets were a thing before labels could handle
@@ -101,7 +105,7 @@ quit the GUI, so instead of ``root.destroy()`` you need :func:`teek.quit`.
 Trying to close a teek window does nothing by default. If you want the whole
 program to end instead, do this::
 
-    window.on_delete_window.connect(tk.quit)
+    window.on_delete_window.connect(teek.quit)
 
 If you want to close only the window that the user is closing (which is the
 case for dialogs and other such things), do this::
@@ -129,7 +133,7 @@ constants are dumb, which is why teek doesn't have them. Use strings like
 Run
 ---
 
-Use :func:`tk.run() <.run>` instead of tkinter's ``root.mainloop()``
+Use :func:`teek.run() <.run>` instead of tkinter's ``root.mainloop()``
 or ``tkinter.mainloop()``.
 
 
@@ -142,7 +146,7 @@ Options are used differently in tkinter and teek. For example,
 In teek, none of these work, and you instead do ``button.config['text']``.
 However, teek raises good error messages:
 
->>> button = tk.Button(tk.Window(), "some text")
+>>> button = teek.Button(teek.Window(), "some text")
 >>> button.cget('text')
 Traceback (most recent call last):
     ...
@@ -192,10 +196,10 @@ Dialogs
 
 Dialog functions are named differently in teek. For example, instead of
 ``filedialog.askopenfilename()`` you use
-:func:`tk.dialog.open_file() <.dialog.open_file>`. Unlike in tkinter, you don't
+:func:`teek.dialog.open_file() <.dialog.open_file>`. Unlike in tkinter, you don't
 need to import anything special in order to use the dialog functions;
-``import teek as tk`` is all you need, and after that, you can do
-``tk.dialog.open_file()``.
+``import teek`` is all you need, and after that, you can do
+``teek.dialog.open_file()``.
 
 
 .. _tkinter-binding:
@@ -291,11 +295,11 @@ Here is a list of them:
 There are also some things that must be done with ``any_widget.tk.call()`` in
 tkinter, but teek has nicer support for them:
 
-+-----------------------------------------------+-----------------------------------+
++-----------------------------------------------+--------------------------------+
 | Tkinter                                       | Teek                           |
-+===============================================+===================================+
++===============================================+================================+
 | ``any_widget.call('tk', 'windowingsystem')``  | :func:`teek.windowingsystem`   |
-+-----------------------------------------------+-----------------------------------+
++-----------------------------------------------+--------------------------------+
 
 
 Variable Objects

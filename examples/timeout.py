@@ -1,20 +1,20 @@
-import teek as tk
+import teek
 
 
-class TimeoutDemo(tk.Frame):
+class TimeoutDemo(teek.Frame):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.timeout = None
 
-        startbutton = tk.Button(self, "Start", command=self.start)
+        startbutton = teek.Button(self, "Start", command=self.start)
         startbutton.pack()
-        cancelbutton = tk.Button(self, "Cancel", command=self.cancel)
+        cancelbutton = teek.Button(self, "Cancel", command=self.cancel)
         cancelbutton.pack()
 
     def start(self):
         if self.timeout is None:
-            self.timeout = tk.after(3000, self.callback)
+            self.timeout = teek.after(3000, self.callback)
             print("running callback after 3 seconds")
         else:
             print("already started")
@@ -32,7 +32,7 @@ class TimeoutDemo(tk.Frame):
         self.timeout = None
 
 
-window = tk.Window()
+window = teek.Window()
 TimeoutDemo(window).pack()
-window.on_delete_window.connect(tk.quit)
-tk.run()
+window.on_delete_window.connect(teek.quit)
+teek.run()

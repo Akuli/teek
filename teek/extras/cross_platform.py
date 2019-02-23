@@ -1,11 +1,11 @@
 import functools
 
-import teek as tk
+import teek
 
 
 # this is not called bind_tab to avoid confusing with:
 #   * \t characters
-#   * web browser tabs as in tk.Notebook
+#   * web browser tabs as in teek.Notebook
 def bind_tab_key(widget, callback, **bind_kwargs):
     """A cross-platform way to bind Tab and Shift+Tab.
 
@@ -30,7 +30,7 @@ def bind_tab_key(widget, callback, **bind_kwargs):
     will be called like ``callback(shifted, event)``; that is, the ``shifted``
     bool is the first argument, and the event object is the second.
     """
-    if tk.windowingsystem() == 'x11':
+    if teek.windowingsystem() == 'x11':
         # even though the event keysym says Left, holding down the right
         # shift and pressing tab also works :D
         shift_tab = '<ISO_Left_Tab>'
