@@ -5,6 +5,7 @@ import functools
 import itertools
 import os
 import sys
+import tempfile
 import traceback
 
 import teek
@@ -582,6 +583,9 @@ class Image:
         PNG support was added in Tk 8.6. Use GIF images if you want backwards
         compatibility with Tk 8.5.
 
+        If you want to create a program that can read as many different kinds
+        of images as possible, use :mod:`teek.extras.image_loader`.
+
     Creating a new ``Image`` object with ``Image(...)`` calls
     ``image create photo`` followed by the options in Tcl. See
     :man:`image(3tk)` for details.
@@ -765,5 +769,23 @@ class Image:
         teek.tcl_call(None, self, 'transparency', 'set', x, y, is_transparent)
 
     def write(self, filename, **kwargs):
-        """See ``imageName write`` in :man:`photo(3tk)`."""
+        """See ``imageName write`` in :man:`photo(3tk)`.
+
+        .. seealso:: Use :meth:`get_bytes` if you don't want to create a file.
+        """
         teek.tcl_call(None, self, 'write', filename, *_options(kwargs))
+
+    def get_bytes(self, format_, **kwargs):
+        """
+        Like :meth:`write`, but returns the data as a :class:`bytes` object
+        instead of writing it to a file.
+
+        The ``format_`` argument can be any string that is compatible with the
+        ``-format`` option of ``imageName write`` documented in
+        :man:`photo(3tk)`. All keyword arguments are same as for :meth:`write`.
+        """
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.write(os.path.join(temp_dir, 'picture'),
+                       format=format_, **kwargs)
+            with open(os.path.join(temp_dir, 'picture'), 'rb') as file:
+                return file.read()

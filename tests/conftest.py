@@ -1,4 +1,5 @@
 import contextlib
+import os
 
 import pytest
 
@@ -19,6 +20,15 @@ def pytest_addoption(parser):
     parser.addoption(
         "--skipslow", action="store_true", default=False, help="run slow tests"
     )
+
+
+def pytest_cmdline_preparse(config, args):
+    try:
+        import teek.extras.image_loader
+    except ImportError:
+        import teek.extras
+        path = os.path.join(teek.extras.__path__[0], 'image_loader.py')
+        args.append('--ignore=' + path)
 
 
 def pytest_collection_modifyitems(config, items):

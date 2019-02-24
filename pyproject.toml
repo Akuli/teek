@@ -10,3 +10,6 @@ home-page = "https://github.com/Akuli/teek"
 description-file = "README.md"
 requires-python = ">=3.4"
 keywords = "pythonic tk tcl tkinter gui beginner"
+
+[tool.flit.metadata.requires-extra]
+image_loader = ["pillow", "reportlab", "svglib"]

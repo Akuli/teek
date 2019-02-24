@@ -162,3 +162,15 @@ def test_write():
         image1.write(asd, format='gif')
         image2 = teek.Image(file=asd)
     assert slow_content_eq_check(image1, image2)
+
+
+def test_get_bytes():
+    image = teek.Image(file=SMILEY_PATH)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        asd = os.path.join(tmpdir, 'asd.gif')
+        image.write(asd, format='gif')
+        with open(asd, 'rb') as file:
+            actual_gif_bytes = file.read()
+
+    assert image.get_bytes('gif') == actual_gif_bytes

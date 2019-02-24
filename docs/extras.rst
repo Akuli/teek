@@ -80,3 +80,26 @@ almost as old as I am, but it's still usable.
 
 .. autofunction:: add_url_link
 .. autofunction:: add_function_link
+
+
+.. module:: teek.extras.image_loader
+
+image_loader
+------------
+
+.. note::
+    This extra has dependencies that don't come with teek when you install it
+    with ``pip install teek`` or similar, because I want teek to be
+    light-weight and I don't want to bring in lots of dependencies with it. Run
+    ``pip install teek[image_loader]`` to install the things you need for using
+    this extra.
+
+This extra lets you create :class:`teek.Image` objects of images that Tk itself
+doesn't support. It uses other Python libraries like
+`PIL <https://pillow.readthedocs.io/en/stable/>`_ and
+`svglib <https://github.com/deeplook/svglib/>`_ to do that, and you can just
+tell it to load an image and let it use whatever libraries are needed.
+
+.. autofunction:: from_file
+.. autofunction:: from_bytes
+.. autofunction:: from_pil
