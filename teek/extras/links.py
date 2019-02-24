@@ -26,14 +26,11 @@ def _init_links(widget):
     return tag
 
 
-def add_function_link(textwidget, text, function, index=None):
+def add_function_link(textwidget, function, start, end):
     """
     Like :func:`add_url_link`, but calls a function instead of opening a URL
     in a web browser.
     """
-    if index is None:
-        index = textwidget.end
-
     common_tag = _init_links(textwidget)
 
     names = {tag.name for tag in textwidget.get_all_tags()}
@@ -48,14 +45,30 @@ def add_function_link(textwidget, text, function, index=None):
         function()
 
     specific_tag.bind('<Button-1>', none_return_function)
-    textwidget.insert(index, text, [common_tag, specific_tag])
+    for tag in [common_tag, specific_tag]:
+        tag.add(start, end)
 
 
-def add_url_link(textwidget, text, url, index=None):
-    """Adds ``text`` to ``textwidget`` so that clicking it will open ``url``.
-
-    By default, the text is added to the end of the text widget, but you can
-    use ``index`` to specify a different :ref:`text index <textwidget-index>`.
+def add_url_link(textwidget, url, start, end):
     """
-    add_function_link(textwidget, text,
-                      functools.partial(webbrowser.open, url), index)
+    Make some of the text in the textwidget to be clickable so that clicking
+    it will open ``url``.
+
+    The text between the :ref:`text indexes <textwidget-index>` ``start`` and
+    ``end`` becomes clickable, and rest of the text is not touched.
+
+    Do this if you want to insert some text and make it a link immediately::
+
+        from teek.extras import links
+
+        ...
+
+        old_end = textwidget.end    # adding text to end changes textwidget.end
+        textwidget.insert(textwidget.end, 'Click me')
+        links.add_url_link(textwidget, 'https://example.com/', old_end, textwi\
+dget.end)
+
+    This function uses :func:`webbrowser.open` for opening ``url``.
+    """
+    add_function_link(textwidget, functools.partial(webbrowser.open, url),
+                      start, end)
