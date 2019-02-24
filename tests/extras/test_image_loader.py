@@ -36,7 +36,7 @@ def test_nice_import_error(monkeypatch, tmp_path):
 
         monkeypatch.syspath_prepend(str(tmp_path))
         with pytest.raises(ImportError) as error:
-            import teek.extras.image_loader
+            import teek.extras.image_loader     # noqa
 
         assert str(error.value) == (
             "oh no. Maybe try 'pip install teek[image_loader]' to fix this?")
