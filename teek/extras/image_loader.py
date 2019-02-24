@@ -90,3 +90,5 @@ def from_bytes(bytes_):
 
         image = image_loader.from_bytes(data)
     """
+    with io.BytesIO(bytes_) as fake_file:
+        return from_file(fake_file)
