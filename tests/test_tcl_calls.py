@@ -76,7 +76,11 @@ def test_eval_and_call(handy_commands, capfd):
     assert capfd.readouterr() == ('', '')
     with pytest.raises(TypeError):
         teek.tcl_eval(object(), 'puts hello')
-    assert capfd.readouterr() == ('hello\r\n', '')  # tcl seems to use crlf
+
+    # tcl seems to use sometimes lf and sometimes crlf, lol
+    output, errors = capfd.readouterr()
+    assert output.replace('\r\n', '\n') == 'hello\n'
+    assert not errors
 
     # forced to string converting relies on this
     test_data = [
