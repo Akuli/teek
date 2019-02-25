@@ -97,6 +97,16 @@ image_loader
     ``pip install teek[image_loader]`` to install the things you need for using
     this extra.
 
+    There's also ``image_loader_dummy``, which is like ``image_loader`` except
+    that it just creates :meth:`teek.Image` objects, and doesn't support
+    anything that plain :meth:`teek.Image` doesn't support. It's meant to be
+    used like this::
+
+        try:
+            from teek.extras import image_loader
+        except ImportError:
+            from teek.extras import image_loader_dummy as image_loader
+
 This extra lets you create :class:`teek.Image` objects of images that Tk itself
 doesn't support. It uses other Python libraries like
 `PIL <https://pillow.readthedocs.io/en/stable/>`_ and

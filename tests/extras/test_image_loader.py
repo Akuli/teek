@@ -5,11 +5,14 @@ import sys
 import pytest
 
 import teek
+from teek.extras import image_loader_dummy
 try:
     from teek.extras import image_loader
+    loader_libs = [image_loader, image_loader_dummy]
 except ImportError as e:
     assert 'pip install teek[image_loader]' in str(e)
     image_loader = None
+    loader_libs = [image_loader_dummy]
 else:
     import PIL.Image
 
@@ -50,13 +53,13 @@ def images_equal(image1, image2):
     return image1.get_bytes('gif') == image2.get_bytes('gif')
 
 
-@needs_image_loader
 @pytest.mark.filterwarnings("ignore:unclosed file")     # because PIL
 def test_from_pil():
-    smiley1 = teek.Image(file=os.path.join(DATA_DIR, 'smiley.gif'))
-    with PIL.Image.open(os.path.join(DATA_DIR, 'smiley.gif')) as pillu:
-        smiley2 = image_loader.from_pil(pillu)
-    assert images_equal(smiley1, smiley2)
+    for lib in loader_libs:
+        smiley1 = teek.Image(file=os.path.join(DATA_DIR, 'smiley.gif'))
+        with PIL.Image.open(os.path.join(DATA_DIR, 'smiley.gif')) as pillu:
+            smiley2 = lib.from_pil(pillu)
+        assert images_equal(smiley1, smiley2)
 
 
 # yields different kinds of file objects that contain the data from the file
@@ -67,12 +70,12 @@ def open_file(path):
         yield io.BytesIO(file.read())
 
 
-@needs_image_loader
 def test_from_file_gif():
-    smiley1 = teek.Image(file=os.path.join(DATA_DIR, 'smiley.gif'))
-    for file in open_file(os.path.join(DATA_DIR, 'smiley.gif')):
-        smiley2 = image_loader.from_file(file)
-        assert images_equal(smiley1, smiley2)
+    for lib in loader_libs:
+        smiley1 = teek.Image(file=os.path.join(DATA_DIR, 'smiley.gif'))
+        for file in open_file(os.path.join(DATA_DIR, 'smiley.gif')):
+            smiley2 = lib.from_file(file)
+            assert images_equal(smiley1, smiley2)
 
 
 @needs_image_loader
@@ -99,12 +102,10 @@ def test_from_file_svg():
             assert images_equal(image, images[0])
 
 
-@needs_image_loader
-@ignore_svglib_warnings
 def test_from_bytes():
-    with open(os.path.join(DATA_DIR, 'firefox.svg'), 'rb') as file:
-        fire = image_loader.from_file(file)
-        file.seek(0)
-        fox = image_loader.from_bytes(file.read())
-
-    assert images_equal(fire, fox)
+    for lib in loader_libs:
+        with open(os.path.join(DATA_DIR, 'smiley.gif'), 'rb') as file1:
+            smiley1 = lib.from_file(file1)
+        with open(os.path.join(DATA_DIR, 'smiley.gif'), 'rb') as file2:
+            smiley2 = lib.from_bytes(file2.read())
+        assert images_equal(smiley1, smiley2)

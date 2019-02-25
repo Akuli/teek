@@ -1,6 +1,6 @@
+# if you change this file, consider also changing image_loader_dummy.py
+
 import io
-import shutil
-import tempfile
 
 # see pyproject.toml
 try:
@@ -14,21 +14,9 @@ except ImportError as e:
 
 import teek
 
-
-def from_pil(pil_image, **kwargs):
-    """Converts a PIL_ ``Image`` object to a :class:`teek.Image`.
-
-    All keyword arguments are passed to PIL's save_ method.
-
-    .. _PIL: https://pillow.readthedocs.io/en/stable/
-    .. _save: https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL\
-.Image.Image.save
-    """
-    # TODO: borrow some magic code from PIL.ImageTk to make this faster?
-    #       or maybe optimize teek.Image? currently it base64 encodes the data
-    gif = io.BytesIO()
-    pil_image.save(gif, 'gif', **kwargs)
-    return teek.Image(data=gif.getvalue())
+# both of these files have the same from_pil implementation, because it doesn't
+# actually need to import PIL
+from teek.extras.image_loader_dummy import from_pil
 
 
 def from_file(file):
