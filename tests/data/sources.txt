@@ -1,1 +1,2 @@
-firefox.svg came from here: https://commons.wikimedia.org/wiki/File:Firefox_Logo,_2017.svg
+firefox.svg:   https://commons.wikimedia.org/wiki/File:Firefox_Logo,_2017.svg
+rectangle.svg: https://commons.wikimedia.org/wiki/SVG_examples

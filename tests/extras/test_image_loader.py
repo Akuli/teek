@@ -90,14 +90,13 @@ def test_from_file_pil():
 @needs_image_loader
 @ignore_svglib_warnings
 def test_from_file_svg():
-    firefoxes = []
-    for file in open_file(os.path.join(DATA_DIR, 'firefox.svg')):
-        firefoxes.append(image_loader.from_file(file))
+    for filename in ['firefox.svg', 'rectangle.svg']:
+        images = []
+        for file in open_file(os.path.join(DATA_DIR, filename)):
+            images.append(image_loader.from_file(file))
 
-    for firefox in firefoxes:
-        assert firefox.width == 1024
-        assert firefox.height == 1024
-        assert images_equal(firefox, firefoxes[0])
+        for image in images:
+            assert images_equal(image, images[0])
 
 
 @needs_image_loader

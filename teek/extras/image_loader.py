@@ -4,6 +4,7 @@ import tempfile
 
 # see pyproject.toml
 try:
+    import lxml.etree
     import PIL.Image
     import reportlab.graphics.renderPM
     from svglib import svglib
@@ -46,34 +47,29 @@ def from_file(file):
         with open(the_image_path, 'rb') as file:
             image = image_loader.from_file(file)
     """
-    first_bytes = file.read(5)
+    first_3_bytes = file.read(3)
     file.seek(0)
-
-    if first_bytes.startswith(b'GIF'):
+    if first_3_bytes == b'GIF':
         return teek.Image(data=file.read())
 
-    if first_bytes.startswith(b'<svg '):
-        # svglib doesn't take open file objects, it wants a path
-        #
-        # file objects have a name attribute, but it's fragile:
-        #   - files opened with e.g. 'rb+' might not be flushed
-        #   - the name attribute might point to the wrong place, if it's a
-        #     relative path and the current working directory has changed
-        #   - the name attribute might not exist
-        #
-        # tl;dr: all answers of this stackoverflow question are useless:
-        # https://stackoverflow.com/q/9542435
-        with tempfile.NamedTemporaryFile() as temporary:
-            shutil.copyfileobj(file, temporary.file)
-            temporary.file.flush()
-            rlg = svglib.svg2rlg(temporary.name)
+    # https://stackoverflow.com/a/15136684
+    try:
+        event, element = next(lxml.etree.iterparse(file, ('start',)))
+        is_svg = (element.tag == '{http://www.w3.org/2000/svg}svg')
+    except (lxml.etree.ParseError, StopIteration):
+        is_svg = False
+    file.seek(0)
+
+    if is_svg:
+        # svglib takes open file objects, even though it doesn't look like it
+        # https://github.com/deeplook/svglib/issues/173
+        rlg = svglib.svg2rlg(io.TextIOWrapper(file, encoding='utf-8'))
 
         with reportlab.graphics.renderPM.drawToPIL(rlg) as pil_image:
             return from_pil(pil_image)
 
-    else:
-        with PIL.Image.open(file) as pil_image:
-            return from_pil(pil_image)
+    with PIL.Image.open(file) as pil_image:
+        return from_pil(pil_image)
 
 
 def from_bytes(bytes_):
