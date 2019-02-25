@@ -601,6 +601,7 @@ class Image:
         Similar to :ref:`the widget config attribute <options>`.
     """
 
+    @make_thread_safe
     def __init__(self, **kwargs):
         if 'data' in kwargs:
             kwargs['data'] = base64.b64encode(kwargs['data']).decode('ascii')
@@ -614,6 +615,7 @@ class Image:
                              *_options(kwargs))
         self._init_from_name(name)
 
+    @make_thread_safe
     def _init_from_name(self, name):
         self._name = name
         self.config = CgetConfigureConfigDict(

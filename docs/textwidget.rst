@@ -239,6 +239,8 @@ There are more details about marks in the ``MARKS`` section of
 :man:`text(3tk)`.
 
 
+.. _textwidget-tags:
+
 Tags
 ----
 

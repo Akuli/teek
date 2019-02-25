@@ -65,9 +65,9 @@ def test_from_pil():
 # yields different kinds of file objects that contain the data from the file
 def open_file(path):
     with open(path, 'rb') as file:
-        yield file
-        file.seek(0)
         yield io.BytesIO(file.read())
+        file.seek(0)
+        yield file
 
 
 def test_from_file_gif():
@@ -92,6 +92,7 @@ def test_from_file_pil():
 
 @needs_image_loader
 @ignore_svglib_warnings
+@pytest.mark.slow
 def test_from_file_svg():
     for filename in ['firefox.svg', 'rectangle.svg']:
         images = []

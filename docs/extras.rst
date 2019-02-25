@@ -116,3 +116,37 @@ tell it to load an image and let it use whatever libraries are needed.
 .. autofunction:: from_file
 .. autofunction:: from_bytes
 .. autofunction:: from_pil
+
+
+.. module:: teek.extras.soup
+
+soup
+----
+
+This extra contains code that views HTML to text widgets. The HTML is taken as
+`BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
+elements, so you need to have it installed to use this module. Don't get too
+excited though -- this is not something that's intended to be used for creating
+a web browser or something, because this thing doesn't even support JavaScript
+or CSS! It's meant to be used e.g. when you want to display some markup to the
+user, and you know a library that can convert it to simple HTML.
+
+If the HTML contains images that are not GIF images, make sure to install
+:mod:`image_loader <teek.extras.image_loader>`. The ``soup`` extra will use it
+if it's installed.
+
+Only these HTML elements are supported by default (but you can subclass
+:class:`SoupViewer` and add support for more elements, see
+:meth:`SoupViewer.add_soup`):
+
+* ``<h1>``, ``<h2>``, ``<h3>``, ``<h4>``, ``<h5>`` and ``<h6>``
+* ``<pre>`` and ``<code>``
+* ``<br>``
+* ``<b>``, ``<i>``, ``<em>`` and ``<strong>``
+* ``<p>``
+* ``<ul>``, ``<ol>`` and ``<li>``
+* ``<a>``
+* ``<img>``
+
+.. autoclass:: SoupViewer
+    :members:
