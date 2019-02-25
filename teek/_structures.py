@@ -197,8 +197,8 @@ class ConfigDict(collections.abc.MutableMapping):
         if option in self._special:
             message = "cannot set the value of %r" % option
             if isinstance(self[option], Callback):
-                message += (
-                   ", maybe use widget.config[%r].connect() instead?" % option)
+                message += ((", maybe use widget.config[%r].connect() "
+                             "instead?") % option)
             raise ValueError(message)
 
         self._set(option, value)
@@ -475,15 +475,15 @@ class TclVariable:
 
             command = teek.create_command(runner, [str, str, str])
             teek.tcl_call(None, 'trace', 'add', 'variable',
-                        self, 'write', command)
+                          self, 'write', command)
 
         return self._write_trace
 
 
-class StringVar(TclVariable): type_spec = str       # flake8: noqa
-class IntVar(TclVariable): type_spec = int          # flake8: noqa
-class FloatVar(TclVariable): type_spec = float      # flake8: noqa
-class BooleanVar(TclVariable): type_spec = bool     # flake8: noqa
+class StringVar(TclVariable): type_spec = str       # noqa
+class IntVar(TclVariable): type_spec = int          # noqa
+class FloatVar(TclVariable): type_spec = float      # noqa
+class BooleanVar(TclVariable): type_spec = bool     # noqa
 
 
 @functools.total_ordering
@@ -526,7 +526,8 @@ class ScreenDistance:
         # creating a ScreenDistance object must fail if the screen distance
         # is invalid, that's why this is here
         self.pixels = teek.tcl_call(int, 'winfo', 'pixels', '.', self._value)
-        self.fpixels = teek.tcl_call(float, 'winfo', 'fpixels', '.', self._value)
+        self.fpixels = teek.tcl_call(float, 'winfo', 'fpixels', '.',
+                                     self._value)
 
     def __repr__(self):
         return '%s(%r)' % (type(self).__name__, self._value)
