@@ -3,7 +3,9 @@ import os
 import re
 import urllib.request     # because requests might not be installed
 
-from docutils import nodes
+import docutils.nodes
+import docutils.utils
+from sphinx.util.nodes import split_explicit_title
 
 
 @functools.lru_cache()
@@ -26,7 +28,7 @@ def check_url(url):
 # there are urls like .../man/tcl8.6/... and .../man/tcl/...
 # the non-8.6 ones always point to latest version, which is good because no
 # need to hard-code version number
-URL_TEMPLATE = 'https://www.tcl.tk/man/tcl/%s%s/%s.htm'
+MAN_URL_TEMPLATE = 'https://www.tcl.tk/man/tcl/%s%s/%s.htm'
 
 # because multiple functions are documented in the same man page
 # for example, 'man Tk_GetBoolean' and 'man Tk_GetInt' open the same manual
@@ -35,6 +37,8 @@ MANPAGE_REDIRECTS = {
     'Tcl_GetBoolean': 'Tcl_GetInt',
     'tk_getSaveFile': 'tk_getOpenFile',
 }
+
+SOURCE_URI_PREFIX = 'https://github.com/Akuli/teek/blob/master/'
 
 
 def get_manpage_url(manpage_name, tcl_or_tk):
@@ -50,11 +54,12 @@ def get_manpage_url(manpage_name, tcl_or_tk):
         name_part = manpage_name
     else:
         # tk_chooseColor --> chooseColor
+        # Tk_GetColor --> GetColor
         name_part = manpage_name.split('_')[-1]
 
-    return URL_TEMPLATE % (tcl_or_tk.capitalize(),
-                           'Lib' if is_c_function else 'Cmd',
-                           name_part)
+    return MAN_URL_TEMPLATE % (tcl_or_tk.capitalize(),
+                               'Lib' if is_c_function else 'Cmd',
+                               name_part)
 
 
 # i don't know how to use sphinx, i copy/pasted things from here:
@@ -68,9 +73,23 @@ def man_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     check_url(url)
 
     # this is the copy/pasta part
-    node = nodes.reference(rawtext, text, refuri=url, **options)
+    node = docutils.nodes.reference(rawtext, text, refuri=url, **options)
     return [node], []
 
 
+# this is mostly copy/pasted from cpython's Doc/tools/extensions/pyspecific.py
+def source_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    has_t, title, target = split_explicit_title(text)
+    title = docutils.utils.unescape(title)
+    target = docutils.utils.unescape(target)
+
+    url = SOURCE_URI_PREFIX + target
+    check_url(url)
+
+    refnode = docutils.nodes.reference(title, title, refuri=url)
+    return [refnode], []
+
+
 def setup(app):
+    app.add_role('source', source_role)
     app.add_role('man', man_role)

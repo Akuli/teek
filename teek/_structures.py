@@ -569,10 +569,7 @@ class Image:
     """Represents a Tk photo image.
 
     If you want to display an image to the user, use :class:`.Label` with its
-    ``image`` option::
-
-        label = teek.Label(some_widget, image=teek.Image(file="path/to/pic.gif\
-"))
+    ``image`` option. See :source:`examples/image.py`.
 
     Image objects are wrappers for things documented in :man:`image(3tk)` and
     :man:`photo(3tk)`. They are mutable, so you can e.g. set a label's image to

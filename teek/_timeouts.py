@@ -51,6 +51,8 @@ class _Timeout:
 
         :exc:`RuntimeError` is raised if the timeout has already ran or
         it has been cancelled.
+
+        There is example code in :source:`examples/timeout.py`.
         """
         if self._state != 'pending':
             raise RuntimeError("cannot cancel a %s timeout" % self._state)

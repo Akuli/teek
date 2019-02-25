@@ -38,6 +38,8 @@ Hello World!
 This program displays a window with a ``Hello World!`` text in it displayed
 using a monospace font. It lets you edit the text.
 
+There is more example code in :source:`examples/text.py`.
+
 
 .. _textwidget-index:
 
