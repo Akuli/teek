@@ -6,12 +6,12 @@ from teek._widgets.base import Widget, ChildMixin
 class Button(ChildMixin, Widget):
     """A widget that runs a callback when it's clicked.
 
-    ``text`` can be given as with :class:`Label`.
+    See :source:`examples/button.py` for example code.
 
-    The ``'command'`` option is not settable, and its value is a
-    :class:`.Callback` that runs with no arguments when the button is
-    clicked. If the *command* argument is given, it will be treated so that
-    this...
+    ``text`` can be given as with :class:`Label`. The ``'command'`` option is
+    not settable, and its value is a :class:`.Callback` that runs with no
+    arguments when the button is clicked. If the *command* argument is given,
+    it will be treated so that this...
     ::
 
         button = teek.Button(some_widget, "Click me", do_something)
@@ -65,6 +65,8 @@ class Button(ChildMixin, Widget):
 class Checkbutton(ChildMixin, Widget):
     """A square-shaped, checkable box with text next to it.
 
+    See :source:`examples/checkbutton.py` for example code.
+
     For convenience, ``text`` and ``command`` arguments work the same way as
     with :class:`.Button`.
 
@@ -75,21 +77,6 @@ class Checkbutton(ChildMixin, Widget):
     you find it useful for some reason. This also affects the values that end
     up in the ``'variable'`` option (see manual page), which is a
     :class:`.BooleanVar`.
-
-    Example::
-
-        import teek
-
-        def on_check_or_uncheck(checked):
-            if checked:
-                print("Checked")
-            else:
-                print("Unchecked")
-
-        window = teek.Window("Checkbutton Example")
-        teek.Checkbutton(window, "Check me", on_check_or_uncheck).pack()
-        window.on_delete_window.connect(teek.quit)
-        teek.run()
 
     Manual page: :man:`ttk_checkbutton(3tk)`
     """
@@ -538,6 +525,8 @@ class Separator(ChildMixin, Widget):
 
         separator = teek.Separator(some_widget, orient='vertical')
         separator.pack(fill='y', side='left')   # can also use side='right'
+
+    See :source:`examples/separator.py` for more example code.
 
     Manual page: :man:`ttk_separator(3tk)`
     """

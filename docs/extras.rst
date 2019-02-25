@@ -25,6 +25,7 @@ tooltips
 --------
 
 This module contains a simple tooltip implementation with teek.
+There is example code in :source:`examples/tooltip.py`.
 
 If you have read some of IDLE's source code (if you haven't, that's
 good; IDLE's source code is ugly), you might be wondering what this
@@ -77,6 +78,8 @@ With this extra, you can insert web browser style links to
 :class:`~teek.Text` widgets. This is based on
 `this tutorial <http://effbot.org/zone/tkinter-text-hyperlink.htm>`_ that is
 almost as old as I am, but it's still usable.
+
+See :source:`examples/links.py` for example code.
 
 .. autofunction:: add_url_link
 .. autofunction:: add_function_link
