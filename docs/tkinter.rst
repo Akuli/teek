@@ -271,25 +271,25 @@ that don't need a widget in order to work are functions, not widget methods.
 Here is a list of them:
 
 +-------------------------------------------+-------------------------------+
-| Tkinter                                   | Teek                       |
+| Tkinter                                   | Teek                          |
 +===========================================+===============================+
-| ``any_widget.after(milliseconds, cb)``    | :func:`teek.after`         |
+| ``any_widget.after(milliseconds, cb)``    | :func:`teek.after`            |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.after_idle(cb)``             | :func:`teek.after_idle`    |
+| ``any_widget.after_idle(cb)``             | :func:`teek.after_idle`       |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.update()``                   | :func:`teek.update`        |
+| ``any_widget.update()``                   | :func:`teek.update`           |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.call()``                  | :func:`teek.tcl_call`      |
+| ``any_widget.tk.call()``                  | :func:`teek.tcl_call`         |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.eval()``                  | :func:`teek.tcl_eval`      |
+| ``any_widget.tk.eval()``                  | :func:`teek.tcl_eval`         |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.createcommand()``         | :func:`teek.create_command`|
+| ``any_widget.tk.createcommand()``         | :func:`teek.create_command`   |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.tk.deletecommand()``         | :func:`teek.delete_command`|
+| ``any_widget.tk.deletecommand()``         | :func:`teek.delete_command`   |
 +-------------------------------------------+-------------------------------+
-| ``any_widget.mainloop()``                 | :func:`teek.run`           |
+| ``any_widget.mainloop()``                 | :func:`teek.run`              |
 +-------------------------------------------+-------------------------------+
-| ``root.destroy()``                        | :func:`teek.quit`          |
+| ``root.destroy()``                        | :func:`teek.quit`             |
 +-------------------------------------------+-------------------------------+
 
 There are also some things that must be done with ``any_widget.tk.call()`` in
