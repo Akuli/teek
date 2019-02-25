@@ -2,12 +2,13 @@ import teek
 from teek.extras import links
 
 
+def lol():
+    teek.dialog.info("Link Example Dialog", "Lol")
+
+
 window = teek.Window("Link Example")
 text = teek.Text(window)
 text.pack()
-
-def lol():
-    teek.dialog.info("Link Example Dialog", "Lol")
 
 old_end = text.end
 text.insert(text.end, "Docs")

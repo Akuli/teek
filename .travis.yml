@@ -10,7 +10,7 @@ install:
   - pip install 'pytest>=4.0' pytest-cov python-coveralls flake8==3.5 sphinx flit
   - flit install --symlink --extras=image_loader,soup_viewer
 script:
-  - flake8 teek/ tests/ *.py
+  - flake8 teek/ tests/ examples/ *.py
 
   # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
   - xvfb-run python -m pytest --cov=teek
