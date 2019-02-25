@@ -3,7 +3,7 @@ import teek
 
 try:
     # examples/soup.py does bs4.BeautifulSoup(html_string, 'lxml')
-    import bs4
+    import bs4      # noqa
     import lxml     # noqa
     soup_py_can_run = True
 except ImportError:
