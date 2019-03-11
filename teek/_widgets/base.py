@@ -583,6 +583,13 @@ class Widget:
         """
         return self._call(int, 'winfo', 'rooty', self)
 
+    def winfo_id(self):
+        """Calls ``winfo id``. Returns an integer.
+
+        Manual page: :man:`winfo(3tk)`
+        """
+        return self._call(int, 'winfo', 'id', self)
+
     def focus(self, *, force=False):
         """Focuses the widget with :man:`focus(3tk)`.
 

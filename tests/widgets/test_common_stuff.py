@@ -477,6 +477,15 @@ def test_winfo_x_y_rootx_rooty_width_height_reqwidth_reqheight():
     assert label.winfo_reqheight() > 0
 
 
+def test_winfo_id():
+    window = teek.Window()
+    frame1 = teek.Frame(window)
+    frame2 = teek.Frame(window)
+    assert isinstance(frame1.winfo_id(), int)
+    assert frame1.winfo_id() == frame1.winfo_id()
+    assert frame1.winfo_id() != frame2.winfo_id()
+
+
 def test_focus(fake_command):
     widget = teek.Window()
 
