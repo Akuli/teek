@@ -8,7 +8,7 @@ python:
   - "pypy3.5"
 install:
   - pip install 'pytest>=4.0' pytest-cov python-coveralls flake8==3.5 sphinx flit
-  - flit install --symlink --extras=image_loader,soup_viewer
+  - flit install --symlink --extras=image_loader,soup_viewer,ttkthemes
 script:
   - flake8 teek/ tests/ examples/ *.py
 

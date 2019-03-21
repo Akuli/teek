@@ -15,3 +15,4 @@ keywords = "pythonic tk tcl tkinter gui beginner"
 # lxml is in soup_viewer because examples/soup.py does BeautifulSoup(string, 'lxml')
 image_loader = ["pillow", "reportlab", "svglib", "lxml"]
 soup_viewer = ["beautifulsoup4", "lxml"]
+ttkthemes = ["ttkthemes"]
