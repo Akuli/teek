@@ -13,14 +13,20 @@ import teek
 _flatten = itertools.chain.from_iterable
 
 
-def raise_teek_tclerror(func):
+# "converting errors" means raising teek's TclError when _tkinter raises
+# its TclError
+def _raise_converted_error(tkinter_error):
+    raise (teek.TclError(str(tkinter_error))
+           .with_traceback(tkinter_error.__traceback__)) from None
+
+
+def _convert_errors(func):
     @functools.wraps(func)
     def result(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except _tkinter.TclError as e:
-            raise teek.TclError(
-                str(e)).with_traceback(e.__traceback__) from None
+            _raise_converted_error(e)
 
     return result
 
@@ -58,8 +64,12 @@ class _Future:
 
 class _TclInterpreter:
 
+    @_convert_errors
     def __init__(self):
         assert threading.current_thread() is threading.main_thread()
+        # get_ident() is faster than threading.current_thread(), so that is
+        # used elsewhere in the performance-critical stuff
+        self._main_thread_ident = threading.get_ident()
 
         self._init_threads_called = False
 
@@ -81,9 +91,9 @@ class _TclInterpreter:
         # the function is called from Tk's event loop
         self._call_queue = queue.Queue()
 
-    @raise_teek_tclerror
+    @_convert_errors
     def init_threads(self, poll_interval_ms=50):
-        if threading.current_thread() is not threading.main_thread():
+        if threading.get_ident() != self._main_thread_ident:
             raise RuntimeError(
                 "init_threads() must be called from main thread")
 
@@ -98,7 +108,7 @@ class _TclInterpreter:
 
         after_id = None
 
-        @raise_teek_tclerror
+        @_convert_errors
         def poller():
             nonlocal after_id
 
@@ -130,38 +140,41 @@ class _TclInterpreter:
         poller()
         self._init_threads_called = True
 
-    def call_thread_safely(self, non_threadsafe_func, args=(), kwargs=None):
-        if kwargs is None:
-            kwargs = {}
+    # no, don't do kwargs=None and then check for Noneness and kwargs={} etc
+    # that made my test code run about 5% slower, because this is called a lot
+    def call_thread_safely(self, non_threadsafe_func, args=(), kwargs={}, *,
+                           convert_errors=True):
+        try:
+            if threading.get_ident() == self._main_thread_ident:
+                return non_threadsafe_func(*args, **kwargs)
 
-        if threading.current_thread() is threading.main_thread():
-            return non_threadsafe_func(*args, **kwargs)
+            if not self._init_threads_called:
+                raise RuntimeError("init_threads() wasn't called")
 
-        if not self._init_threads_called:
-            raise RuntimeError("init_threads() wasn't called")
-
-        future = _Future()
-        self._call_queue.put((non_threadsafe_func, args, kwargs, future))
-        return future.get_value()
+            future = _Future()
+            self._call_queue.put((non_threadsafe_func, args, kwargs, future))
+            return future.get_value()
+        except _tkinter.TclError as e:
+            if convert_errors:
+                _raise_converted_error(e)
+            raise e
 
     # self._app must be accessed from the main thread, and this class provides
     # methods for calling it thread-safely
 
-    @raise_teek_tclerror
+    @_convert_errors
     def run(self):
-        if threading.current_thread() is not threading.main_thread():
+        if threading.get_ident() != self._main_thread_ident:
             raise RuntimeError("run() must be called from main thread")
 
         # no idea what the 0 does, tkinter calls it like this
         self._app.mainloop(0)
 
-    @raise_teek_tclerror
     def getboolean(self, arg):
         return self.call_thread_safely(self._app.getboolean, [arg])
 
     # _tkinter returns tuples when tcl represents something as a
     # list internally, but this forces it to string
-    @raise_teek_tclerror
     def get_string(self, from_underscore_tkinter):
         if isinstance(from_underscore_tkinter, str):
             return from_underscore_tkinter
@@ -176,23 +189,18 @@ class _TclInterpreter:
         assert isinstance(result, str)
         return result
 
-    @raise_teek_tclerror
     def splitlist(self, value):
         return self.call_thread_safely(self._app.splitlist, [value])
 
-    @raise_teek_tclerror
     def call(self, *args):
         return self.call_thread_safely(self._app.call, args)
 
-    @raise_teek_tclerror
     def eval(self, code):
         return self.call_thread_safely(self._app.eval, [code])
 
-    @raise_teek_tclerror
     def createcommand(self, name, func):
         return self.call_thread_safely(self._app.createcommand, [name, func])
 
-    @raise_teek_tclerror
     def deletecommand(self, name):
         return self.call_thread_safely(self._app.deletecommand, [name])
 
@@ -252,7 +260,6 @@ def run():
     _get_interp().run()
 
 
-@raise_teek_tclerror
 def init_threads(poll_interval_ms=50):
     """Allow using teek from other threads than the main thread.
 
@@ -327,25 +334,33 @@ def make_thread_safe(func):
     """
     @functools.wraps(func)
     def safe(*args, **kwargs):
-        return _get_interp().call_thread_safely(func, args, kwargs)
+        return _get_interp().call_thread_safely(func, args, kwargs,
+                                                convert_errors=False)
 
     return safe
 
 
 def to_tcl(value):
-    if hasattr(value, 'to_tcl'):    # duck-typing ftw
-        return value.to_tcl()
-
-    if value is None:
-        return ''
+    # these are ordered so that performance is good
+    # please profile when changing order
     if isinstance(value, str):
         return value
-    if isinstance(value, collections.abc.Mapping):
-        return tuple(map(to_tcl, _flatten(value.items())))
+    if value is None:
+        return ''
     if isinstance(value, bool):
         return '1' if value else '0'
+
+    try:
+        to_tcl_method = value.to_tcl
+    except AttributeError:
+        pass
+    else:
+        return to_tcl_method()
+
     if isinstance(value, numbers.Real):    # after bool check, bools are ints
         return str(value)
+    if isinstance(value, collections.abc.Mapping):
+        return tuple(map(to_tcl, _flatten(value.items())))
 
     # assume it's some kind of iterable, this must be after the Mapping
     # and str stuff above
@@ -425,7 +440,6 @@ def from_tcl(type_spec, value):
     raise TypeError("unknown type specification " + repr(type_spec))
 
 
-@raise_teek_tclerror
 def tcl_call(returntype, command, *arguments):
     """Call a Tcl command.
 
@@ -448,7 +462,6 @@ string"
     return from_tcl(returntype, result)
 
 
-@raise_teek_tclerror
 def tcl_eval(returntype, code):
     """Run a string of Tcl code.
 
