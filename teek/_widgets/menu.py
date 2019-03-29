@@ -168,8 +168,6 @@ class MenuItem:
 
 
 # does not use ChildMixin because usually it's a bad idea to e.g. pack a menu
-# TODO: document that this class assumes that nothing else changes the
-#       underlying Tcl widget
 class Menu(Widget, collections.abc.MutableSequence):
     """This is the menu widget.
 
