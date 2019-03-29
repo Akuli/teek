@@ -38,6 +38,7 @@ from teek._tcl_calls import (
     init_threads, make_thread_safe)
 from teek._timeouts import after, after_idle
 from teek._widgets.base import Widget
+from teek._widgets.canvas import Canvas
 from teek._widgets.menu import Menu, MenuItem
 from teek._widgets.misc import (
     Button, Checkbutton, Combobox, Entry, Frame, Label, LabelFrame,

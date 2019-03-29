@@ -74,16 +74,21 @@ def handy_callback():
 
 @pytest.fixture
 def check_config_types():
-    def checker(config, debug_info):
+    def checker(config, debug_info, *, ignore_list=()):
         # this converts all values to their types, and this probably fails if
         # the types are wrong
         dict(config)
 
+        complained = set()
+
         # were there keys that defaulted to str?
         known_keys = config._types.keys() | config._special.keys()
-        for key in (config.keys() - known_keys):
+        for key in (config.keys() - known_keys - set(ignore_list)):
             print('\ncheck_config_types', debug_info, 'warning: type of',
                   key, 'was guessed to be str')
+            complained.add(key)
+
+        return complained
 
     return checker
 
@@ -94,6 +99,7 @@ def all_widgets():
     window = teek.Window()
     return [
         teek.Button(window),
+        teek.Canvas(window),
         teek.Checkbutton(window),
         teek.Combobox(window),
         teek.Entry(window),
