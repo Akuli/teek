@@ -121,8 +121,8 @@ All canvas item objects have these attributes and methods:
     ``above`` and ``below`` parts of ``pathName addtag`` in :man:`canvas(3tk)`
     for more information.
 
-The type of the canvas items is accessible as ``teek.CanvasItem``. It's useful
-for :func:`isinstance` checks, but not much else::
+The type of the canvas items is accessible as ``the_canvas_widget.Item``. It's
+useful for :func:`isinstance` checks, but not much else::
 
     >>> isinstance(circle, canvas.Item)
     True
