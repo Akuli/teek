@@ -53,6 +53,7 @@ def images_equal(image1, image2):
     return image1.get_bytes('gif') == image2.get_bytes('gif')
 
 
+@needs_image_loader
 @pytest.mark.filterwarnings("ignore:unclosed file")     # because PIL
 def test_from_pil():
     for lib in loader_libs:
