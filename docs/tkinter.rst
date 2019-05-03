@@ -22,7 +22,6 @@ the code works doesn't hurt either.
 
 Currently these tkinter widgets are missing in teek:
 
-* ``tkinter.Canvas``
 * ``tkinter.Listbox``
 * ``tkinter.Menubutton``, ``tkinter.ttk.Menubutton``
 * ``tkinter.OptionMenu``
