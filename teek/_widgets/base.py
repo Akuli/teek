@@ -825,6 +825,12 @@ class BindingDict(collections.abc.Mapping):
 
 # TODO: "RELATIVE PLACEMENT" in grid(3tk)
 class ChildMixin:
+    """Mixin class for widgets that can be added to other widgets.
+
+    Widgets like Label and Frame inherit from this, and widgets like
+    Toplevel and Window don't. Many widgets use this, so it shouldn't be
+    hard to find some usage examples for creating new widgets.
+    """
 
     def _geometry_manage(self, geometry_manager, **kwargs):
         args = []
