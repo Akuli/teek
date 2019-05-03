@@ -118,12 +118,13 @@ def test_image_doesnt_load_without_threads():
 
 
 @ignore_svglib_warnings
+@pytest.mark.slow
 def test_image_loads_with_threads(deinit_threads):
     teek.init_threads()
     souper, widget = create_souped_widget(big_html)   # threads=True is default
 
     assert 'firefox pic alt' in widget.get()
-    time.sleep(0.1)
+    time.sleep(1)   # this used to be 0.1 and it made tests fail randomly
     teek.update()
     assert 'firefox pic alt' not in widget.get()
 
