@@ -111,7 +111,7 @@ class MenuItem:
             'selectcolor': teek.Color,
             'selectimage': teek.Image,
             'state': str,
-            'underline': bool,
+            'underline': int,
             'value': str,
             'variable': (teek.BooleanVar if self.type == 'checkbutton'
                          else teek.StringVar),

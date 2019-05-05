@@ -6,7 +6,8 @@ import queue
 import sys
 import threading
 import traceback
-import _tkinter
+#import _tkinter
+import teek._ctypes_tcl as _tkinter
 
 import teek
 
@@ -127,7 +128,8 @@ class _TclInterpreter:
                     future.set_value(value)
 
             after_id = self._app.call(
-                'after', poll_interval_ms, 'teek_init_threads_queue_poller')
+                'after', str(poll_interval_ms), poller_tcl_command)
+            return ''
 
         self._app.createcommand(poller_tcl_command, poller)
 
@@ -204,6 +206,9 @@ class _TclInterpreter:
     def deletecommand(self, name):
         return self.call_thread_safely(self._app.deletecommand, [name])
 
+    def delete(self):
+        self._app.delete()
+
 
 # a global _TclInterpreter instance
 _interp = None
@@ -245,12 +250,7 @@ def quit():
     if _interp is not None:
         teek.before_quit.run()
         _interp.call('destroy', '.')
-
-        # to avoid a weird errors, see test_weird_error in test_tcl_calls.py
-        for command in teek.tcl_call([str], 'info', 'commands'):
-            if command.startswith('teek_command_'):
-                delete_command(command)
-
+        _interp.delete()
         _interp = None
         teek.after_quit.run()
 
@@ -355,7 +355,8 @@ def to_tcl(value):
     except AttributeError:
         pass
     else:
-        return to_tcl_method()
+        # to_tcl()ing the result is important
+        return to_tcl(to_tcl_method())
 
     if isinstance(value, numbers.Real):    # after bool check, bools are ints
         return str(value)
@@ -458,7 +459,7 @@ string"
         # doctest: +SKIP
     hello world thing
     """
-    result = _get_interp().call(tuple(map(to_tcl, (command,) + arguments)))
+    result = _get_interp().call(*map(to_tcl, (command,) + arguments))
     return from_tcl(returntype, result)
 
 
