@@ -113,7 +113,10 @@ font
         """
         Returns the font description passed to ``Font(font_description)``.
         """
-        return self._font_description
+        if isinstance(self._font_description, str):
+            return self._font_description
+
+        return tuple(self._font_description)
 
     def measure(self, text):
         """

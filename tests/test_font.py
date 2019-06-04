@@ -87,7 +87,7 @@ def test_repr_eq_hash():
 def test_from_and_to_tcl():
     description = ["Helvetica", 42, "bold"]
     descriptiony_font = _create_font(description)
-    assert descriptiony_font.to_tcl() is description
+    assert descriptiony_font.to_tcl() == tuple(description)
     assert teek.Font.from_tcl(description) == descriptiony_font
 
     teek.tcl_eval(None, 'font create test_font_name')
