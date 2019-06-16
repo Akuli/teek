@@ -1,6 +1,7 @@
 import pytest
 
 import teek
+from teek._tcl_calls import to_tcl
 
 
 def get_test_family():
@@ -50,9 +51,9 @@ def test_repr_eq_hash():
 
 
 def test_from_and_to_tcl():
-    description = (get_test_family(), 42, 'bold')
+    description = [get_test_family(), 42, 'bold']
     descriptiony_font = teek.Font(description)
-    assert descriptiony_font.to_tcl() is description
+    assert descriptiony_font.to_tcl() == to_tcl(description)
     assert teek.Font.from_tcl(description) == descriptiony_font
 
     teek.tcl_eval(None, 'font create test_font_name')
