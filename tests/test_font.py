@@ -50,7 +50,7 @@ def test_repr_eq_hash():
 
 
 def test_from_and_to_tcl():
-    description = [get_test_family(), 42, 'bold']
+    description = (get_test_family(), 42, 'bold')
     descriptiony_font = teek.Font(description)
     assert descriptiony_font.to_tcl() is description
     assert teek.Font.from_tcl(description) == descriptiony_font
