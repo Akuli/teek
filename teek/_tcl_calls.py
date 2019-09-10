@@ -286,7 +286,7 @@ def init_threads(poll_interval_ms=50):
       your program is doing nothing.
     * Try to rewrite the program so that it does less teek stuff in threads.
     """
-    _get_interp().init_threads()
+    _get_interp().init_threads(poll_interval_ms)
 
 
 def make_thread_safe(func):
