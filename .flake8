@@ -4,4 +4,4 @@
 # this is ignored because '#print("toot")' is a handy way to comment
 # things out, and easier to work with than '# print("toot")' which is
 # best suited for human-readable comments
-ignore = E265
+ignore = E265, E701, W504

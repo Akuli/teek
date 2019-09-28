@@ -256,8 +256,10 @@ class Widget:
         self.command_list = []
 
         self.bindings = BindingDict(    # BindingDict is defined below
-         lambda returntype, *args: self._call(returntype, 'bind', self, *args),
-         self.command_list)
+            lambda returntype, *args: self._call(
+                returntype, 'bind', self, *args
+            ),
+            self.command_list)
         self.bind = self.bindings._convenience_bind
 
         if type(self)._widget_name.startswith('ttk::'):
@@ -799,8 +801,9 @@ class BindingDict(collections.abc.Mapping):
         for equiv_sequence, equiv_callback in self._callback_objects.items():
             # this equivalence check should handle corner cases imo because the
             # command names from create_command are unique
-            if (self._call_bind(str, sequence) ==
-                self._call_bind(str, equiv_sequence)):      # flake8: noqa
+            if (self._call_bind(str, sequence) == self._call_bind(
+                str, equiv_sequence
+            )):
                 # found an equivalent binding, tcl commands are the same
                 self._callback_objects[sequence] = equiv_callback
                 return equiv_callback
