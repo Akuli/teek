@@ -481,10 +481,10 @@ class TclVariable:
         return self._write_trace
 
 
-class StringVar(TclVariable): type_spec = str       # flake8: noqa
-class IntVar(TclVariable): type_spec = int          # flake8: noqa
-class FloatVar(TclVariable): type_spec = float      # flake8: noqa
-class BooleanVar(TclVariable): type_spec = bool     # flake8: noqa
+class StringVar(TclVariable): type_spec = str       # noqa: E302
+class IntVar(TclVariable): type_spec = int          # noqa: E302
+class FloatVar(TclVariable): type_spec = float      # noqa: E302
+class BooleanVar(TclVariable): type_spec = bool     # noqa: E302
 
 
 @functools.total_ordering

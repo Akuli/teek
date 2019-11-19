@@ -802,7 +802,7 @@ class BindingDict(collections.abc.Mapping):
             # this equivalence check should handle corner cases imo because the
             # command names from create_command are unique
             if (self._call_bind(str, sequence) ==
-                self._call_bind(str, equiv_sequence)):      # flake8: noqa
+                self._call_bind(str, equiv_sequence)):      # noqa: E129
                 # found an equivalent binding, tcl commands are the same
                 self._callback_objects[sequence] = equiv_callback
                 return equiv_callback
